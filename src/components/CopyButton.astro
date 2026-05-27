@@ -1,0 +1,23 @@
+---
+type Props = {
+  value: string;
+};
+
+const { value } = Astro.props;
+---
+
+<button class="focus-ring inline-flex items-center rounded-lg border border-slate-700 bg-slate-900 px-3 py-1.5 text-xs font-medium text-slate-200 transition hover:bg-slate-800" type="button" data-copy={value}>Копировать</button>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const value = button.dataset.copy || '';
+      await navigator.clipboard.writeText(value);
+      const original = button.textContent;
+      button.textContent = 'Скопировано';
+      window.setTimeout(() => {
+        button.textContent = original;
+      }, 1500);
+    });
+  });
+</script>

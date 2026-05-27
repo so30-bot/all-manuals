@@ -1,0 +1,72 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ErrorCard from '@/components/ErrorCard.astro';
+import SearchBox from '@/components/SearchBox.astro';
+import categories from '@/data/categories.json';
+import popularSlugs from '@/data/popular.json';
+
+const articles = (await getCollection('errors')).filter((article) => !article.data.draft);
+const popularSet = new Set(popularSlugs);
+const popularArticles = articles
+  .sort((a, b) => {
+    const rankA = popularSet.has(a.id) ? 1 : 0;
+    const rankB = popularSet.has(b.id) ? 1 : 0;
+    return rankB - rankA || b.data.popularityScore - a.data.popularityScore;
+  })
+  .slice(0, 6);
+
+const latestArticles = [...articles]
+  .sort((a, b) => new Date(b.data.updatedAt).getTime() - new Date(a.data.updatedAt).getTime())
+  .slice(0, 6);
+---
+
+<BaseLayout>
+  <section class="mx-auto max-w-6xl px-4 pb-12 pt-14 sm:px-6 sm:pt-20 lg:px-8">
+    <div class="mx-auto max-w-4xl text-center">
+      <p class="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600 dark:text-sky-400">База решений ошибок</p>
+      <h1 class="mt-4 text-4xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-6xl">Найдите понятное решение ошибки за минуты</h1>
+      <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600 dark:text-slate-300">Коды ошибок, симптомы, команды и проверенные пошаговые инструкции для Windows, Linux, игр и веб-разработки.</p>
+    </div>
+
+    <div class="mt-9">
+      <SearchBox />
+      <div class="mx-auto mt-4 flex max-w-3xl flex-wrap justify-center gap-2 text-sm">
+        {['0x80070002', 'npm ENOENT', 'Windows Update', 'Docker error', 'DirectX'].map((hint) => (
+          <a href={`/search/?q=${encodeURIComponent(hint)}`} class="focus-ring rounded-full border border-slate-200 bg-white px-3 py-1.5 text-slate-600 transition hover:border-slate-300 hover:text-slate-950 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-700 dark:hover:text-white">{hint}</a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+    <div class="flex items-end justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-bold tracking-tight text-slate-950 dark:text-white">Популярные ошибки за неделю</h2>
+        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">Рейтинг рассчитывается по внутренней метрике актуальности и частоте появления в источниках.</p>
+      </div>
+    </div>
+    <div class="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {popularArticles.map((article) => <ErrorCard article={article} />)}
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+    <h2 class="text-2xl font-bold tracking-tight text-slate-950 dark:text-white">Категории</h2>
+    <div class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {categories.map((category) => (
+        <a href={`/categories/${category.slug}/`} class="focus-ring rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-soft dark:border-slate-800 dark:bg-slate-900/80 dark:hover:border-slate-700">
+          <span class="text-base font-semibold text-slate-950 dark:text-white">{category.name}</span>
+          <span class="mt-2 block text-sm leading-6 text-slate-600 dark:text-slate-400">{category.description}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+    <h2 class="text-2xl font-bold tracking-tight text-slate-950 dark:text-white">Последние обновления</h2>
+    <div class="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {latestArticles.map((article) => <ErrorCard article={article} />)}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,52 @@
+---
+const navItems = [
+  { href: '/', label: 'Главная' },
+  { href: '/categories/windows/', label: 'Windows' },
+  { href: '/categories/web-development/', label: 'Веб-разработка' },
+  { href: '/dmca/', label: 'DMCA' }
+];
+---
+
+<header class="sticky top-0 z-40 border-b border-slate-200/70 bg-white/82 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/78">
+  <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+    <a href="/" class="focus-ring inline-flex items-center gap-2 rounded-xl font-semibold text-slate-950 dark:text-white" aria-label="All Manuals home">
+      <span class="grid h-9 w-9 place-items-center rounded-xl bg-slate-950 text-sm font-bold text-white shadow-soft dark:bg-white dark:text-slate-950">AM</span>
+      <span class="hidden sm:inline">All Manuals</span>
+    </a>
+    <nav class="hidden items-center gap-1 md:flex" aria-label="Основная навигация">
+      {navItems.map((item) => (
+        <a class="focus-ring rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white" href={item.href}>{item.label}</a>
+      ))}
+    </nav>
+    <button id="theme-toggle" class="focus-ring inline-flex h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700" type="button" aria-label="Переключить тему">
+      <span data-theme-label>Авто</span>
+    </button>
+  </div>
+</header>
+
+<script is:inline>
+  const root = document.documentElement;
+  const storageKey = 'all-manuals-theme';
+  const button = document.getElementById('theme-toggle');
+  const label = button?.querySelector('[data-theme-label]');
+  const media = window.matchMedia('(prefers-color-scheme: dark)');
+
+  function applyTheme(value) {
+    const resolved = value === 'auto' ? (media.matches ? 'dark' : 'light') : value;
+    root.classList.toggle('dark', resolved === 'dark');
+    if (label) label.textContent = value === 'dark' ? 'Темная' : value === 'light' ? 'Светлая' : 'Авто';
+  }
+
+  let current = localStorage.getItem(storageKey) || 'auto';
+  applyTheme(current);
+
+  button?.addEventListener('click', () => {
+    current = current === 'auto' ? 'dark' : current === 'dark' ? 'light' : 'auto';
+    localStorage.setItem(storageKey, current);
+    applyTheme(current);
+  });
+
+  media.addEventListener('change', () => {
+    if ((localStorage.getItem(storageKey) || 'auto') === 'auto') applyTheme('auto');
+  });
+</script>

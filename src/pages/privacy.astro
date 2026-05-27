@@ -1,0 +1,23 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { getContactEmail } from '@/utils/seo';
+
+const contactEmail = getContactEmail();
+---
+
+<BaseLayout title="Политика конфиденциальности" description="Как All Manuals относится к конфиденциальности пользователей." path="/privacy/">
+  <section class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="prose-manuals rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/86 sm:p-8">
+      <h1>Политика конфиденциальности</h1>
+      <p>All Manuals не собирает персональные данные пользователей через формы, аккаунты или серверную аналитику.</p>
+      <h2>Локальное хранение</h2>
+      <p>Переключатель темы и блок «Помогло ли решение?» используют localStorage в браузере. Эти данные остаются на устройстве пользователя и не отправляются на сервер.</p>
+      <h2>Cookies</h2>
+      <p>Сайт не устанавливает cookies для отслеживания пользователей. Если в будущем будут подключены рекламные сети или аналитика, политика будет обновлена до включения таких инструментов.</p>
+      <h2>Логи хостинга</h2>
+      <p>Cloudflare Pages и DNS-инфраструктура могут обрабатывать технические журналы запросов согласно собственным политикам Cloudflare. All Manuals не использует эти данные для идентификации посетителей.</p>
+      <h2>Контакт</h2>
+      <p>По вопросам конфиденциальности можно написать на <a href={`mailto:${contactEmail}`}>{contactEmail}</a>.</p>
+    </div>
+  </section>
+</BaseLayout>

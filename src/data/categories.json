@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Windows",
+    "slug": "windows",
+    "description": "Ошибки обновления, драйверов, служб и системных компонентов Windows."
+  },
+  {
+    "name": "Linux",
+    "slug": "linux",
+    "description": "Проблемы пакетных менеджеров, сервисов, прав доступа и командной строки."
+  },
+  {
+    "name": "Игры",
+    "slug": "games",
+    "description": "Ошибки запуска игр, лаунчеров, DirectX, античитов и библиотек."
+  },
+  {
+    "name": "Веб-разработка",
+    "slug": "web-development",
+    "description": "Ошибки Node.js, npm, Docker, сборщиков, API и браузерной разработки."
+  }
+]

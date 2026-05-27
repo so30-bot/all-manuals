@@ -1,0 +1,28 @@
+---
+type Props = {
+  articles: Array<{
+    id: string;
+    data: {
+      title: string;
+      category: string;
+      description: string;
+    };
+  }>;
+};
+
+const { articles } = Astro.props;
+---
+
+{articles.length > 0 && (
+  <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900/80">
+    <h2 class="text-base font-semibold text-slate-950 dark:text-white">Похожие ошибки</h2>
+    <div class="mt-4 space-y-4">
+      {articles.map((article) => (
+        <a href={`/errors/${article.id}/`} class="focus-ring block rounded-2xl border border-slate-100 p-4 transition hover:border-slate-200 hover:bg-slate-50 dark:border-slate-800 dark:hover:border-slate-700 dark:hover:bg-slate-800/70">
+          <span class="text-sm font-semibold text-slate-950 dark:text-white">{article.data.title}</span>
+          <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">{article.data.category}</span>
+        </a>
+      ))}
+    </div>
+  </section>
+)}

@@ -1,0 +1,44 @@
+---
+import Footer from '@/components/Footer.astro';
+import Header from '@/components/Header.astro';
+import SeoHead from '@/components/SeoHead.astro';
+import '@/styles/global.css';
+
+type Props = {
+  title?: string;
+  description?: string;
+  path?: string;
+  type?: 'website' | 'article';
+  image?: string;
+  noindex?: boolean;
+  jsonLd?: unknown | unknown[];
+};
+
+const props = Astro.props;
+---
+
+<!doctype html>
+<html lang="ru" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#020617" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script is:inline>
+      const storedTheme = localStorage.getItem('all-manuals-theme') || 'auto';
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const resolvedTheme = storedTheme === 'auto' ? (prefersDark ? 'dark' : 'light') : storedTheme;
+      document.documentElement.classList.toggle('dark', resolvedTheme === 'dark');
+    </script>
+    <SeoHead {...props} />
+  </head>
+  <body>
+    <div class="page-grid min-h-screen">
+      <Header />
+      <main>
+        <slot />
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "minSources": 3,
+  "trustedDomains": [
+    "learn.microsoft.com",
+    "support.microsoft.com",
+    "github.com",
+    "stackoverflow.com",
+    "superuser.com",
+    "askubuntu.com",
+    "developer.mozilla.org",
+    "docs.npmjs.com",
+    "nodejs.org"
+  ],
+  "blockedDomains": [
+    "pinterest.com",
+    "facebook.com",
+    "instagram.com",
+    "tiktok.com"
+  ]
+}

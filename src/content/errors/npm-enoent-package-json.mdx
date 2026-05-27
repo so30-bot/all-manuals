@@ -1,0 +1,59 @@
+---
+title: "npm ERR! enoent: нет package.json в текущей папке"
+errorId: "npm ENOENT"
+category: "Веб-разработка"
+tags:
+  - npm
+  - Node.js
+  - package.json
+  - ENOENT
+description: "Что делать, если npm показывает ошибку ENOENT и не находит package.json при запуске npm install или npm run."
+symptoms:
+  - "Команда npm install завершается сообщением enoent ENOENT: no such file or directory, open 'package.json'."
+  - "npm run dev или npm start сообщает missing script, если команда запускается не в той папке."
+  - "В терминале открыт родительский каталог, а не каталог проекта."
+causes:
+  - "Команда запущена вне корня проекта."
+  - "Файл package.json был удален, не был создан или не попал в репозиторий."
+  - "Проект еще не инициализирован как Node.js-пакет."
+steps:
+  - title: "Проверьте текущую папку"
+    body: "Убедитесь, что терминал открыт в каталоге, где действительно находится package.json. Если файл есть в подпапке, перейдите в нее и повторите команду."
+    command: "pwd\nls"
+    image: null
+  - title: "Найдите package.json в проекте"
+    body: "Если вы не уверены, где лежит проект, найдите package.json и перейдите в найденный каталог. В Windows PowerShell используйте Get-ChildItem."
+    command: "Get-ChildItem -Recurse -Filter package.json"
+    image: null
+  - title: "Создайте package.json, если это новый проект"
+    body: "Если проект новый и package.json еще не создавался, инициализируйте его. После этого установите зависимости."
+    command: "npm init -y\nnpm install"
+    image: null
+  - title: "Восстановите файл из git"
+    body: "Если package.json должен быть в репозитории, проверьте историю или попросите актуальную версию у команды. Не создавайте пустой package.json в существующем проекте без понимания зависимостей."
+    command: "git status\ngit log -- package.json"
+    image: null
+updatedAt: "2026-05-27"
+publishedAt: "2026-05-27"
+readingTime: 4
+popularityScore: 84
+sources:
+  - title: "npm Docs: npm init"
+    url: "https://docs.npmjs.com/cli/v10/commands/npm-init"
+    accessedAt: "2026-05-27"
+  - title: "npm Docs: package.json"
+    url: "https://docs.npmjs.com/cli/v10/configuring-npm/package-json"
+    accessedAt: "2026-05-27"
+  - title: "Node.js Docs: Introduction to Node.js"
+    url: "https://nodejs.org/en/learn/getting-started/introduction-to-nodejs"
+    accessedAt: "2026-05-27"
+dedupe:
+  titleHash: "053cc5b976c556416f2ecbf3e7a10984da78139c38e02a2413a6f584226ae9bf"
+  solutionHash: "3ff4f6cc8e17d24a7eb7aa7089070940cf2c27e6dbb1ba013fbcbb2a6aee4fe6"
+  sourceHash: "2a9ec1478c91ef6f3aece78ab738fdce81a7764a791966bf14673e959b5a1e47"
+draft: false
+---
+
+Ошибка ENOENT означает, что npm пытается открыть файл, которого нет по указанному пути. В большинстве случаев проблема не в npm, а в текущем рабочем каталоге терминала.
+
+Если вы скачали проект архивом, проверьте, что архив распакован полностью и вы не запускаете команды внутри лишней вложенной папки.

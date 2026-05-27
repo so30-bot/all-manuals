@@ -1,0 +1,83 @@
+---
+type Props = {
+  compact?: boolean;
+};
+
+const { compact = false } = Astro.props;
+---
+
+<div class={compact ? 'relative w-full' : 'relative mx-auto w-full max-w-3xl'} data-search-root>
+  <label class="sr-only" for="site-search">Поиск ошибки</label>
+  <input
+    id="site-search"
+    data-search-input
+    class="focus-ring w-full rounded-2xl border border-slate-200 bg-white px-5 py-4 text-base text-slate-950 shadow-soft outline-none transition placeholder:text-slate-400 dark:border-slate-800 dark:bg-slate-900 dark:text-white dark:placeholder:text-slate-500 sm:text-lg"
+    type="search"
+    autocomplete="off"
+    placeholder="Введите код ошибки, симптом или программу..."
+  />
+  <div data-search-results class="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-30 hidden overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-900"></div>
+</div>
+
+<script>
+  type SearchItem = {
+    title: string;
+    slug: string;
+    description: string;
+    category: string;
+    tags: string[];
+    errorId?: string;
+  };
+
+  const roots = document.querySelectorAll<HTMLElement>('[data-search-root]');
+  let indexPromise: Promise<SearchItem[]> | undefined;
+
+  function getIndex() {
+    indexPromise ??= fetch('/search-index.json').then((response) => response.ok ? response.json() : []);
+    return indexPromise;
+  }
+
+  function scoreItem(item: SearchItem, query: string) {
+    const haystack = [item.title, item.errorId, item.category, item.description, ...item.tags].filter(Boolean).join(' ').toLowerCase();
+    const title = item.title.toLowerCase();
+    if (title.includes(query)) return 3;
+    if (haystack.includes(query)) return 2;
+    return query.split(/\s+/).every((part) => haystack.includes(part)) ? 1 : 0;
+  }
+
+  roots.forEach((root) => {
+    const input = root.querySelector<HTMLInputElement>('[data-search-input]');
+    const results = root.querySelector<HTMLElement>('[data-search-results]');
+    if (!input || !results) return;
+
+    input.addEventListener('input', async () => {
+      const query = input.value.trim().toLowerCase();
+      if (query.length < 2) {
+        results.classList.add('hidden');
+        results.innerHTML = '';
+        return;
+      }
+
+      const items = await getIndex();
+      const matches = items
+        .map((item) => ({ item, score: scoreItem(item, query) }))
+        .filter((entry) => entry.score > 0)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 8);
+
+      results.innerHTML = matches.length
+        ? matches.map(({ item }) => `
+          <a class="block border-b border-slate-100 px-4 py-3 transition last:border-0 hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800" href="/errors/${item.slug}/">
+            <span class="block text-sm font-semibold text-slate-950 dark:text-white">${item.title}</span>
+            <span class="mt-1 block text-xs text-slate-500 dark:text-slate-400">${item.category} · ${item.tags.slice(0, 3).join(', ')}</span>
+          </a>
+        `).join('')
+        : '<p class="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Ничего не найдено. Попробуйте код ошибки или название программы.</p>';
+      results.classList.remove('hidden');
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!root.contains(event.target as Node)) results.classList.add('hidden');
+    });
+  });
+</script>

@@ -1,0 +1,142 @@
+---
+import ArticleFeedback from '@/components/ArticleFeedback.astro';
+import CopyButton from '@/components/CopyButton.astro';
+import RelatedErrors from '@/components/RelatedErrors.astro';
+import BaseLayout from './BaseLayout.astro';
+import { buildArticleSchema, buildHowToSchema } from '@/utils/schema';
+
+type ArticleEntry = {
+  id: string;
+  data: {
+    title: string;
+    description: string;
+    category: string;
+    tags: string[];
+    symptoms: string[];
+    causes: string[];
+    steps: Array<{
+      title: string;
+      body: string;
+      command?: string | null;
+      image?: { src: string; alt: string; width?: number; height?: number } | null;
+    }>;
+    updatedAt: string;
+    publishedAt: string;
+    readingTime?: number;
+    sources: Array<{ title: string; url: string; accessedAt: string }>;
+  };
+};
+
+type Props = {
+  article: ArticleEntry;
+  related: ArticleEntry[];
+};
+
+const { article, related } = Astro.props;
+const data = article.data;
+const schemaData = { ...data, slug: article.id };
+const jsonLd = [buildArticleSchema(schemaData), buildHowToSchema(schemaData)];
+---
+
+<BaseLayout title={data.title} description={data.description} path={`/errors/${article.id}/`} type="article" jsonLd={jsonLd}>
+  <article class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
+      <div>
+        <nav class="mb-6 text-sm text-slate-500 dark:text-slate-400" aria-label="Хлебные крошки">
+          <a class="focus-ring rounded-lg hover:text-slate-950 dark:hover:text-white" href="/">Главная</a>
+          <span aria-hidden="true"> / </span>
+          <span>{data.category}</span>
+        </nav>
+
+        <header class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/86 sm:p-8">
+          <div class="flex flex-wrap items-center gap-2 text-xs font-medium">
+            <span class="rounded-full bg-sky-50 px-3 py-1 text-sky-700 dark:bg-sky-950 dark:text-sky-300">{data.category}</span>
+            <span class="rounded-full bg-slate-100 px-3 py-1 text-slate-600 dark:bg-slate-800 dark:text-slate-300">{data.readingTime || 4} мин чтения</span>
+            <time class="rounded-full bg-slate-100 px-3 py-1 text-slate-600 dark:bg-slate-800 dark:text-slate-300" datetime={data.updatedAt}>Обновлено {new Date(data.updatedAt).toLocaleDateString('ru-RU')}</time>
+          </div>
+          <h1 class="mt-5 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">{data.title}</h1>
+          <p class="mt-5 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">{data.description}</p>
+          <div class="mt-6 flex flex-wrap gap-2">
+            {data.tags.map((tag) => <span class="rounded-full border border-slate-200 px-3 py-1 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">{tag}</span>)}
+          </div>
+        </header>
+
+        <div class="prose-manuals mt-8 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900/86 sm:p-8">
+          {data.symptoms.length > 0 && (
+            <section id="symptoms">
+              <h2>Симптомы</h2>
+              <ul>
+                {data.symptoms.map((symptom) => <li>{symptom}</li>)}
+              </ul>
+            </section>
+          )}
+
+          {data.causes.length > 0 && (
+            <section id="causes">
+              <h2>Возможные причины</h2>
+              <ul>
+                {data.causes.map((cause) => <li>{cause}</li>)}
+              </ul>
+            </section>
+          )}
+
+          <section id="steps">
+            <h2>Пошаговое решение</h2>
+            <div class="not-prose space-y-6">
+              {data.steps.map((step, index) => (
+                <section class="rounded-3xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-950/60">
+                  <div class="flex items-start gap-4">
+                    <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-950 text-sm font-semibold text-white dark:bg-white dark:text-slate-950">{index + 1}</span>
+                    <div class="min-w-0 flex-1">
+                      <h3 class="text-lg font-semibold text-slate-950 dark:text-white">{step.title}</h3>
+                      <p class="mt-2 whitespace-pre-line text-sm leading-6 text-slate-600 dark:text-slate-300">{step.body}</p>
+                      {step.command && (
+                        <div class="mt-4 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
+                          <div class="flex items-center justify-between border-b border-slate-800 px-4 py-2">
+                            <span class="text-xs font-medium text-slate-400">Команда</span>
+                            <CopyButton value={step.command} />
+                          </div>
+                          <pre class="m-0 overflow-x-auto p-4 text-sm text-slate-100"><code>{step.command}</code></pre>
+                        </div>
+                      )}
+                      {step.image?.src && (
+                        <img class="mt-4 rounded-2xl border border-slate-200 dark:border-slate-800" src={step.image.src} alt={step.image.alt} width={step.image.width} height={step.image.height} loading="lazy" decoding="async" />
+                      )}
+                    </div>
+                  </div>
+                </section>
+              ))}
+            </div>
+          </section>
+
+          <section id="content">
+            <slot />
+          </section>
+
+          {data.sources.length > 0 && (
+            <section id="sources">
+              <h2>Источники</h2>
+              <ol>
+                {data.sources.map((source) => (
+                  <li>
+                    <a href={source.url} rel="nofollow noopener noreferrer" target="_blank">{source.title}</a>
+                    <span> - проверено {new Date(source.accessedAt).toLocaleDateString('ru-RU')}</span>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          )}
+        </div>
+      </div>
+
+      <aside class="space-y-6 lg:sticky lg:top-24">
+        <ArticleFeedback slug={article.id} />
+        <RelatedErrors articles={related} />
+        <section class="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm leading-6 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100">
+          <h2 class="font-semibold">Перед изменениями</h2>
+          <p class="mt-2">Создайте точку восстановления, резервную копию важных файлов или экспорт настроек, если инструкция затрагивает систему, реестр, драйверы или конфигурацию сервиса.</p>
+        </section>
+      </aside>
+    </div>
+  </article>
+</BaseLayout>

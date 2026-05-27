@@ -1,0 +1,23 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ErrorCard from '@/components/ErrorCard.astro';
+import SearchBox from '@/components/SearchBox.astro';
+
+const articles = (await getCollection('errors')).filter((article) => !article.data.draft);
+---
+
+<BaseLayout title="Поиск решений" description="Поиск по кодам ошибок, симптомам, категориям и тегам." path="/search/">
+  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="max-w-3xl">
+      <h1 class="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">Поиск решений</h1>
+      <p class="mt-4 text-lg leading-8 text-slate-600 dark:text-slate-300">Введите код ошибки, название программы или симптом. Поиск работает в браузере и не отправляет запросы на сервер.</p>
+    </div>
+    <div class="mt-8 max-w-3xl">
+      <SearchBox compact />
+    </div>
+    <div class="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {articles.map((article) => <ErrorCard article={article} />)}
+    </div>
+  </section>
+</BaseLayout>

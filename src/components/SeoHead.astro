@@ -1,0 +1,47 @@
+---
+import { absoluteUrl, DEFAULT_DESCRIPTION, getPageTitle, SITE_NAME } from '@/utils/seo';
+
+type Props = {
+  title?: string;
+  description?: string;
+  path?: string;
+  type?: 'website' | 'article';
+  image?: string;
+  noindex?: boolean;
+  jsonLd?: unknown | unknown[];
+};
+
+const {
+  title,
+  description = DEFAULT_DESCRIPTION,
+  path = '/',
+  type = 'website',
+  image,
+  noindex = false,
+  jsonLd
+} = Astro.props;
+
+const pageTitle = getPageTitle(title);
+const canonical = absoluteUrl(path);
+const imageUrl = image ? absoluteUrl(image) : undefined;
+const schemas = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
+---
+
+<title>{pageTitle}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+{noindex && <meta name="robots" content="noindex,nofollow" />}
+
+<meta property="og:site_name" content={SITE_NAME} />
+<meta property="og:type" content={type} />
+<meta property="og:title" content={pageTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+{imageUrl && <meta property="og:image" content={imageUrl} />}
+
+<meta name="twitter:card" content={imageUrl ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={pageTitle} />
+<meta name="twitter:description" content={description} />
+{imageUrl && <meta name="twitter:image" content={imageUrl} />}
+
+{schemas.map((schema) => <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />)}

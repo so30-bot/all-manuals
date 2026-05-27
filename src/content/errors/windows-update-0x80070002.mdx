@@ -1,0 +1,59 @@
+---
+title: "Ошибка 0x80070002 в Windows Update: как исправить"
+errorId: "0x80070002"
+category: "Windows"
+tags:
+  - Windows
+  - Windows Update
+  - "0x80070002"
+  - Центр обновления
+description: "Пошаговая инструкция по устранению ошибки 0x80070002 при установке обновлений Windows с очисткой кэша обновлений и проверкой системных файлов."
+symptoms:
+  - "Центр обновления Windows завершает установку с кодом 0x80070002."
+  - "Обновление загружается, но затем откатывается или зависает."
+  - "В журнале обновлений отображается неудачная попытка установки пакета."
+causes:
+  - "Поврежденный кэш Windows Update в каталоге SoftwareDistribution."
+  - "Некорректная работа служб wuauserv или bits."
+  - "Повреждение системных файлов Windows."
+steps:
+  - title: "Запустите средство устранения неполадок Windows Update"
+    body: "Откройте Параметры Windows, перейдите в раздел системы устранения неполадок и запустите проверку для Центра обновления Windows. После исправлений перезагрузите компьютер и повторите обновление."
+    command: null
+    image: null
+  - title: "Остановите службы обновления"
+    body: "Откройте Терминал или Командную строку от имени администратора и остановите службы, которые держат файлы кэша обновлений."
+    command: "net stop wuauserv\nnet stop bits"
+    image: null
+  - title: "Переименуйте кэш SoftwareDistribution"
+    body: "Переименование каталога безопаснее удаления: Windows создаст новый каталог при следующем запуске обновлений, а старый можно удалить позже после успешной установки."
+    command: "ren %windir%\\SoftwareDistribution SoftwareDistribution.old"
+    image: null
+  - title: "Запустите службы и проверьте системные файлы"
+    body: "Верните службы в работу, затем выполните проверку системных файлов. Если SFC сообщает об ошибках, дополнительно запустите DISM."
+    command: "net start bits\nnet start wuauserv\nsfc /scannow\nDISM /Online /Cleanup-Image /RestoreHealth"
+    image: null
+updatedAt: "2026-05-27"
+publishedAt: "2026-05-27"
+readingTime: 5
+popularityScore: 91
+sources:
+  - title: "Microsoft Support: Windows Update troubleshooter"
+    url: "https://support.microsoft.com/windows/windows-update-troubleshooter"
+    accessedAt: "2026-05-27"
+  - title: "Microsoft Learn: DISM operating system package servicing command-line options"
+    url: "https://learn.microsoft.com/windows-hardware/manufacture/desktop/dism-operating-system-package-servicing-command-line-options"
+    accessedAt: "2026-05-27"
+  - title: "Microsoft Support: Use the System File Checker tool"
+    url: "https://support.microsoft.com/topic/use-the-system-file-checker-tool-to-repair-missing-or-corrupted-system-files"
+    accessedAt: "2026-05-27"
+dedupe:
+  titleHash: "a05d595a2f933f4127556f6d9960162b40f06e58f8c46d8c287a59e72ab00a3a"
+  solutionHash: "c8c4d13d8a3c8ad01e275d85b243292c1d70eb37149f40f7e1be16339f724ab3"
+  sourceHash: "e3a74d4cfaf56d15b4795cb6ed12e989c0ecfbddda3f9f261a4db021fd4fb878"
+draft: false
+---
+
+Если ошибка возвращается после очистки кэша, проверьте свободное место на системном диске и временно отключите сторонние утилиты, которые вмешиваются в обновление Windows. Не отключайте антивирус без необходимости и включите защиту обратно после проверки.
+
+Для корпоративных компьютеров дополнительно проверьте политики WSUS или Intune: локальная инструкция может не сработать, если обновления управляются администратором организации.
