@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -15,9 +15,9 @@ applyCliArgs(process.argv.slice(2));
 const shouldPush = process.env.WEEKLY_AUTO_PUSH !== 'false' && !process.argv.includes('--no-push');
 const commitMessage = process.env.WEEKLY_COMMIT_MESSAGE || 'update weekly error solutions';
 
-run('npm', ['run', 'parser:weekly']);
-run('npm', ['run', 'typecheck']);
-run('npm', ['run', 'build']);
+run(npmCommand(), ['run', 'parser:weekly']);
+run(npmCommand(), ['run', 'typecheck']);
+run(npmCommand(), ['run', 'build']);
 
 const changed = getOutput('git', ['status', '--porcelain', '--', 'src/content/errors', 'public/images/errors', 'src/data']).trim();
 if (!changed) {
@@ -64,7 +64,7 @@ function applyCliArgs(args: string[]) {
 
 function run(command: string, args: string[], options: RunOptions = {}) {
   if (!options.quiet) console.log(`$ ${command} ${args.join(' ')}`);
-  execFileSync(command, args, { stdio: 'inherit', env: { ...process.env, ...options.env } });
+  execSync([command, ...args.map(quoteArg)].join(' '), { stdio: 'inherit', env: { ...process.env, ...options.env } });
 }
 
 function getOutput(command: string, args: string[]) {
@@ -80,4 +80,13 @@ function pushSafely() {
 
   const basicAuth = Buffer.from(`x-access-token:${token}`).toString('base64');
   run('git', ['-c', `http.https://github.com/.extraheader=AUTHORIZATION: basic ${basicAuth}`, 'push'], { quiet: true });
+}
+
+function npmCommand() {
+  return 'npm';
+}
+
+function quoteArg(value: string) {
+  if (!/[\s"'`$&|<>]/.test(value)) return value;
+  return `"${value.replace(/"/g, '\\"')}"`;
 }

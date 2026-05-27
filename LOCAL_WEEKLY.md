@@ -7,7 +7,10 @@ Use this when you want to run content generation manually from your machine with
 Create `.env.local` locally. It is ignored by git.
 
 ```bash
-GEMINI_API_KEY="your-new-key"
+AI_PROVIDER="ollama,gemini"
+OLLAMA_BASE_URL="http://127.0.0.1:11434"
+OLLAMA_MODEL="qwen2.5:7b"
+GEMINI_API_KEY="optional-fallback-key"
 GEMINI_MODEL="gemini-2.0-flash"
 SERPER_API_KEY="optional-search-key"
 GITHUB_API_TOKEN="optional-token-for-auto-push"
@@ -16,7 +19,44 @@ PARSER_PUBLISH_THRESHOLD="0.72"
 PARSER_ALLOW_LICENSED_IMAGES="false"
 ```
 
-There is no Gemini model without limits. Free-tier models have quotas and rate limits, so increase `PARSER_QUERY_LIMIT` gradually.
+There is no cloud AI model without limits. For the most practical free option, run a local model with Ollama. It uses your computer instead of an API quota.
+
+## Free Local AI With Ollama
+
+Install Ollama from `https://ollama.com/download`, then run:
+
+```bash
+ollama pull qwen2.5:7b
+ollama serve
+```
+
+Recommended models:
+
+- `qwen2.5:7b`: good balance for Russian technical articles on 8-16 GB RAM.
+- `qwen2.5:14b`: better quality, needs more RAM/VRAM.
+- `llama3.1:8b`: good general fallback.
+
+With Ollama, keep `.env.local` like this:
+
+```bash
+AI_PROVIDER="ollama,gemini"
+OLLAMA_MODEL="qwen2.5:7b"
+PARSER_QUERY_LIMIT="20"
+```
+
+If Ollama is not running, the parser will try the next configured provider.
+
+## Optional Free-Tier Cloud Providers
+
+You can also use free-tier APIs, but they still have rate limits:
+
+```bash
+AI_PROVIDER="openrouter,groq,gemini"
+OPENROUTER_API_KEY="..."
+OPENROUTER_MODEL="qwen/qwen-2.5-7b-instruct:free"
+GROQ_API_KEY="..."
+GROQ_MODEL="llama-3.1-8b-instant"
+```
 
 ## 2. Run weekly generation
 

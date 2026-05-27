@@ -55,8 +55,16 @@ export type ParserConfig = {
   minSources: number;
   trustedDomains: string[];
   blockedDomains: string[];
+  aiProvider: string;
   geminiApiKey?: string;
   geminiModel: string;
+  ollamaBaseUrl: string;
+  ollamaModel: string;
+  openRouterApiKey?: string;
+  openRouterModel: string;
+  groqApiKey?: string;
+  groqModel: string;
+  aiTimeoutMs: number;
   serperApiKey?: string;
   publishThreshold: number;
 };

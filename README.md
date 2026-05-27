@@ -24,7 +24,7 @@ npm run parser:weekly
 
 The parser refuses to publish articles unless it has enough source material and passes deduplication. AI generation is constrained to collected source excerpts only.
 
-The default parser catalog contains a large rotating set of queries for games, launchers, Windows, Linux, macOS, mobile devices, desktop software, developer tools, networking, peripherals, consoles and smart-home devices. Use `PARSER_QUERY_LIMIT` to control how many candidates are processed per run. If `SERPER_API_KEY` is not configured, the parser falls back to GitHub Issues, StackExchange sites and Reddit search.
+The default parser catalog contains a large rotating set of queries for games, launchers, Windows, Linux, macOS, mobile devices, desktop software, developer tools, networking, peripherals, consoles and smart-home devices. Use `PARSER_QUERY_LIMIT` to control how many candidates are processed per run. If `SERPER_API_KEY` is not configured, the parser falls back to GitHub Issues, StackExchange sites and Reddit search. For free local generation, set `AI_PROVIDER=ollama` and run Ollama on your machine.
 
 ## Deployment Bootstrap
 

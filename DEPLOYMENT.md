@@ -15,6 +15,7 @@ CLOUDFLARE_ACCOUNT_ID="..."
 CLOUDFLARE_ZONE_ID="..."
 DOMAIN_NAME="all-manuals.ru"
 GEMINI_API_KEY="..."
+AI_PROVIDER="ollama,openrouter,groq,gemini"
 SERPER_API_KEY="..."
 PUBLIC_SITE_URL="https://all-manuals.ru"
 PUBLIC_CONTACT_EMAIL="dmca@all-manuals.ru"
@@ -34,6 +35,14 @@ npm run parser:weekly
 ```
 
 Without `SERPER_API_KEY` and `GEMINI_API_KEY`, the parser exits safely without publishing generated articles.
+
+For free local generation, use Ollama instead of Gemini:
+
+```bash
+AI_PROVIDER="ollama"
+OLLAMA_BASE_URL="http://127.0.0.1:11434"
+OLLAMA_MODEL="qwen2.5:7b"
+```
 
 ## Bootstrap Deployment
 

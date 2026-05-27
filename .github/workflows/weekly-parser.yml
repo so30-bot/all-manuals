@@ -44,6 +44,11 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ secrets.GEMINI_MODEL || 'gemini-1.5-flash' }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: ${{ secrets.OPENROUTER_MODEL || 'qwen/qwen-2.5-7b-instruct:free' }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: ${{ secrets.GROQ_MODEL || 'llama-3.1-8b-instant' }}
+          AI_PROVIDER: ${{ secrets.AI_PROVIDER || 'openrouter,groq,gemini' }}
           SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
           PARSER_MIN_SOURCES: '3'

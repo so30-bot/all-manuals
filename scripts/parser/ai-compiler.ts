@@ -8,6 +8,18 @@ type GeminiResponse = {
   }>;
 };
 
+type ChatCompletionResponse = {
+  choices?: Array<{
+    message?: {
+      content?: string;
+    };
+  }>;
+};
+
+type OllamaResponse = {
+  response?: string;
+};
+
 const fallbackGeminiModels = [
   'gemini-2.0-flash',
   'gemini-2.0-flash-lite',
@@ -19,8 +31,8 @@ const fallbackGeminiModels = [
 ];
 
 export async function compileArticle(query: string, documents: SourceDocument[], config: ParserConfig): Promise<CompiledArticle | null> {
-  if (!config.geminiApiKey) {
-    console.warn('GEMINI_API_KEY is not set. Parser will not generate new content.');
+  if (!hasAnyAiProvider(config)) {
+    console.warn('No AI provider is configured. Set AI_PROVIDER=ollama with Ollama running, or add GEMINI_API_KEY, OPENROUTER_API_KEY, or GROQ_API_KEY.');
     return null;
   }
 
@@ -60,14 +72,14 @@ Sources:
 ${corpus}
 `.trim();
 
-  const text = await generateWithGeminiFallback(prompt, config);
+  const text = await generateWithAiProvider(prompt, config);
   if (!text) return null;
 
   let parsed: any;
   try {
     parsed = JSON.parse(cleanJsonResponse(text));
   } catch (error) {
-    console.warn(`Gemini returned invalid JSON for ${query}. Article skipped.`);
+    console.warn(`AI provider returned invalid JSON for ${query}. Article skipped.`);
     return null;
   }
   if (!parsed.publish || Number(parsed.confidence || 0) < config.publishThreshold) {
@@ -106,6 +118,170 @@ ${corpus}
   };
 }
 
+async function generateWithAiProvider(prompt: string, config: ParserConfig): Promise<string | null> {
+  const providers = getProviderOrder(config);
+
+  for (const provider of providers) {
+    if (provider === 'ollama') {
+      const text = await generateWithOllama(prompt, config);
+      if (text) return text;
+      continue;
+    }
+
+    if (provider === 'openrouter') {
+      const text = await generateWithOpenRouter(prompt, config);
+      if (text) return text;
+      continue;
+    }
+
+    if (provider === 'groq') {
+      const text = await generateWithGroq(prompt, config);
+      if (text) return text;
+      continue;
+    }
+
+    if (provider === 'gemini') {
+      const text = await generateWithGeminiFallback(prompt, config);
+      if (text) return text;
+    }
+  }
+
+  console.warn('All configured AI providers failed or returned no content. Article skipped.');
+  return null;
+}
+
+async function generateWithOllama(prompt: string, config: ParserConfig): Promise<string | null> {
+  try {
+    const response = await fetchWithTimeout(`${config.ollamaBaseUrl.replace(/\/$/, '')}/api/generate`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        model: config.ollamaModel,
+        prompt,
+        stream: false,
+        format: 'json',
+        options: {
+          temperature: 0.2,
+          num_ctx: 8192
+        }
+      })
+    }, config.aiTimeoutMs);
+
+    if (!response.ok) {
+      const body = await response.text();
+      console.warn(`Ollama request failed with ${response.status}: ${body.slice(0, 240)}`);
+      return null;
+    }
+
+    const data = (await response.json()) as OllamaResponse;
+    if (data.response) return data.response;
+  } catch (error) {
+    console.warn(`Ollama is unavailable. Start it with 'ollama serve' and pull a model, for example 'ollama pull qwen2.5:7b'.`);
+  }
+
+  return null;
+}
+
+async function generateWithOpenRouter(prompt: string, config: ParserConfig): Promise<string | null> {
+  if (!config.openRouterApiKey) return null;
+
+  return generateOpenAiCompatible({
+    providerName: 'OpenRouter',
+    endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+    apiKey: config.openRouterApiKey,
+    model: config.openRouterModel,
+    prompt,
+    timeoutMs: config.aiTimeoutMs,
+    extraHeaders: {
+      'HTTP-Referer': 'https://all-manuals.ru',
+      'X-Title': 'All Manuals Error Knowledge Base'
+    }
+  });
+}
+
+async function generateWithGroq(prompt: string, config: ParserConfig): Promise<string | null> {
+  if (!config.groqApiKey) return null;
+
+  return generateOpenAiCompatible({
+    providerName: 'Groq',
+    endpoint: 'https://api.groq.com/openai/v1/chat/completions',
+    apiKey: config.groqApiKey,
+    model: config.groqModel,
+    prompt,
+    timeoutMs: config.aiTimeoutMs
+  });
+}
+
+async function generateOpenAiCompatible(options: {
+  providerName: string;
+  endpoint: string;
+  apiKey: string;
+  model: string;
+  prompt: string;
+  timeoutMs: number;
+  extraHeaders?: Record<string, string>;
+}): Promise<string | null> {
+  const requestBody = {
+    model: options.model,
+    messages: [
+      {
+        role: 'system',
+        content: 'Return strict JSON only. Do not include Markdown fences.'
+      },
+      { role: 'user', content: options.prompt }
+    ],
+    temperature: 0.2,
+    response_format: { type: 'json_object' }
+  };
+
+  const text = await callOpenAiCompatible(options, requestBody);
+  if (text) return text;
+
+  const fallbackBody = { ...requestBody, response_format: undefined };
+  return callOpenAiCompatible(options, fallbackBody);
+}
+
+async function callOpenAiCompatible(options: {
+  providerName: string;
+  endpoint: string;
+  apiKey: string;
+  model: string;
+  prompt: string;
+  timeoutMs: number;
+  extraHeaders?: Record<string, string>;
+}, body: Record<string, unknown>): Promise<string | null> {
+  try {
+    const response = await fetchWithTimeout(options.endpoint, {
+      method: 'POST',
+      headers: {
+        authorization: `Bearer ${options.apiKey}`,
+        'content-type': 'application/json',
+        ...(options.extraHeaders || {})
+      },
+      body: JSON.stringify(body)
+    }, options.timeoutMs);
+
+    if (!response.ok) {
+      const responseText = await response.text();
+      if (response.status === 429) {
+        console.warn(`${options.providerName} quota/rate limit reached for model ${options.model}.`);
+        return null;
+      }
+
+      if (response.status === 400 && /response_format/i.test(responseText)) return null;
+
+      console.warn(`${options.providerName} request failed with ${response.status}: ${responseText.slice(0, 240)}`);
+      return null;
+    }
+
+    const data = (await response.json()) as ChatCompletionResponse;
+    return data.choices?.[0]?.message?.content || null;
+  } catch (error) {
+    console.warn(`${options.providerName} request failed: ${error instanceof Error ? error.message : String(error)}`);
+    return null;
+  }
+}
+
 async function generateWithGeminiFallback(prompt: string, config: ParserConfig): Promise<string | null> {
   const apiKey = config.geminiApiKey;
   if (!apiKey) return null;
@@ -115,7 +291,7 @@ async function generateWithGeminiFallback(prompt: string, config: ParserConfig):
   for (const model of models) {
     try {
       const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-      const response = await fetch(url, {
+      const response = await fetchWithTimeout(url, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
@@ -125,7 +301,7 @@ async function generateWithGeminiFallback(prompt: string, config: ParserConfig):
             responseMimeType: 'application/json'
           }
         })
-      });
+      }, config.aiTimeoutMs);
 
       if (!response.ok) {
         const body = await response.text();
@@ -158,6 +334,36 @@ async function generateWithGeminiFallback(prompt: string, config: ParserConfig):
 
   console.warn('No Gemini model produced content. Article skipped.');
   return null;
+}
+
+function getProviderOrder(config: ParserConfig): string[] {
+  const configured = config.aiProvider.toLowerCase().split(',').map((provider) => provider.trim()).filter(Boolean);
+  const order = configured.length > 0 && !configured.includes('auto')
+    ? configured
+    : ['ollama', 'openrouter', 'groq', 'gemini'];
+
+  return order.filter((provider) => {
+    if (provider === 'ollama') return true;
+    if (provider === 'openrouter') return Boolean(config.openRouterApiKey);
+    if (provider === 'groq') return Boolean(config.groqApiKey);
+    if (provider === 'gemini') return Boolean(config.geminiApiKey);
+    return false;
+  });
+}
+
+function hasAnyAiProvider(config: ParserConfig): boolean {
+  return getProviderOrder(config).length > 0;
+}
+
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function getGeminiModelCandidates(model: string): string[] {
