@@ -31,7 +31,14 @@ async function githubFetch<T>(env: BootstrapEnv, path: string, init: RequestInit
     throw new Error(`GitHub API ${path} failed with ${response.status}: ${await response.text()}`);
   }
 
-  return response.json() as Promise<T>;
+  if (response.status === 204 || response.headers.get('content-length') === '0') {
+    return undefined as T;
+  }
+
+  const text = await response.text();
+  if (!text.trim()) return undefined as T;
+
+  return JSON.parse(text) as T;
 }
 
 export async function getGitHubUser(env: BootstrapEnv) {
