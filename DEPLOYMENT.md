@@ -73,3 +73,7 @@ Production branch:
 ```bash
 main
 ```
+
+## Fallback GitHub Pages
+
+If the Cloudflare API token does not include account-level Cloudflare Pages permissions, the repository can still deploy via `.github/workflows/github-pages.yml`. The domain `all-manuals.ru` is included in `public/CNAME` for GitHub Pages custom domain support.
