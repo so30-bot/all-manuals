@@ -8,6 +8,16 @@ type GeminiResponse = {
   }>;
 };
 
+const fallbackGeminiModels = [
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite',
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+  'gemini-1.5-flash-latest',
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-8b'
+];
+
 export async function compileArticle(query: string, documents: SourceDocument[], config: ParserConfig): Promise<CompiledArticle | null> {
   if (!config.geminiApiKey) {
     console.warn('GEMINI_API_KEY is not set. Parser will not generate new content.');
@@ -50,28 +60,16 @@ Sources:
 ${corpus}
 `.trim();
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(config.geminiModel)}:generateContent?key=${encodeURIComponent(config.geminiApiKey)}`;
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.2,
-        responseMimeType: 'application/json'
-      }
-    })
-  });
-
-  if (!response.ok) {
-    throw new Error(`Gemini request failed with ${response.status}: ${await response.text()}`);
-  }
-
-  const data = (await response.json()) as GeminiResponse;
-  const text = data.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('') || '';
+  const text = await generateWithGeminiFallback(prompt, config);
   if (!text) return null;
 
-  const parsed = JSON.parse(text);
+  let parsed: any;
+  try {
+    parsed = JSON.parse(cleanJsonResponse(text));
+  } catch (error) {
+    console.warn(`Gemini returned invalid JSON for ${query}. Article skipped.`);
+    return null;
+  }
   if (!parsed.publish || Number(parsed.confidence || 0) < config.publishThreshold) {
     console.warn(`Article rejected by confidence/publish flag for ${query}: ${parsed.reason || parsed.confidence}`);
     return null;
@@ -106,6 +104,78 @@ ${corpus}
     body: String(parsed.body || ''),
     sources
   };
+}
+
+async function generateWithGeminiFallback(prompt: string, config: ParserConfig): Promise<string | null> {
+  const apiKey = config.geminiApiKey;
+  if (!apiKey) return null;
+
+  const models = getGeminiModelCandidates(config.geminiModel);
+
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.2,
+            responseMimeType: 'application/json'
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const body = await response.text();
+        if (response.status === 404 || /not found|not supported/i.test(body)) {
+          console.warn(`Gemini model ${model} is unavailable. Trying next model.`);
+          continue;
+        }
+
+        if (response.status === 429) {
+          console.warn(`Gemini quota/rate limit reached for model ${model}. Article generation paused.`);
+          return null;
+        }
+
+        if (response.status === 400 && /location is not supported|FAILED_PRECONDITION/i.test(body)) {
+          console.warn('Gemini API is not available from the current execution location. Article generation skipped.');
+          return null;
+        }
+
+        console.warn(`Gemini request failed with ${response.status}. Article skipped.`);
+        return null;
+      }
+
+      const data = (await response.json()) as GeminiResponse;
+      const text = data.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('') || '';
+      if (text) return text;
+    } catch (error) {
+      console.warn(`Gemini model ${model} failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  console.warn('No Gemini model produced content. Article skipped.');
+  return null;
+}
+
+function getGeminiModelCandidates(model: string): string[] {
+  const normalized = normalizeGeminiModel(model);
+  return [...new Set([normalized, ...fallbackGeminiModels].filter(Boolean))];
+}
+
+function normalizeGeminiModel(model: string): string {
+  return model.replace(/^models\//, '').trim();
+}
+
+function cleanJsonResponse(text: string): string {
+  return text
+    .trim()
+    .replace(/^```json\s*/i, '')
+    .replace(/^```\s*/i, '')
+    .replace(/```$/i, '')
+    .trim();
 }
 
 function normalizeCategory(category: string) {

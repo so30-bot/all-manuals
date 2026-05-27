@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /*?*
+Allow: /search-index.json
 
 Sitemap: https://all-manuals.ru/sitemap.xml

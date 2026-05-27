@@ -10,19 +10,22 @@ export async function GET() {
   const staticPages = ['/', '/search/', '/dmca/', '/privacy/', '/terms/'].map((path) => ({
     loc: `${site}${path}`,
     lastmod: today,
-    priority: path === '/' ? '1.0' : '0.6'
+    priority: path === '/' ? '1.0' : '0.6',
+    changefreq: path === '/' ? 'daily' : 'monthly'
   }));
 
   const categoryPages = categories.map((category) => ({
     loc: `${site}/categories/${category.slug}/`,
     lastmod: today,
-    priority: '0.7'
+    priority: '0.7',
+    changefreq: 'weekly'
   }));
 
   const articlePages = articles.map((article) => ({
     loc: `${site}/errors/${article.id}/`,
     lastmod: article.data.updatedAt,
-    priority: '0.9'
+    priority: '0.9',
+    changefreq: 'weekly'
   }));
 
   const urls = [...staticPages, ...categoryPages, ...articlePages];
@@ -31,6 +34,7 @@ export async function GET() {
 ${urls.map((url) => `  <url>
     <loc>${escapeXml(url.loc)}</loc>
     <lastmod>${url.lastmod}</lastmod>
+    <changefreq>${url.changefreq}</changefreq>
     <priority>${url.priority}</priority>
   </url>`).join('\n')}
 </urlset>`;

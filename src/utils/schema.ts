@@ -26,6 +26,13 @@ export function buildArticleSchema(article: ArticleData) {
     mainEntityOfPage: absoluteUrl(`/errors/${article.slug}/`),
     articleSection: article.category,
     keywords: article.tags.join(', '),
+    inLanguage: 'ru-RU',
+    about: article.tags.map((tag) => ({ '@type': 'Thing', name: tag })),
+    author: {
+      '@type': 'Organization',
+      name: SITE_NAME,
+      url: absoluteUrl('/')
+    },
     publisher: {
       '@type': 'Organization',
       name: SITE_NAME,
@@ -48,4 +55,42 @@ export function buildHowToSchema(article: ArticleData) {
       image: step.image?.src ? absoluteUrl(step.image.src) : undefined
     }))
   };
+}
+
+export function buildBreadcrumbSchema(article: ArticleData) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Главная',
+        item: absoluteUrl('/')
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: article.category,
+        item: absoluteUrl(`/categories/${categorySlug(article.category)}/`)
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name: article.title,
+        item: absoluteUrl(`/errors/${article.slug}/`)
+      }
+    ]
+  };
+}
+
+function categorySlug(category: string): string {
+  const known: Record<string, string> = {
+    Windows: 'windows',
+    Linux: 'linux',
+    Игры: 'games',
+    'Веб-разработка': 'web-development'
+  };
+
+  return known[category] || category.toLowerCase().replace(/[^a-z0-9а-яё]+/gi, '-').replace(/^-+|-+$/g, '');
 }

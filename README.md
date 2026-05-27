@@ -35,6 +35,7 @@ npm run bootstrap:deploy
 Required variables are listed in `.env.example`. Do not commit API tokens or private keys.
 
 See `DEPLOYMENT.md` for the full deployment checklist.
+See `LOCAL_WEEKLY.md` for safe manual weekly article generation.
 
 ## Legal And Privacy
 

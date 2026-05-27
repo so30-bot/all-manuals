@@ -16,32 +16,36 @@ async function main() {
   console.log(`Weekly parser will process ${queries.length} query candidates.`);
 
   for (const query of queries) {
-    console.log(`Processing query: ${query}`);
-    const candidates = await searchSources(query, config);
-    if (candidates.length < config.minSources) {
-      console.warn(`Skipped ${query}: only ${candidates.length} trusted candidates found.`);
-      continue;
+    try {
+      console.log(`Processing query: ${query}`);
+      const candidates = await searchSources(query, config);
+      if (candidates.length < config.minSources) {
+        console.warn(`Skipped ${query}: only ${candidates.length} trusted candidates found.`);
+        continue;
+      }
+
+      const fetched = (await Promise.all(candidates.slice(0, 8).map((candidate) => fetchSource(candidate, config))))
+        .filter(Boolean)
+        .map((document) => extractReadableText(document!))
+        .filter((document) => document.text.length >= 800);
+
+      if (fetched.length < config.minSources) {
+        console.warn(`Skipped ${query}: only ${fetched.length} readable sources found.`);
+        continue;
+      }
+
+      const compiled = await compileArticle(query, fetched.slice(0, 5), config);
+      if (!compiled || compiled.steps.length === 0) continue;
+
+      const duplicate = findDuplicate(compiled, existing);
+      const slug = duplicate?.slug || getArticleSlug(compiled);
+      const withImages = await processArticleImages(compiled, slug, config);
+      const result = await writeArticle(withImages, duplicate, config);
+      written.push(result.filePath);
+      console.log(`${duplicate ? 'Updated' : 'Created'} ${result.slug}`);
+    } catch (error) {
+      console.warn(`Skipped ${query}: ${error instanceof Error ? error.message : String(error)}`);
     }
-
-    const fetched = (await Promise.all(candidates.slice(0, 8).map((candidate) => fetchSource(candidate, config))))
-      .filter(Boolean)
-      .map((document) => extractReadableText(document!))
-      .filter((document) => document.text.length >= 800);
-
-    if (fetched.length < config.minSources) {
-      console.warn(`Skipped ${query}: only ${fetched.length} readable sources found.`);
-      continue;
-    }
-
-    const compiled = await compileArticle(query, fetched.slice(0, 5), config);
-    if (!compiled || compiled.steps.length === 0) continue;
-
-    const duplicate = findDuplicate(compiled, existing);
-    const slug = duplicate?.slug || getArticleSlug(compiled);
-    const withImages = await processArticleImages(compiled, slug, config);
-    const result = await writeArticle(withImages, duplicate, config);
-    written.push(result.filePath);
-    console.log(`${duplicate ? 'Updated' : 'Created'} ${result.slug}`);
   }
 
   if (written.length === 0) {

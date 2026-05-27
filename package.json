@@ -10,6 +10,7 @@
     "typecheck": "astro check",
     "lint": "astro check",
     "parser:weekly": "tsx scripts/parser/index.ts",
+    "weekly:local": "tsx scripts/local-weekly.ts",
     "bootstrap:deploy": "tsx scripts/bootstrap/deploy.ts"
   },
   "dependencies": {

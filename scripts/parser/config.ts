@@ -10,7 +10,7 @@ export function getParserConfig(): ParserConfig {
     trustedDomains: rules.trustedDomains,
     blockedDomains: rules.blockedDomains,
     geminiApiKey: process.env.GEMINI_API_KEY,
-    geminiModel: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
+    geminiModel: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
     serperApiKey: process.env.SERPER_API_KEY,
     publishThreshold: Number(process.env.PARSER_PUBLISH_THRESHOLD || 0.72)
   };

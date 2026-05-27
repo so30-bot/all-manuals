@@ -16,6 +16,7 @@ html {
 }
 
 body {
+  overflow-x: hidden;
   min-height: 100vh;
   background:
     linear-gradient(180deg, rgb(248 250 252) 0%, rgb(241 245 249) 42%, rgb(255 255 255) 100%);
@@ -39,12 +40,17 @@ body {
   background-size: 28px 28px;
 }
 
+.dark .page-grid {
+  --surface-grid: radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.08) 1px, transparent 0);
+}
+
 .focus-ring {
   @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950;
 }
 
 .prose-manuals {
   @apply prose prose-slate max-w-none dark:prose-invert prose-headings:scroll-mt-24 prose-a:text-sky-600 dark:prose-a:text-sky-400 prose-pre:border prose-pre:border-slate-800 prose-pre:bg-slate-950;
+  overflow-wrap: anywhere;
 }
 
 .prose-manuals code:not(pre code) {
@@ -54,4 +60,23 @@ body {
 .prose-manuals code::before,
 .prose-manuals code::after {
   content: "";
+}
+
+.article-shell {
+  container-type: inline-size;
+}
+
+@media (max-width: 640px) {
+  .prose-manuals {
+    font-size: 0.96rem;
+  }
+
+  .prose-manuals h2 {
+    font-size: 1.35rem;
+  }
+
+  .prose-manuals pre {
+    margin-left: -0.25rem;
+    margin-right: -0.25rem;
+  }
 }
