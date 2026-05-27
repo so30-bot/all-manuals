@@ -1,30 +1,57 @@
 import type { ParserConfig, SourceCandidate } from './types';
-
-const fallbackQueries = [
-  'Windows Update error 0x80070002 fix last week',
-  'npm ERR! enoent package.json fix',
-  'Docker compose permission denied error fix',
-  'Steam game failed to start error fix',
-  'Linux apt lock error fix'
-];
+import { buildDefaultQueries, getQueryCatalogSummary } from './query-catalog';
 
 export async function discoverTrends(_config: ParserConfig): Promise<string[]> {
   const envQueries = process.env.PARSER_QUERIES?.split('|').map((query) => query.trim()).filter(Boolean);
-  if (envQueries?.length) return envQueries;
+  const queryLimit = Number(process.env.PARSER_QUERY_LIMIT || 60);
+  const offset = Number(process.env.PARSER_QUERY_OFFSET || getWeeklyOffset(queryLimit));
 
-  return fallbackQueries;
+  if (envQueries?.length) return rotateQueries(envQueries, offset, queryLimit);
+
+  const queries = buildDefaultQueries();
+  const summary = getQueryCatalogSummary();
+  console.log(`Default query catalog: ${summary.totalQueries} queries across ${summary.groups.length} groups and ${summary.explicitErrorCodes} explicit error codes.`);
+  return rotateQueries(queries, offset, queryLimit);
+}
+
+function rotateQueries(queries: string[], offset: number, limit: number): string[] {
+  const unique = [...new Set(queries.map((query) => query.trim()).filter(Boolean))];
+  if (unique.length === 0) return [];
+
+  const safeLimit = Math.max(1, Math.min(limit, unique.length));
+  const normalizedOffset = ((offset % unique.length) + unique.length) % unique.length;
+  const rotated = [...unique.slice(normalizedOffset), ...unique.slice(0, normalizedOffset)];
+  return rotated.slice(0, safeLimit);
+}
+
+function getWeeklyOffset(queryLimit: number): number {
+  const weekMs = 7 * 24 * 60 * 60 * 1000;
+  const week = Math.floor(Date.now() / weekMs);
+  return week * queryLimit;
 }
 
 export async function searchSources(query: string, config: ParserConfig): Promise<SourceCandidate[]> {
+  const candidates: SourceCandidate[] = [];
+
   if (!config.serperApiKey) {
-    console.warn(`SERPER_API_KEY is not set. Skipping live search for: ${query}`);
-    return [];
+    console.warn(`SERPER_API_KEY is not set. Using open-source fallback search for: ${query}`);
+  } else {
+    candidates.push(...await searchSerper(query, config));
   }
+
+  candidates.push(...await searchOpenSources(query, config));
+
+  return dedupeCandidates(candidates).filter((item) => isAllowedCandidate(item, config));
+}
+
+async function searchSerper(query: string, config: ParserConfig): Promise<SourceCandidate[]> {
+  const apiKey = config.serperApiKey;
+  if (!apiKey) return [];
 
   const response = await fetch('https://google.serper.dev/search', {
     method: 'POST',
     headers: {
-      'X-API-KEY': config.serperApiKey,
+      'X-API-KEY': apiKey,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
@@ -56,6 +83,113 @@ export async function searchSources(query: string, config: ParserConfig): Promis
     })
     .filter(Boolean)
     .filter((item: SourceCandidate) => isAllowedCandidate(item, config));
+}
+
+async function searchOpenSources(query: string, config: ParserConfig): Promise<SourceCandidate[]> {
+  const results = await Promise.allSettled([
+    searchGitHubIssues(query),
+    searchStackExchange(query, 'stackoverflow'),
+    searchStackExchange(query, 'superuser'),
+    searchStackExchange(query, 'askubuntu'),
+    searchStackExchange(query, 'gaming'),
+    searchReddit(query)
+  ]);
+
+  return results
+    .flatMap((result) => result.status === 'fulfilled' ? result.value : [])
+    .filter((item) => isAllowedCandidate(item, config));
+}
+
+async function searchGitHubIssues(query: string): Promise<SourceCandidate[]> {
+  const since = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  const searchQuery = `${query} in:title,body updated:>=${since}`;
+  const headers: Record<string, string> = {
+    accept: 'application/vnd.github+json',
+    'user-agent': 'AllManualsBot/0.1 (+https://all-manuals.ru/dmca/)'
+  };
+
+  if (process.env.GITHUB_TOKEN) headers.authorization = `Bearer ${process.env.GITHUB_TOKEN}`;
+
+  const response = await fetch(`https://api.github.com/search/issues?q=${encodeURIComponent(searchQuery)}&sort=updated&order=desc&per_page=5`, { headers });
+  if (!response.ok) return [];
+
+  const data = await response.json();
+  const items = Array.isArray(data.items) ? data.items : [];
+
+  return items.map((item: { title?: string; html_url?: string; body?: string }) => ({
+    title: item.title || 'GitHub Issue',
+    url: item.html_url || '',
+    snippet: item.body?.slice(0, 240) || '',
+    domain: 'github.com'
+  })).filter((item: SourceCandidate) => item.url);
+}
+
+async function searchStackExchange(query: string, site: string): Promise<SourceCandidate[]> {
+  const response = await fetch(`https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=activity&pagesize=5&site=${encodeURIComponent(site)}&q=${encodeURIComponent(query)}&filter=!nNPvSNeR2X`, {
+    headers: { 'user-agent': 'AllManualsBot/0.1 (+https://all-manuals.ru/dmca/)' }
+  });
+  if (!response.ok) return [];
+
+  const data = await response.json();
+  const items = Array.isArray(data.items) ? data.items : [];
+
+  return items.map((item: { title?: string; link?: string; excerpt?: string }) => {
+    if (!item.link) return null;
+    const url = new URL(item.link);
+    return {
+      title: decodeHtml(item.title || url.hostname),
+      url: url.toString(),
+      snippet: item.excerpt ? stripHtml(item.excerpt).slice(0, 240) : '',
+      domain: url.hostname.replace(/^www\./, '')
+    } satisfies SourceCandidate;
+  }).filter(Boolean);
+}
+
+async function searchReddit(query: string): Promise<SourceCandidate[]> {
+  const response = await fetch(`https://www.reddit.com/search.json?q=${encodeURIComponent(query)}&sort=new&t=week&limit=5&type=link`, {
+    headers: { 'user-agent': 'AllManualsBot/0.1 (+https://all-manuals.ru/dmca/)' }
+  });
+  if (!response.ok) return [];
+
+  const data = await response.json();
+  const children = Array.isArray(data.data?.children) ? data.data.children : [];
+
+  return children.map((child: { data?: { title?: string; permalink?: string; selftext?: string } }) => {
+    if (!child.data?.permalink) return null;
+    const url = new URL(child.data.permalink, 'https://www.reddit.com');
+    return {
+      title: child.data.title || 'Reddit discussion',
+      url: url.toString(),
+      snippet: child.data.selftext?.slice(0, 240) || '',
+      domain: 'reddit.com'
+    } satisfies SourceCandidate;
+  }).filter(Boolean);
+}
+
+function dedupeCandidates(candidates: SourceCandidate[]): SourceCandidate[] {
+  const seen = new Set<string>();
+  const deduped: SourceCandidate[] = [];
+
+  for (const candidate of candidates) {
+    if (!candidate.url || seen.has(candidate.url)) continue;
+    seen.add(candidate.url);
+    deduped.push(candidate);
+  }
+
+  return deduped;
+}
+
+function stripHtml(value: string): string {
+  return value.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function decodeHtml(value: string): string {
+  return value
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
 }
 
 export function isAllowedCandidate(candidate: SourceCandidate, config: ParserConfig): boolean {

@@ -54,6 +54,16 @@ Publication safeguards:
 - Existing articles are deduplicated by error ID, slug, title similarity, and solution hash.
 - Images are disabled by default. Enable `PARSER_ALLOW_LICENSED_IMAGES=true` only if you accept the license checks and legal risk.
 
+Parser scale controls:
+
+```bash
+PARSER_QUERY_LIMIT="120"
+PARSER_QUERY_OFFSET="0"
+PARSER_QUERIES="optional|manual|queries"
+```
+
+If `PARSER_QUERIES` is empty, the parser uses the built-in broad catalog and rotates through it weekly. Increase `PARSER_QUERY_LIMIT` carefully because each query can consume search, fetch and AI API quota.
+
 ## Cloudflare Pages Settings
 
 Build command:

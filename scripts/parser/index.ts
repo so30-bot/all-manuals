@@ -13,6 +13,8 @@ async function main() {
   const queries = await discoverTrends(config);
   const written: string[] = [];
 
+  console.log(`Weekly parser will process ${queries.length} query candidates.`);
+
   for (const query of queries) {
     console.log(`Processing query: ${query}`);
     const candidates = await searchSources(query, config);

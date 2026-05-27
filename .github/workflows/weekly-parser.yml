@@ -4,6 +4,19 @@ on:
   schedule:
     - cron: '0 0 * * 0'
   workflow_dispatch:
+    inputs:
+      query_limit:
+        description: 'How many query candidates to process'
+        required: false
+        default: '120'
+      query_offset:
+        description: 'Manual catalog offset for batch runs'
+        required: false
+        default: ''
+      custom_queries:
+        description: 'Optional custom queries separated by |'
+        required: false
+        default: ''
 
 permissions:
   contents: write
@@ -32,8 +45,12 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ secrets.GEMINI_MODEL || 'gemini-1.5-flash' }}
           SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
           PARSER_MIN_SOURCES: '3'
           PARSER_PUBLISH_THRESHOLD: '0.72'
+          PARSER_QUERY_LIMIT: ${{ github.event.inputs.query_limit || '120' }}
+          PARSER_QUERY_OFFSET: ${{ github.event.inputs.query_offset }}
+          PARSER_QUERIES: ${{ github.event.inputs.custom_queries }}
           PARSER_ALLOW_LICENSED_IMAGES: 'false'
 
       - name: Build after parser
