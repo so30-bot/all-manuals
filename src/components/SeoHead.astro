@@ -23,7 +23,7 @@ const {
 
 const pageTitle = getPageTitle(title);
 const canonical = absoluteUrl(path);
-const imageUrl = image ? absoluteUrl(image) : undefined;
+const imageUrl = image ? absoluteUrl(image) : absoluteUrl('/og-default.svg');
 const schemas = Array.isArray(jsonLd) ? jsonLd : jsonLd ? [jsonLd] : [];
 const robots = noindex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1';
 ---

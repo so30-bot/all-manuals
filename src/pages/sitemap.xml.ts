@@ -7,7 +7,7 @@ export async function GET() {
   const today = new Date().toISOString().slice(0, 10);
   const articles = (await getCollection('errors')).filter((article) => !article.data.draft);
 
-  const staticPages = ['/', '/search/', '/dmca/', '/privacy/', '/terms/'].map((path) => ({
+  const staticPages = ['/', '/errors/', '/about/', '/search/', '/dmca/', '/privacy/', '/terms/'].map((path) => ({
     loc: `${site}${path}`,
     lastmod: today,
     priority: path === '/' ? '1.0' : '0.6',
