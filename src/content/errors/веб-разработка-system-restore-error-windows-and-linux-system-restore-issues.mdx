@@ -1,0 +1,73 @@
+---
+title: Windows and Linux System Restore Issues
+errorId: system-restore-error
+category: Веб-разработка
+tags:
+  - system restore
+  - windows
+  - linux
+description: >-
+  System restore issues on Windows and Linux, including deleted restore points
+  and corrupted registries.
+symptoms:
+  - Deleted system restore points
+  - Corrupted registry
+  - System crashes
+causes:
+  - Malicious software
+  - Hardware failure
+  - Software conflicts
+steps:
+  - title: Try a system restore from a previous point
+    body: >-
+      Go to Control Panel > Recovery > Open System Restore. Select a previous
+      restore point and follow the prompts.
+    command: null
+    image: null
+  - title: Use the DISM command to repair the registry
+    body: >-
+      Open Command Prompt as administrator and run the command: dism /online
+      /cleanup-image /restorehealth
+    command: dism /online /cleanup-image /restorehealth
+    image: null
+  - title: Check for corrupted files using SFC
+    body: 'Open Command Prompt as administrator and run the command: sfc /scannow'
+    command: sfc /scannow
+    image: null
+updatedAt: '2026-05-28'
+publishedAt: '2026-05-28'
+readingTime: 1
+popularityScore: 97
+sources:
+  - title: >-
+      command line - unresolved - I added a Windows feature and now I can't boot
+      into Windows, how can I remove or disable the feature now? - Super User
+    url: >-
+      https://superuser.com/questions/1820092/unresolved-i-added-a-windows-feature-and-now-i-cant-boot-into-windows-how-ca
+    accessedAt: '2026-05-28'
+  - title: windows - Strange computer behavior - Super User
+    url: 'https://superuser.com/questions/1753897/strange-computer-behavior'
+    accessedAt: '2026-05-28'
+  - title: windows 10 - Computer randomly freezes one app at a time - Super User
+    url: >-
+      https://superuser.com/questions/1541261/computer-randomly-freezes-one-app-at-a-time
+    accessedAt: '2026-05-28'
+  - title: >-
+      windows - Windows10 System Restore point got deleted after failed restore
+      attempt - Super User
+    url: >-
+      https://superuser.com/questions/1476304/windows10-system-restore-point-got-deleted-after-failed-restore-attempt
+    accessedAt: '2026-05-28'
+  - title: >-
+      Linux crashed causing Windows virtualized (physical) partition registry
+      corruption - Super User
+    url: >-
+      https://superuser.com/questions/1155969/linux-crashed-causing-windows-virtualized-physical-partition-registry-corrupti
+    accessedAt: '2026-05-28'
+dedupe:
+  titleHash: 08bcfca0913ac0c26dc5510c1cddd02a5a389966ba07ed197171211e1255c372
+  solutionHash: b80b83c37c8524be39146e089818fde26266922cb1e3883da2d54b5165261ed6
+  sourceHash: a89ebe634fdf1f0931e258c555697c2be976488fd8b262557c3a8489df528c45
+draft: false
+---
+System restore issues can be frustrating and time-consuming to resolve. Try the steps above to troubleshoot and repair your system.

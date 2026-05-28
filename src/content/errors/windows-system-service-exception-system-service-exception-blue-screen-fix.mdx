@@ -1,0 +1,66 @@
+---
+title: SYSTEM_SERVICE_EXCEPTION Blue Screen Fix
+errorId: SYSTEM_SERVICE_EXCEPTION
+category: Windows
+tags:
+  - BSOD
+  - Blue Screen of Death
+  - SYSTEM_SERVICE_EXCEPTION
+description: >-
+  The SYSTEM_SERVICE_EXCEPTION error is a type of blue screen of death that
+  occurs in Windows.
+symptoms:
+  - Blue screen of death with SYSTEM_SERVICE_EXCEPTION error
+  - Random crashes during boot-up
+causes:
+  - Hyper-V virtual machine issue
+  - Fast startup enabled
+  - Corrupted or faulty hardware
+steps:
+  - title: Disable Hyper-V
+    body: >-
+      Open "Programs and Features" and click on "Turn Windows features on and
+      off"
+    command: optional
+    image: null
+  - title: Disable Fast Startup
+    body: Go to Control Panel > Power Options > Choose what the power buttons do
+    command: optional
+    image: null
+  - title: Check for corrupted or faulty hardware
+    body: Run a memory diagnostic test using Windows built-in tool
+    command: optional
+    image: null
+updatedAt: '2026-05-28'
+publishedAt: '2026-05-28'
+readingTime: 1
+popularityScore: 80
+sources:
+  - title: >-
+      windows - The dreaded blue screen crash: SYSTEM_SERVICE_EXCEPTION
+      (cng.sys) - Super User
+    url: >-
+      https://superuser.com/questions/1018795/the-dreaded-blue-screen-crash-system-service-exception-cng-sys
+    accessedAt: '2026-05-28'
+  - title: >-
+      How can i prevent a host BSOD when booting a VirtualBox machine? - Super
+      User
+    url: >-
+      https://superuser.com/questions/1236503/how-can-i-prevent-a-host-bsod-when-booting-a-virtualbox-machine
+    accessedAt: '2026-05-28'
+  - title: windows - Is my laptop SSD possibly corrupt? - Super User
+    url: 'https://superuser.com/questions/1013308/is-my-laptop-ssd-possibly-corrupt'
+    accessedAt: '2026-05-28'
+  - title: >-
+      64 bit - Constant BSODs within the last three days on a Windows 8.1.
+      Minidumps analyze needed - Super User
+    url: >-
+      https://superuser.com/questions/1004385/constant-bsods-within-the-last-three-days-on-a-windows-8-1-minidumps-analyze-ne
+    accessedAt: '2026-05-28'
+dedupe:
+  titleHash: 630547b19fe0ee851fca444919c1ff71a51d34f3f092436a9473ec3040752e3b
+  solutionHash: 613cb61f86d2f3ee74015e09cc008be88c9314dd6511b328787286598539fb12
+  sourceHash: 2194f565b5af786cec1f73126b6c472680381cb1d2835474f613ad585905cb60
+draft: false
+---
+The exact cause of the SYSTEM_SERVICE_EXCEPTION error is not always known, but disabling Hyper-V and fast startup may resolve the issue. If the problem persists, it's recommended to check for corrupted or faulty hardware.
