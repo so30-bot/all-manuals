@@ -117,12 +117,12 @@ const jsonLd = [buildArticleSchema(schemaData), buildHowToSchema(schemaData), bu
             <section id="sources">
               <h2>Источники</h2>
               <ol>
-                {data.sources.map((source) => (
-                  <li>
-                    <a href={source.url} rel="nofollow noopener noreferrer" target="_blank">{source.title}</a>
-                    <span class="text-slate-400"> — <span class="text-xs">{new URL(source.url).hostname.replace(/^www\./, '')}</span> · проверено {new Date(source.accessedAt).toLocaleDateString('ru-RU')}</span>
-                  </li>
-                ))}
+                  {data.sources.map((source) => (
+                    <li>
+                      <a class="text-xs" href={source.url} rel="nofollow noopener noreferrer" target="_blank">{new URL(source.url).hostname.replace(/^www\./, '')}</a>
+                      <span class="text-xs text-slate-400"> — проверено {new Date(source.accessedAt).toLocaleDateString('ru-RU')}</span>
+                    </li>
+                  ))}
               </ol>
             </section>
           )}

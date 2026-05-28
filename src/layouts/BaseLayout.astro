@@ -29,17 +29,15 @@ const props = Astro.props;
         const root = document.documentElement;
         const storageKey = 'all-manuals-theme';
         const readTheme = () => {
-          try { return localStorage.getItem(storageKey) || 'auto'; } catch { return 'auto'; }
+          try { const v = localStorage.getItem(storageKey); if (v === 'dark' || v === 'light') return v; } catch {}
+          return 'light';
         };
         const applyTheme = (theme) => {
-          const resolved = theme === 'auto'
-            ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-            : theme;
-          root.classList.toggle('dark', resolved === 'dark');
+          root.classList.toggle('dark', theme === 'dark');
           root.dataset.theme = theme;
-          root.dataset.resolvedTheme = resolved;
+          root.dataset.resolvedTheme = theme;
           const meta = document.getElementById('theme-color-meta');
-          if (meta) meta.content = resolved === 'dark' ? '#020617' : '#f8fafc';
+          if (meta) meta.content = theme === 'dark' ? '#020617' : '#f8fafc';
         };
         applyTheme(readTheme());
         window.__allManualsTheme = { applyTheme, readTheme, storageKey };
