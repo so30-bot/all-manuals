@@ -1,59 +1,71 @@
 ---
-title: "Ошибка 0x80070002 в Windows Update: как исправить"
-errorId: "0x80070002"
-category: "Windows"
+title: 'Ошибка 0x80070002 при обновлении Windows: решение'
+errorId: '0x80070002'
+category: Windows
 tags:
-  - Windows
+  - ошибка 0x80070002
   - Windows Update
-  - "0x80070002"
-  - Центр обновления
-description: "Пошаговая инструкция по устранению ошибки 0x80070002 при установке обновлений Windows с очисткой кэша обновлений и проверкой системных файлов."
+  - решение
+description: >-
+  Статья описывает ошибку 0x80070002, возникающую при обновлении Windows, и
+  предоставляет шаги для ее решения.
 symptoms:
-  - "Центр обновления Windows завершает установку с кодом 0x80070002."
-  - "Обновление загружается, но затем откатывается или зависает."
-  - "В журнале обновлений отображается неудачная попытка установки пакета."
+  - Ошибка 0x80070002 при попытке обновить Windows
+  - Не могу загрузить файл или сборку
+  - 'Система не может найти файл, указанный в пути'
 causes:
-  - "Поврежденный кэш Windows Update в каталоге SoftwareDistribution."
-  - "Некорректная работа служб wuauserv или bits."
-  - "Повреждение системных файлов Windows."
+  - Проблемы с правами доступа к файлам или папкам
+  - Неправильная настройка системы или программного обеспечения
+  - Конфликт между разными версиями программ или системой
 steps:
-  - title: "Запустите средство устранения неполадок Windows Update"
-    body: "Откройте Параметры Windows, перейдите в раздел системы устранения неполадок и запустите проверку для Центра обновления Windows. После исправлений перезагрузите компьютер и повторите обновление."
+  - title: Проверьте права доступа к файлам и папкам
+    body: >-
+      Убедитесь, что у вашего приложения или системы есть необходимые права для
+      чтения и записи в файлы и папки, которые используются во время обновления.
+      Это может включать изменение настроек безопасности или прав доступа.
     command: null
     image: null
-  - title: "Остановите службы обновления"
-    body: "Откройте Терминал или Командную строку от имени администратора и остановите службы, которые держат файлы кэша обновлений."
-    command: "net stop wuauserv\nnet stop bits"
+  - title: Проверьте версию программного обеспечения
+    body: >-
+      Убедитесь, что все компоненты и библиотеки, используемые в вашем
+      приложении или системе, соответствуют требованиям обновления. Это может
+      включать обновление до последней версии или корректировку конфигурации.
+    command: null
     image: null
-  - title: "Переименуйте кэш SoftwareDistribution"
-    body: "Переименование каталога безопаснее удаления: Windows создаст новый каталог при следующем запуске обновлений, а старый можно удалить позже после успешной установки."
-    command: "ren %windir%\\SoftwareDistribution SoftwareDistribution.old"
+  - title: Используйте команду для создания CIM-сессии
+    body: >-
+      Если ошибка связана с проблемами в удаленной сессии, вы можете попытаться
+      создать новую CIM-сессию с помощью команды. Это может помочь решить
+      проблемы с доступом или конфигурацией.
+    command: New-StmCimSession
     image: null
-  - title: "Запустите службы и проверьте системные файлы"
-    body: "Верните службы в работу, затем выполните проверку системных файлов. Если SFC сообщает об ошибках, дополнительно запустите DISM."
-    command: "net start bits\nnet start wuauserv\nsfc /scannow\nDISM /Online /Cleanup-Image /RestoreHealth"
+  - title: Обновите до последней версии
+    body: >-
+      Убедитесь, что ваша система и все используемые вами приложения обновлены
+      до последних версий. Это может помочь решить проблемы с совместимостью или
+      конфигурацией.
+    command: null
     image: null
-updatedAt: "2026-05-27"
-publishedAt: "2026-05-27"
-readingTime: 5
-popularityScore: 91
+updatedAt: '2026-05-28'
+publishedAt: '2026-05-27'
+readingTime: 2
+popularityScore: 50
 sources:
-  - title: "Microsoft Support: Windows Update troubleshooter"
-    url: "https://support.microsoft.com/windows/windows-update-troubleshooter"
-    accessedAt: "2026-05-27"
-  - title: "Microsoft Learn: DISM operating system package servicing command-line options"
-    url: "https://learn.microsoft.com/windows-hardware/manufacture/desktop/dism-operating-system-package-servicing-command-line-options"
-    accessedAt: "2026-05-27"
-  - title: "Microsoft Support: Use the System File Checker tool"
-    url: "https://support.microsoft.com/topic/use-the-system-file-checker-tool-to-repair-missing-or-corrupted-system-files"
-    accessedAt: "2026-05-27"
+  - title: >-
+      [BUG] 3.119.4 and 4.147.0-preview 3.1 do not work on Windows · Issue #4082
+      · mono/SkiaSharp · GitHub
+    url: 'https://github.com/mono/SkiaSharp/issues/4082'
+    accessedAt: '2026-05-28'
+  - title: >-
+      fix(scheduledtaskinfo): target remote CIM session and continue loop on
+      per-task failure by tablackburn · Pull Request #43 ·
+      tablackburn/ScheduledTasksManager · GitHub
+    url: 'https://github.com/tablackburn/ScheduledTasksManager/pull/43'
+    accessedAt: '2026-05-28'
 dedupe:
-  titleHash: "a05d595a2f933f4127556f6d9960162b40f06e58f8c46d8c287a59e72ab00a3a"
-  solutionHash: "c8c4d13d8a3c8ad01e275d85b243292c1d70eb37149f40f7e1be16339f724ab3"
-  sourceHash: "e3a74d4cfaf56d15b4795cb6ed12e989c0ecfbddda3f9f261a4db021fd4fb878"
+  titleHash: bcad875433a0668de50b216e3525ef446ad1f2356c9c07e6330817d0e5b32d78
+  solutionHash: 8a7b69199d8fe3678b4235bcd24414a3ba12deb7c3326a8ca5d64e1d94e6d44b
+  sourceHash: 93f7124dc5abd8ec53c1d37759c17197e76eb8eede1d6de09f5d59f1d8005dc6
 draft: false
 ---
-
-Если ошибка возвращается после очистки кэша, проверьте свободное место на системном диске и временно отключите сторонние утилиты, которые вмешиваются в обновление Windows. Не отключайте антивирус без необходимости и включите защиту обратно после проверки.
-
-Для корпоративных компьютеров дополнительно проверьте политики WSUS или Intune: локальная инструкция может не сработать, если обновления управляются администратором организации.
+Ошибка 0x80070002 может быть вызвана различными факторами, включая проблемы с правами доступа, неправильную настройку системы или программного обеспечения, и конфликты между разными версиями программ или системой. Решение этой ошибки часто требует тщательной диагностики и корректировки конфигурации или кода.

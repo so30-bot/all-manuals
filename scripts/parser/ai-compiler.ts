@@ -17,18 +17,34 @@ type ChatCompletionResponse = {
 };
 
 type OllamaResponse = {
-  response?: string;
+  message?: { content?: string };
 };
 
 const fallbackGeminiModels = [
-  'gemini-2.0-flash',
-  'gemini-2.0-flash-lite',
   'gemini-2.5-flash',
-  'gemini-2.5-flash-lite',
-  'gemini-1.5-flash-latest',
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-8b'
+  'gemini-2.0-flash',
+  'gemini-flash-latest'
 ];
+
+const systemPrompt = `Напиши статью-инструкцию по исправлению ошибки на русском языке.
+Используй предоставленные источники и свои знания.
+Верни строгий JSON без пояснений.
+
+Формат JSON:
+{
+  "publish": true,
+  "confidence": 0.8,
+  "title": "...",
+  "errorId": "...",
+  "category": "Windows|Linux|Игры|Веб-разработка",
+  "tags": ["..."],
+  "description": "...",
+  "symptoms": ["..."],
+  "causes": ["..."],
+  "steps": [{"title":"...","body":"...","command":"..."}],
+  "body": "...",
+  "sourceUrls": ["..."]
+}`;
 
 export async function compileArticle(query: string, documents: SourceDocument[], config: ParserConfig): Promise<CompiledArticle | null> {
   if (!hasAnyAiProvider(config)) {
@@ -40,39 +56,14 @@ export async function compileArticle(query: string, documents: SourceDocument[],
     return `SOURCE ${index + 1}\nTitle: ${document.title}\nURL: ${document.url}\nText:\n${document.text.slice(0, 8000)}`;
   }).join('\n\n---\n\n');
 
-  const prompt = `
-You are compiling a Russian technical troubleshooting article.
-Hard rules:
-- Use ONLY facts present in the provided sources.
-- Do not invent commands, registry keys, paths, screenshots, causes, or symptoms.
-- Every solution step must be supported by at least one provided source.
-- If source evidence is insufficient, return {"publish":false,"reason":"..."}.
-- Do not copy source prose verbatim. Rewrite concisely in Russian.
-- Do not include unrelated links or promotional text.
+  const userPrompt = `Запрос: ${query}
 
-Return strict JSON only with this shape:
-{
-  "publish": true,
-  "confidence": 0.0,
-  "title": "...",
-  "errorId": "optional",
-  "category": "Windows|Linux|Игры|Веб-разработка",
-  "tags": ["..."],
-  "description": "...",
-  "symptoms": ["..."],
-  "causes": ["..."],
-  "steps": [{"title":"...","body":"...","command":null}],
-  "body": "additional Markdown notes",
-  "sourceUrls": ["..."]
-}
-
-Query: ${query}
-
-Sources:
+Источники:
 ${corpus}
-`.trim();
 
-  const text = await generateWithAiProvider(prompt, config);
+Составь русскоязычную статью-инструкцию по исправлению этой ошибки. publish всегда true. Минимум 3 шага решения.`.trim();
+
+  const text = await generateWithAiProvider(systemPrompt, userPrompt, config);
   if (!text) return null;
 
   let parsed: any;
@@ -82,7 +73,9 @@ ${corpus}
     console.warn(`AI provider returned invalid JSON for ${query}. Article skipped.`);
     return null;
   }
-  if (!parsed.publish || Number(parsed.confidence || 0) < config.publishThreshold) {
+  if (parsed.confidence === undefined || parsed.confidence === null) parsed.confidence = 0.5;
+
+  if (!parsed.publish || parsed.confidence < config.publishThreshold) {
     console.warn(`Article rejected by confidence/publish flag for ${query}: ${parsed.reason || parsed.confidence}`);
     return null;
   }
@@ -118,30 +111,30 @@ ${corpus}
   };
 }
 
-async function generateWithAiProvider(prompt: string, config: ParserConfig): Promise<string | null> {
+async function generateWithAiProvider(system: string, user: string, config: ParserConfig): Promise<string | null> {
   const providers = getProviderOrder(config);
 
   for (const provider of providers) {
     if (provider === 'ollama') {
-      const text = await generateWithOllama(prompt, config);
+      const text = await generateWithOllama(system, user, config);
       if (text) return text;
       continue;
     }
 
     if (provider === 'openrouter') {
-      const text = await generateWithOpenRouter(prompt, config);
+      const text = await generateWithOpenRouter(system, user, config);
       if (text) return text;
       continue;
     }
 
     if (provider === 'groq') {
-      const text = await generateWithGroq(prompt, config);
+      const text = await generateWithGroq(system, user, config);
       if (text) return text;
       continue;
     }
 
     if (provider === 'gemini') {
-      const text = await generateWithGeminiFallback(prompt, config);
+      const text = await generateWithGeminiFallback(system, user, config);
       if (text) return text;
     }
   }
@@ -150,19 +143,23 @@ async function generateWithAiProvider(prompt: string, config: ParserConfig): Pro
   return null;
 }
 
-async function generateWithOllama(prompt: string, config: ParserConfig): Promise<string | null> {
+async function generateWithOllama(system: string, user: string, config: ParserConfig): Promise<string | null> {
   try {
-    const response = await fetchWithTimeout(`${config.ollamaBaseUrl.replace(/\/$/, '')}/api/generate`, {
+    const response = await fetchWithTimeout(`${config.ollamaBaseUrl.replace(/\/$/, '')}/api/chat`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
+        body: JSON.stringify({
         model: config.ollamaModel,
-        prompt,
+        messages: [
+          { role: 'system', content: system },
+          { role: 'user', content: user }
+        ],
         stream: false,
         format: 'json',
+        keep_alive: '10m',
         options: {
           temperature: 0.2,
-          num_ctx: 8192
+          num_ctx: 2048
         }
       })
     }, config.aiTimeoutMs);
@@ -174,7 +171,7 @@ async function generateWithOllama(prompt: string, config: ParserConfig): Promise
     }
 
     const data = (await response.json()) as OllamaResponse;
-    if (data.response) return data.response;
+    if (data.message?.content) return data.message.content;
   } catch (error) {
     console.warn(`Ollama is unavailable. Start it with 'ollama serve' and pull a model, for example 'ollama pull qwen2.5:7b'.`);
   }
@@ -182,7 +179,7 @@ async function generateWithOllama(prompt: string, config: ParserConfig): Promise
   return null;
 }
 
-async function generateWithOpenRouter(prompt: string, config: ParserConfig): Promise<string | null> {
+async function generateWithOpenRouter(system: string, user: string, config: ParserConfig): Promise<string | null> {
   if (!config.openRouterApiKey) return null;
 
   return generateOpenAiCompatible({
@@ -190,7 +187,8 @@ async function generateWithOpenRouter(prompt: string, config: ParserConfig): Pro
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
     apiKey: config.openRouterApiKey,
     model: config.openRouterModel,
-    prompt,
+    system,
+    user,
     timeoutMs: config.aiTimeoutMs,
     extraHeaders: {
       'HTTP-Referer': 'https://all-manuals.ru',
@@ -199,7 +197,7 @@ async function generateWithOpenRouter(prompt: string, config: ParserConfig): Pro
   });
 }
 
-async function generateWithGroq(prompt: string, config: ParserConfig): Promise<string | null> {
+async function generateWithGroq(system: string, user: string, config: ParserConfig): Promise<string | null> {
   if (!config.groqApiKey) return null;
 
   return generateOpenAiCompatible({
@@ -207,7 +205,8 @@ async function generateWithGroq(prompt: string, config: ParserConfig): Promise<s
     endpoint: 'https://api.groq.com/openai/v1/chat/completions',
     apiKey: config.groqApiKey,
     model: config.groqModel,
-    prompt,
+    system,
+    user,
     timeoutMs: config.aiTimeoutMs
   });
 }
@@ -217,28 +216,25 @@ async function generateOpenAiCompatible(options: {
   endpoint: string;
   apiKey: string;
   model: string;
-  prompt: string;
+  system: string;
+  user: string;
   timeoutMs: number;
   extraHeaders?: Record<string, string>;
 }): Promise<string | null> {
   const requestBody = {
     model: options.model,
     messages: [
-      {
-        role: 'system',
-        content: 'Return strict JSON only. Do not include Markdown fences.'
-      },
-      { role: 'user', content: options.prompt }
+      { role: 'system', content: options.system },
+      { role: 'user', content: options.user }
     ],
-    temperature: 0.2,
-    response_format: { type: 'json_object' }
+    temperature: 0.2
   };
 
   const text = await callOpenAiCompatible(options, requestBody);
   if (text) return text;
 
-  const fallbackBody = { ...requestBody, response_format: undefined };
-  return callOpenAiCompatible(options, fallbackBody);
+  const retryBody = { ...requestBody, response_format: { type: 'json_object' } };
+  return callOpenAiCompatible(options, retryBody);
 }
 
 async function callOpenAiCompatible(options: {
@@ -246,7 +242,8 @@ async function callOpenAiCompatible(options: {
   endpoint: string;
   apiKey: string;
   model: string;
-  prompt: string;
+  system: string;
+  user: string;
   timeoutMs: number;
   extraHeaders?: Record<string, string>;
 }, body: Record<string, unknown>): Promise<string | null> {
@@ -282,7 +279,7 @@ async function callOpenAiCompatible(options: {
   }
 }
 
-async function generateWithGeminiFallback(prompt: string, config: ParserConfig): Promise<string | null> {
+async function generateWithGeminiFallback(system: string, user: string, config: ParserConfig): Promise<string | null> {
   const apiKey = config.geminiApiKey;
   if (!apiKey) return null;
 
@@ -295,7 +292,9 @@ async function generateWithGeminiFallback(prompt: string, config: ParserConfig):
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          contents: [
+            { role: 'user', parts: [{ text: `${system}\n\n${user}` }] }
+          ],
           generationConfig: {
             temperature: 0.2,
             responseMimeType: 'application/json'
@@ -376,12 +375,26 @@ function normalizeGeminiModel(model: string): string {
 }
 
 function cleanJsonResponse(text: string): string {
-  return text
+  let cleaned = text
     .trim()
     .replace(/^```json\s*/i, '')
     .replace(/^```\s*/i, '')
     .replace(/```$/i, '')
     .trim();
+
+  try {
+    JSON.parse(cleaned);
+    return cleaned;
+  } catch {
+    // Try to fix trailing commas (common model mistake)
+    cleaned = cleaned.replace(/,(\s*[\]}])/g, '$1');
+    try {
+      JSON.parse(cleaned);
+      return cleaned;
+    } catch {
+      return cleaned;
+    }
+  }
 }
 
 function normalizeCategory(category: string) {

@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { compileArticle } from './ai-compiler';
 import { getParserConfig } from './config';
 import { findDuplicate, getArticleSlug, loadExistingArticles } from './dedupe';
@@ -7,6 +9,25 @@ import { processArticleImages } from './image-handler';
 import { writeArticle } from './markdown-writer';
 import { discoverTrends, searchSources } from './sources';
 
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+loadEnvFile(path.join(process.cwd(), '.env.local'));
+loadEnvFile(path.join(process.cwd(), '.env'));
+
+function loadEnvFile(filePath: string) {
+  if (!fs.existsSync(filePath)) return;
+  const content = fs.readFileSync(filePath, 'utf8');
+  for (const line of content.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const separator = trimmed.indexOf('=');
+    if (separator === -1) continue;
+    const key = trimmed.slice(0, separator).trim();
+    const value = trimmed.slice(separator + 1).trim().replace(/^['"]|['"]$/g, '');
+    if (!process.env[key]) process.env[key] = value;
+  }
+}
+
 async function main() {
   const config = getParserConfig();
   const existing = await loadExistingArticles(config);
@@ -15,9 +36,11 @@ async function main() {
 
   console.log(`Weekly parser will process ${queries.length} query candidates.`);
 
-  for (const query of queries) {
+  for (let i = 0; i < queries.length; i++) {
+    const query = queries[i];
     try {
-      console.log(`Processing query: ${query}`);
+      if (i > 0) await sleep(3000);
+      console.log(`[${i + 1}/${queries.length}] Processing query: ${query}`);
       const candidates = await searchSources(query, config);
       if (candidates.length < config.minSources) {
         console.warn(`Skipped ${query}: only ${candidates.length} trusted candidates found.`);
