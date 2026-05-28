@@ -1,32 +1,45 @@
 ---
-title: Update dependencies and fix issues
+title: Code Review and Bug Fixes for Various Projects
 errorId: none
 category: Веб-разработка
 tags:
-  - dependency update
-  - issue fix
+  - code review
+  - bug fixes
+  - web development
 description: >-
-  This commit updates several dependencies, including acorn-io/acorn to v0.22.1,
-  multica-ai/multica-web to v0.3.11, and obot-platform/obot to v0.22.1. It also
-  fixes various issues, such as preserving multi-line Pi prompts 
+  This output summarizes code reviews and bug fixes for various projects,
+  including a fix for a kqueue dispatcher busy-spin bug, addition of a community
+  overlay for UK finance, and other changes.
 symptoms:
-  - dependency issues
-  - issue fixes
+  - 100% CPU usage
+  - code review errors
+  - bug fixes needed
 causes:
-  - outdated dependencies
-  - bugs
+  - kqueue dispatcher issue
+  - missing citations
+  - systemic pattern in code
 steps:
-  - title: Update acorn-io/acorn to v0.22.1
-    body: Run `npm install acorn-io/acorn@0.22.1`
-    command: null
+  - title: Fix kqueue dispatcher bug
+    body: >-
+      Introduce a dedicated POLL_TYPE_LISTEN_SOCKET to separate poll handling
+      for connecting client sockets from server listen sockets.
+    command: >-
+      git commit -m 'fix(kqueue): fix incorrect filter comparison causing
+      excessive CPU on macOS'
     image: null
-  - title: Update multica-ai/multica-web to v0.3.11
-    body: Run `npm install multica-ai/multica-web@0.3.11`
-    command: null
+  - title: Add UK finance community overlay
+    body: >-
+      Scaffold a new community plugin for UK finance, registering doc-types and
+      templates as needed.
+    command: git add arckit-uk-finance
     image: null
-  - title: Update obot-platform/obot to v0.22.1
-    body: Run `npm install obot-platform/obot@0.22.1`
-    command: null
+  - title: Review and fix code quality issues
+    body: >-
+      Address systemic patterns in code, missing citations, and other quality
+      issues.
+    command: >-
+      git commit -m 'fix(code quality): address systemic patterns and missing
+      citations'
     image: null
 updatedAt: '2026-05-28'
 publishedAt: '2026-05-28'
@@ -34,34 +47,35 @@ readingTime: 1
 popularityScore: 97
 sources:
   - title: >-
-      chore(deps): update dependency anthropics/claude-code to v2.1.154 by
-      renovate[bot] · Pull Request #254 · kazukitcy/dotfiles · GitHub
-    url: 'https://github.com/kazukitcy/dotfiles/pull/254'
+      chore(deps): bump the production-minor-patch group with 8 updates by
+      dependabot[bot] · Pull Request #329 · jharvieux/ATC · GitHub
+    url: 'https://github.com/jharvieux/ATC/pull/329'
     accessedAt: '2026-05-28'
   - title: >-
-      Update dependency anthropic to ^0.105.0 by renovate[bot] · Pull Request
-      #83 · 101dotxyz/GPTeam · GitHub
-    url: 'https://github.com/101dotxyz/GPTeam/pull/83'
+      Get Bluetooth working on Canary WAP: unify pio + Arduino IDE on one sketch
+      by kmay89 · Pull Request #602 · kmay89/securaCV · GitHub
+    url: 'https://github.com/kmay89/securaCV/pull/602'
     accessedAt: '2026-05-28'
   - title: >-
-      chore(deps): update dependency aqua:anthropics/claude-code to v2.1.146 by
-      renovate[bot] · Pull Request #82 · koki-develop/techclip · GitHub
-    url: 'https://github.com/koki-develop/techclip/pull/82'
+      Update dependency immutable to v5 by renovate[bot] · Pull Request #409 ·
+      thanxngo/redux-crudo · GitHub
+    url: 'https://github.com/thanxngo/redux-crudo/pull/409'
     accessedAt: '2026-05-28'
   - title: >-
-      chore(deps): update ghcr.io/multica-ai/multica-web docker tag to v0.3.11
-      by renovate[bot] · Pull Request #180 · RealTong/homelab · GitHub
-    url: 'https://github.com/RealTong/homelab/pull/180'
+      fix(usockets): introduce POLL_TYPE_LISTEN_SOCKET to stop accept(2) spin on
+      macOS after CLOSE_WAIT accumulation by gastonmorixe · Pull Request #31511
+      · oven-sh/bun · GitHub
+    url: 'https://github.com/oven-sh/bun/pull/31511'
     accessedAt: '2026-05-28'
   - title: >-
-      chore(deps): update dependency acorn-io/acorn to v0.22.1 by renovate[bot]
-      · Pull Request #29 · podtato-head/podtato-head-delivery · GitHub
-    url: 'https://github.com/podtato-head/podtato-head-delivery/pull/29'
+      feat(uk-finance): add arckit-uk-finance community overlay (v5.3.0) by
+      tractorjuice · Pull Request #519 · tractorjuice/arc-kit · GitHub
+    url: 'https://github.com/tractorjuice/arc-kit/pull/519'
     accessedAt: '2026-05-28'
 dedupe:
-  titleHash: 2508341199bf5df3cbe448fe39db707259c524e351478af5b6b70a5eb3e79ea1
-  solutionHash: 9385bca5dd944dbece7446baeb5809b562ef754583f29830836268bf39ef713e
-  sourceHash: dac832c68a00880821991ab5690815500eeeb7ee957bf81529dc2bf72b325540
+  titleHash: 3d19a5220d2225a53bd842e373683c541cc338cc33d20aeea14d37f91f918caa
+  solutionHash: 1dfad9cacc81c4cceec98c7050406b8b7d6503cf793d1367fb05f2eb7296fdfe
+  sourceHash: 3b6a0e9429ab59e411d50776fdc3e4f78511d081072779f885b911c2d8f7e595
 draft: false
 ---
-This commit updates several dependencies and fixes various issues.
+This output provides a summary of code reviews and bug fixes for various projects, including a fix for a kqueue dispatcher busy-spin bug, addition of a community overlay for UK finance, and other changes.
