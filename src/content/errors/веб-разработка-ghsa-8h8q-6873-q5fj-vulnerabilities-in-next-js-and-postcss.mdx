@@ -1,0 +1,65 @@
+---
+title: Vulnerabilities in Next.js and PostCSS
+errorId: GHSA-8h8q-6873-q5fj
+category: Веб-разработка
+tags:
+  - Next.js
+  - PostCSS
+  - vulnerability
+description: >-
+  Vulnerabilities have been found in Next.js and PostCSS, including denial of
+  service and cache poisoning.
+symptoms:
+  - Denial of Service with Server Components
+  - Cache poisoning in React Server Component responses
+causes:
+  - Using affected versions of Next.js and PostCSS
+  - Not upgrading to patched versions
+steps:
+  - title: Upgrade Next.js
+    body: Update Next.js to version 16.2.6 or later
+    command: npm install next@16.2.6
+    image: null
+  - title: Upgrade PostCSS
+    body: Update PostCSS to version 8.5.10 or later
+    command: npm install postcss@8.5.10
+    image: null
+updatedAt: '2026-05-28'
+publishedAt: '2026-05-28'
+readingTime: 1
+popularityScore: 93
+sources:
+  - title: >-
+      fix(plugins): reject incompatible package plugin API installs by
+      rohitjavvadi · Pull Request #87477 · openclaw/openclaw · GitHub
+    url: 'https://github.com/openclaw/openclaw/pull/87477'
+    accessedAt: '2026-05-28'
+  - title: >-
+      fix(deps): update react monorepo (major) by renovate[bot] · Pull Request
+      #581 · tubone24/portfolio · GitHub
+    url: 'https://github.com/tubone24/portfolio/pull/581'
+    accessedAt: '2026-05-28'
+  - title: >-
+      feat(session)!: session-scoped infrastructure (cookie identity,
+      per-session graph factory, token-usage rollup) by fr0ster · Pull Request
+      #163 · fr0ster/llm-agent · GitHub
+    url: 'https://github.com/fr0ster/llm-agent/pull/163'
+    accessedAt: '2026-05-28'
+  - title: >-
+      fix(deps): update dependency next to v15 [security] by renovate[bot] ·
+      Pull Request #411 · GoldElysium/hef-website · GitHub
+    url: 'https://github.com/GoldElysium/hef-website/pull/411'
+    accessedAt: '2026-05-28'
+  - title: >-
+      build(deps): bump the npm_and_yarn group across 1 directory with 2 updates
+      by dependabot[bot] · Pull Request #13 ·
+      Django-Rwanda/Django-Rwanda-website · GitHub
+    url: 'https://github.com/Django-Rwanda/Django-Rwanda-website/pull/13'
+    accessedAt: '2026-05-28'
+dedupe:
+  titleHash: 5b85a8165f415b0de565cda47b51fd39a28ce6bec92cc26455300f1df72abaa1
+  solutionHash: 21de0bceb8f07b1ffd669d314f25bea67f15aec34f5d5c2e6e0eac510adad4e0
+  sourceHash: 72bc04150255dda79a8f1923dd7d0df72b0cb4cd620636d57c9cc574a260aa1f
+draft: false
+---
+Vulnerabilities have been found in Next.js and PostCSS. Upgrade to patched versions to prevent exploitation.
