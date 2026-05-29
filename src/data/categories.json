@@ -20,5 +20,13 @@
   { "name": "Браузеры", "slug": "browsers", "description": "Ошибки Chrome, Firefox, Safari, Edge, расширений, куки и кэша." },
   { "name": "Электронная почта", "slug": "email", "description": "Ошибки отправки, получения, SPF, DKIM, IMAP, SMTP и почтовых клиентов." },
   { "name": "Дизайн и графика", "slug": "design", "description": "Ошибки Photoshop, Figma, Adobe, рендеринга, шрифтов и экспорта." },
-  { "name": "Виртуализация", "slug": "virtualization", "description": "Ошибки VMware, VirtualBox, Hyper-V, WSL, эмуляции и гостевых ОС." }
+  { "name": "Виртуализация", "slug": "virtualization", "description": "Ошибки VMware, VirtualBox, Hyper-V, WSL, эмуляции и гостевых ОС." },
+  { "name": "Стиральные машины", "slug": "washing-machines", "description": "Ошибки стиральных машин: LG, Samsung, Bosch, Indesit, не сливает, не отжимает, коды ошибок." },
+  { "name": "Холодильники", "slug": "refrigerators", "description": "Ошибки холодильников: не морозит, течёт, шумит, коды ошибок LG, Samsung, Bosch, Indesit." },
+  { "name": "Посудомоечные машины", "slug": "dishwashers", "description": "Ошибки посудомоечных машин: не моет, не сливает, коды ошибок Bosch, Siemens, Electrolux." },
+  { "name": "Микроволновки и духовки", "slug": "microwaves-ovens", "description": "Ошибки микроволновок и духовок: не греет, не включается, искрит, коды ошибок." },
+  { "name": "Кондиционеры и обогрев", "slug": "ac-heating", "description": "Ошибки кондиционеров и обогревателей: не включается, не охлаждает, коды ошибок сплит-систем." },
+  { "name": "Телевизоры и аудио", "slug": "tvs-audio", "description": "Ошибки телевизоров, аудиосистем, саундбаров, пультов: не включается, нет изображения/звука." },
+  { "name": "Пылесосы и роботы-пылесосы", "slug": "vacuums", "description": "Ошибки пылесосов и роботов-пылесосов: не заряжается, не убирает, ошибки карт, коды." },
+  { "name": "Электроинструмент", "slug": "power-tools", "description": "Неисправности дрелей, шуруповёртов, болгарок, перфораторов: не работает, искрит, не заряжается." }
 ]

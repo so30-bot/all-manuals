@@ -26,8 +26,12 @@ const fallbackGeminiModels = [
   'gemini-flash-latest'
 ];
 
-const systemPrompt = `Напиши статью-инструкцию по исправлению ошибки на русском языке.
-Используй предоставленные источники и свои знания.
+const systemPrompt = `Ты — автор технического блога по ремонту и настройке техники.
+
+Напиши уникальную статью-инструкцию по исправлению ошибки или неисправности на русском языке. Перескажи своими словами, не копируй источники дословно — Google должен видеть уникальный контент.
+
+Используй предоставленные источники и свои знания. Добавь практические детали из опыта.
+
 Верни строгий JSON без пояснений.
 
 Формат JSON:
@@ -36,7 +40,7 @@ const systemPrompt = `Напиши статью-инструкцию по исп
   "confidence": 0.8,
   "title": "...",
   "errorId": "...",
-  "category": "Windows|Linux|Игры|Веб-разработка",
+  "category": "Windows|Linux|macOS|Игры|Мобильные устройства|Веб-разработка|Программирование|Базы данных|DevOps и облака|Docker и контейнеры|Оборудование|Сеть|Безопасность|Хранилища и файлы|BIOS и UEFI|Принтеры и сканеры|Аудио и видео|Офисные программы|Браузеры|Электронная почта|Дизайн и графика|Виртуализация|Стиральные машины|Холодильники|Посудомоечные машины|Микроволновки и духовки|Кондиционеры и обогрев|Телевизоры и аудио|Пылесосы и роботы-пылесосы|Электроинструмент",
   "tags": ["..."],
   "description": "...",
   "symptoms": ["..."],
@@ -158,7 +162,7 @@ async function generateWithOllama(system: string, user: string, config: ParserCo
         format: 'json',
         keep_alive: '10m',
         options: {
-          temperature: 0.2,
+          temperature: 0.7,
           num_ctx: 2048
         }
       })
@@ -227,7 +231,7 @@ async function generateOpenAiCompatible(options: {
       { role: 'system', content: options.system },
       { role: 'user', content: options.user }
     ],
-    temperature: 0.2
+    temperature: 0.7
   };
 
   const text = await callOpenAiCompatible(options, requestBody);
@@ -296,7 +300,7 @@ async function generateWithGeminiFallback(system: string, user: string, config: 
             { role: 'user', parts: [{ text: `${system}\n\n${user}` }] }
           ],
           generationConfig: {
-            temperature: 0.2,
+            temperature: 0.7,
             responseMimeType: 'application/json'
           }
         })
@@ -398,6 +402,16 @@ function cleanJsonResponse(text: string): string {
 }
 
 function normalizeCategory(category: string) {
-  const allowed = new Set(['Windows', 'Linux', 'Игры', 'Веб-разработка']);
+  const allowed = new Set([
+    'Windows', 'Linux', 'macOS', 'Игры', 'Мобильные устройства',
+    'Веб-разработка', 'Программирование', 'Базы данных', 'DevOps и облака',
+    'Docker и контейнеры', 'Оборудование', 'Сеть', 'Безопасность',
+    'Хранилища и файлы', 'BIOS и UEFI', 'Принтеры и сканеры',
+    'Аудио и видео', 'Офисные программы', 'Браузеры', 'Электронная почта',
+    'Дизайн и графика', 'Виртуализация',
+    'Стиральные машины', 'Холодильники', 'Посудомоечные машины',
+    'Микроволновки и духовки', 'Кондиционеры и обогрев',
+    'Телевизоры и аудио', 'Пылесосы и роботы-пылесосы', 'Электроинструмент'
+  ]);
   return allowed.has(category) ? category : 'Веб-разработка';
 }
