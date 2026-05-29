@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .astro/
+public/images/og/
 .env
 .env.*
 !.env.example

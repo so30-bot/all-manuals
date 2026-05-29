@@ -12,6 +12,7 @@ export async function getStaticPaths() {
 
 const { article } = Astro.props;
 const { Content } = await render(article);
+const ogImage = `/images/og/${article.id}.png`;
 const allArticles = (await getCollection('errors')).filter((entry) => !entry.data.draft && entry.id !== article.id);
 const related = allArticles
   .map((entry) => ({
@@ -26,6 +27,6 @@ const related = allArticles
   .map((item) => item.entry);
 ---
 
-<ArticleLayout article={article} related={related}>
+<ArticleLayout article={article} related={related} image={ogImage}>
   <Content />
 </ArticleLayout>

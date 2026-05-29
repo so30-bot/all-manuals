@@ -1,5 +1,6 @@
 import type { ParserConfig, SourceCandidate } from './types';
 import { buildDefaultQueries, getQueryCatalogSummary } from './query-catalog';
+import * as cheerio from 'cheerio';
 
 export async function discoverTrends(_config: ParserConfig): Promise<string[]> {
   const envQueries = process.env.PARSER_QUERIES?.split('|').map((query) => query.trim()).filter(Boolean);
@@ -87,6 +88,9 @@ async function searchSerper(query: string, config: ParserConfig): Promise<Source
 
 async function searchOpenSources(query: string, config: ParserConfig): Promise<SourceCandidate[]> {
   const results = await Promise.allSettled([
+    searchDuckDuckGo(query),
+    searchWikipedia(query, 'ru'),
+    searchWikipedia(query, 'en'),
     searchGitHubIssues(query),
     searchStackExchange(query, 'stackoverflow'),
     searchStackExchange(query, 'superuser'),
@@ -98,6 +102,66 @@ async function searchOpenSources(query: string, config: ParserConfig): Promise<S
   return results
     .flatMap((result) => result.status === 'fulfilled' ? result.value : [])
     .filter((item) => isAllowedCandidate(item, config));
+}
+
+async function searchDuckDuckGo(query: string): Promise<SourceCandidate[]> {
+  try {
+    const url = `https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(query)}&gl=ru&kl=ru-ru&ia=web`;
+    const response = await fetch(url, {
+      headers: {
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'accept-language': 'ru-RU,ru;q=0.9,en;q=0.8'
+      }
+    });
+    if (!response.ok) return [];
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+    const results: SourceCandidate[] = [];
+
+    $('.result-link').each((_, el) => {
+      const href = $(el).attr('href');
+      if (!href) return;
+      try {
+        const redirectUrl = new URL(href, 'https://duckduckgo.com');
+        const rawUrl = redirectUrl.searchParams.get('uddg');
+        if (!rawUrl) return;
+        const actualUrl = decodeURIComponent(rawUrl);
+        const parsed = new URL(actualUrl);
+        const snippet = $(el).parent().find('.result-snippet').first().text().trim().slice(0, 240);
+        results.push({
+          title: $(el).text().trim() || parsed.hostname,
+          url: parsed.toString(),
+          snippet,
+          domain: parsed.hostname.replace(/^www\./, '')
+        });
+      } catch { /* skip invalid URLs */ }
+    });
+
+    return results;
+  } catch {
+    return [];
+  }
+}
+
+async function searchWikipedia(query: string, lang: string): Promise<SourceCandidate[]> {
+  try {
+    const response = await fetch(`https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&format=json&srlimit=5&srprop=snippet`, {
+      headers: { 'user-agent': 'AllManualsBot/0.1 (+https://all-manuals.ru/dmca/)' }
+    });
+    if (!response.ok) return [];
+    const data = await response.json() as { query?: { search?: Array<{ title: string; snippet: string; pageid: number }> } };
+    const pages = data.query?.search ?? [];
+    return pages.map((page) => ({
+      title: page.title,
+      url: `https://${lang}.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`,
+      snippet: stripHtml(page.snippet).slice(0, 240),
+      domain: `${lang}.wikipedia.org`
+    }));
+  } catch {
+    return [];
+  }
 }
 
 async function searchGitHubIssues(query: string): Promise<SourceCandidate[]> {
@@ -125,7 +189,7 @@ async function searchGitHubIssues(query: string): Promise<SourceCandidate[]> {
 }
 
 async function searchStackExchange(query: string, site: string): Promise<SourceCandidate[]> {
-  const response = await fetch(`https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=activity&pagesize=5&site=${encodeURIComponent(site)}&q=${encodeURIComponent(query)}&filter=!nNPvSNeR2X`, {
+  const response = await fetch(`https://api.stackexchange.com/2.3/search/advanced?order=desc&sort=activity&pagesize=5&site=${encodeURIComponent(site)}&q=${encodeURIComponent(query)}`, {
     headers: { 'user-agent': 'AllManualsBot/0.1 (+https://all-manuals.ru/dmca/)' }
   });
   if (!response.ok) return [];

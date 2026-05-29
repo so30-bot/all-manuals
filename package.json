@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "og:generate": "tsx scripts/generate-og-images.ts",
+    "dev": "tsx scripts/generate-og-images.ts && astro dev",
+    "build": "tsx scripts/generate-og-images.ts && astro build",
     "preview": "astro preview",
     "typecheck": "astro check",
     "lint": "astro check",

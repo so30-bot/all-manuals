@@ -30,15 +30,16 @@ type ArticleEntry = {
 type Props = {
   article: ArticleEntry;
   related: ArticleEntry[];
+  image?: string;
 };
 
-const { article, related } = Astro.props;
+const { article, related, image } = Astro.props;
 const data = article.data;
 const schemaData = { ...data, slug: article.id };
 const jsonLd = [buildArticleSchema(schemaData), buildHowToSchema(schemaData), buildBreadcrumbSchema(schemaData)];
 ---
 
-<BaseLayout title={data.title} description={data.description} path={`/errors/${article.id}/`} type="article" jsonLd={jsonLd}>
+<BaseLayout title={data.title} description={data.description} path={`/errors/${article.id}/`} type="article" image={image} jsonLd={jsonLd}>
   <article class="article-shell mx-auto max-w-6xl px-3 py-6 sm:px-6 sm:py-10 lg:px-8">
     <div class="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-8">
       <div class="min-w-0">
