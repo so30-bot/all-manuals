@@ -11,6 +11,10 @@ export function getParserConfig(): ParserConfig {
     blockedDomains: rules.blockedDomains,
     aiProvider: process.env.AI_PROVIDER || 'auto',
     geminiApiKey: process.env.GEMINI_API_KEY,
+    geminiApiKeys: [
+      process.env.GEMINI_API_KEY,
+      process.env.GEMINI_API_KEY_2
+    ].filter(Boolean) as string[],
     geminiModel: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434',
     ollamaModel: process.env.OLLAMA_MODEL || 'qwen2.5:7b',

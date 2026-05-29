@@ -57,6 +57,7 @@ export type ParserConfig = {
   blockedDomains: string[];
   aiProvider: string;
   geminiApiKey?: string;
+  geminiApiKeys: string[];
   geminiModel: string;
   ollamaBaseUrl: string;
   ollamaModel: string;

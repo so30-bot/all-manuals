@@ -11,6 +11,33 @@ import { discoverTrends, searchSources } from './sources';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
+function toEnglishQuery(query: string): string {
+  const ruToEn: Record<string, string> = {
+    'ошибка': 'error', 'исправить': 'fix', 'как исправить': 'how to fix',
+    'не работает': 'not working', 'не запускается': 'not starting',
+    'не включается': 'not turning on', 'не открывается': 'not opening',
+    'не устанавливается': 'installation failed', 'не удаляется': 'cannot uninstall',
+    'не обновляется': 'update failed', 'крашит': 'crash', 'вылетает': 'crash',
+    'тормозит': 'slow', 'зависает': 'freeze', 'загрузка': 'boot',
+    'не видит': 'not detected', 'не находит': 'not found',
+    'не подключается': 'connection failed', 'ошибка подключения': 'connection error',
+    'решение': 'solution', 'решения': 'solution', 'пошаговое решение': 'step by step fix',
+    'код ошибки': 'error code', 'не сливает': 'not draining',
+    'не отжимает': 'not spinning', 'не моет': 'not cleaning',
+    'не греет': 'not heating', 'не морозит': 'not cooling',
+    'течёт': 'leaking', 'шумит': 'noisy', 'вибрирует': 'vibrating',
+    'не заряжается': 'not charging', 'не печатает': 'not printing',
+    'нет изображения': 'no picture', 'нет звука': 'no sound',
+    'чёрный экран': 'black screen', 'синий экран': 'blue screen',
+    'bsod': 'BSOD', 'синий экран смерти': 'blue screen of death',
+  };
+  let en = query;
+  for (const [ru, eng] of Object.entries(ruToEn)) {
+    en = en.replace(new RegExp(ru, 'gi'), eng);
+  }
+  return en;
+}
+
 loadEnvFile(path.join(process.cwd(), '.env.local'));
 loadEnvFile(path.join(process.cwd(), '.env'));
 
@@ -42,12 +69,26 @@ async function main() {
       if (i > 0) await sleep(6000);
       console.log(`[${i + 1}/${queries.length}] Processing query: ${query}`);
       const candidates = await searchSources(query, config);
+      let fetchedDocs = candidates;
+
       if (candidates.length < config.minSources) {
-        console.warn(`Skipped ${query}: only ${candidates.length} trusted candidates found.`);
+        const enQuery = toEnglishQuery(query);
+        if (enQuery !== query) {
+          console.log(`  Only ${candidates.length} RU sources. Trying EN: "${enQuery.slice(0, 60)}..."`);
+          await sleep(2000);
+          const enCandidates = await searchSources(enQuery, config);
+          if (enCandidates.length > candidates.length) {
+            fetchedDocs = enCandidates;
+          }
+        }
+      }
+
+      if (fetchedDocs.length < config.minSources) {
+        console.warn(`Skipped ${query}: only ${fetchedDocs.length} trusted candidates found.`);
         continue;
       }
 
-      const fetched = (await Promise.all(candidates.slice(0, 8).map((candidate) => fetchSource(candidate, config))))
+      const fetched = (await Promise.all(fetchedDocs.slice(0, 8).map((candidate) => fetchSource(candidate, config))))
         .filter(Boolean)
         .map((document) => extractReadableText(document!))
         .filter((document) => document.text.length >= 800);

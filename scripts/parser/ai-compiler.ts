@@ -288,55 +288,62 @@ async function callOpenAiCompatible(options: {
   }
 }
 
+let geminiKeyIndex = 0;
+
 async function generateWithGeminiFallback(system: string, user: string, config: ParserConfig): Promise<string | null> {
-  const apiKey = config.geminiApiKey;
-  if (!apiKey) return null;
+  const keys = config.geminiApiKeys;
+  if (keys.length === 0) return null;
 
   const models = getGeminiModelCandidates(config.geminiModel);
 
   for (const model of models) {
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-      const response = await fetchWithTimeout(url, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          contents: [
-            { role: 'user', parts: [{ text: `${system}\n\n${user}` }] }
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            responseMimeType: 'application/json'
+    for (let attempt = 0; attempt < keys.length; attempt++) {
+      const keyIndex = (geminiKeyIndex + attempt) % keys.length;
+      const apiKey = keys[keyIndex];
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+        const response = await fetchWithTimeout(url, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            contents: [
+              { role: 'user', parts: [{ text: `${system}\n\n${user}` }] }
+            ],
+            generationConfig: {
+              temperature: 0.7,
+              responseMimeType: 'application/json'
+            }
+          })
+        }, config.aiTimeoutMs);
+
+        if (!response.ok) {
+          const body = await response.text();
+          if (response.status === 404 || /not found|not supported/i.test(body)) {
+            console.warn(`Gemini model ${model} is unavailable. Trying next model.`);
+            break;
           }
-        })
-      }, config.aiTimeoutMs);
 
-      if (!response.ok) {
-        const body = await response.text();
-        if (response.status === 404 || /not found|not supported/i.test(body)) {
-          console.warn(`Gemini model ${model} is unavailable. Trying next model.`);
-          continue;
-        }
+          if (response.status === 429) {
+            console.warn(`Gemini key ${keyIndex + 1}/${keys.length} quota/rate limit for ${model}. Trying next key...`);
+            continue;
+          }
 
-        if (response.status === 429) {
-          console.warn(`Gemini quota/rate limit reached for model ${model}. Article generation paused.`);
+          if (response.status === 400 && /location is not supported|FAILED_PRECONDITION/i.test(body)) {
+            console.warn('Gemini API is not available from the current execution location. Article generation skipped.');
+            return null;
+          }
+
+          console.warn(`Gemini request failed with ${response.status}. Article skipped.`);
           return null;
         }
 
-        if (response.status === 400 && /location is not supported|FAILED_PRECONDITION/i.test(body)) {
-          console.warn('Gemini API is not available from the current execution location. Article generation skipped.');
-          return null;
-        }
-
-        console.warn(`Gemini request failed with ${response.status}. Article skipped.`);
-        return null;
+        geminiKeyIndex = (keyIndex + 1) % keys.length;
+        const data = (await response.json()) as GeminiResponse;
+        const text = data.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('') || '';
+        if (text) return text;
+      } catch (error) {
+        console.warn(`Gemini model ${model} key ${keyIndex + 1} failed: ${error instanceof Error ? error.message : String(error)}`);
       }
-
-      const data = (await response.json()) as GeminiResponse;
-      const text = data.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('') || '';
-      if (text) return text;
-    } catch (error) {
-      console.warn(`Gemini model ${model} failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
@@ -354,7 +361,7 @@ function getProviderOrder(config: ParserConfig): string[] {
     if (provider === 'ollama') return true;
     if (provider === 'openrouter') return Boolean(config.openRouterApiKey);
     if (provider === 'groq') return Boolean(config.groqApiKey);
-    if (provider === 'gemini') return Boolean(config.geminiApiKey);
+    if (provider === 'gemini') return config.geminiApiKeys.length > 0;
     return false;
   });
 }
