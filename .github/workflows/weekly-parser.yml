@@ -1,20 +1,16 @@
-name: Weekly Parser
+name: Auto Parser (every 6h)
 
 on:
   schedule:
-    - cron: '0 0 * * 0'
+    - cron: '0 */6 * * *'
   workflow_dispatch:
     inputs:
       query_limit:
-        description: 'How many query candidates to process'
+        description: 'How many queries to process'
         required: false
-        default: '120'
+        default: '100'
       query_offset:
-        description: 'Manual catalog offset for batch runs'
-        required: false
-        default: ''
-      custom_queries:
-        description: 'Optional custom queries separated by |'
+        description: 'Catalog offset for batch runs'
         required: false
         default: ''
 
@@ -22,8 +18,9 @@ permissions:
   contents: write
 
 jobs:
-  update-content:
+  parse-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -39,39 +36,34 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run weekly parser
+      - name: Run parser
         run: npm run parser:weekly
         env:
+          AI_PROVIDER: 'gemini'
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          GEMINI_MODEL: ${{ secrets.GEMINI_MODEL || 'gemini-1.5-flash' }}
-          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
-          OPENROUTER_MODEL: ${{ secrets.OPENROUTER_MODEL || 'qwen/qwen-2.5-7b-instruct:free' }}
-          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-          GROQ_MODEL: ${{ secrets.GROQ_MODEL || 'llama-3.1-8b-instant' }}
-          AI_PROVIDER: ${{ secrets.AI_PROVIDER || 'openrouter,groq,gemini' }}
-          SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
-          GITHUB_TOKEN: ${{ github.token }}
-          PARSER_MIN_SOURCES: '3'
-          PARSER_PUBLISH_THRESHOLD: '0.72'
-          PARSER_QUERY_LIMIT: ${{ github.event.inputs.query_limit || '120' }}
-          PARSER_QUERY_OFFSET: ${{ github.event.inputs.query_offset }}
-          PARSER_QUERIES: ${{ github.event.inputs.custom_queries }}
+          GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
+          GEMINI_MODEL: 'gemini-2.5-flash'
+          PARSER_MIN_SOURCES: '2'
+          PARSER_PUBLISH_THRESHOLD: '0.30'
+          PARSER_QUERY_LIMIT: ${{ github.event.inputs.query_limit || '100' }}
+          PARSER_QUERY_OFFSET: ${{ github.event.inputs.query_offset || '' }}
           PARSER_ALLOW_LICENSED_IMAGES: 'false'
+          AI_TIMEOUT_MS: '120000'
 
-      - name: Build after parser
+      - name: Build site
         run: npm run build
         env:
           PUBLIC_SITE_URL: https://all-manuals.ru
           PUBLIC_CONTACT_EMAIL: dmca@all-manuals.ru
 
-      - name: Commit generated content
+      - name: Commit and push
         run: |
-          if [[ -z "$(git status --porcelain)" ]]; then
-            echo "No content changes to commit."
-            exit 0
-          fi
           git config user.name "all-manuals-bot"
           git config user.email "bot@all-manuals.ru"
-          git add src/content/errors public/images/errors src/data
-          git commit -m "update weekly error solutions"
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "No new articles."
+            exit 0
+          fi
+          git add src/content/errors/
+          git commit -m "auto: generate error articles [skip ci]"
           git push
