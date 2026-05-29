@@ -42,7 +42,49 @@ export async function searchSources(query: string, config: ParserConfig): Promis
 
   candidates.push(...await searchOpenSources(query, config));
 
-  return dedupeCandidates(candidates).filter((item) => isAllowedCandidate(item, config));
+  const filtered = dedupeCandidates(candidates).filter((item) => isAllowedCandidate(item, config));
+
+  if (filtered.length < config.minSources && hasCyrillic(query)) {
+    const enQuery = toEnglishQuery(query);
+    if (enQuery) {
+      console.warn(`Fallback to English query: "${enQuery}"`);
+      const enCandidates = await searchOpenSources(enQuery);
+      filtered.push(...enCandidates.filter((item) => isAllowedCandidate(item, config)));
+    }
+  }
+
+  return dedupeCandidates(filtered);
+}
+
+function hasCyrillic(text: string): boolean {
+  return /[а-яёА-ЯЁ]/.test(text);
+}
+
+function toEnglishQuery(text: string): string {
+  const replacements: Record<string, string> = {
+    'ошибка': 'error', 'как исправить': 'fix', 'решение': 'fix',
+    'не запускается': 'not starting fix', 'не работает': 'not working fix',
+    'не включается': 'won\'t turn on fix', 'не грузит': 'not loading fix',
+    'крашит': 'crash fix', 'вылетает': 'crash fix', 'зависает': 'freeze fix',
+    'тормозит': 'slow fix', 'шумит': 'noisy fix', 'течёт': 'leak fix',
+    'не греет': 'not heating fix', 'не морозит': 'not cooling fix',
+    'не сливает': 'not draining fix', 'не отжимает': 'not spinning fix',
+    'не заряжается': 'not charging fix', 'искрит': 'sparking fix',
+    'дымит': 'smoking fix', 'стучит': 'knocking fix', 'гудит': 'humming fix',
+    'не видит': 'not detected fix', 'не подключается': 'connection failed fix',
+    'после обновления': 'after update fix', 'ошибка на дисплее': 'error code',
+    'код ошибки': 'error code', 'исправить': 'fix', 'починить': 'fix',
+    'не открывается': 'won\'t open fix', 'пропал звук': 'no sound fix',
+    'нет изображения': 'no display fix', 'мигает': 'flickering fix',
+    'не реагирует': 'unresponsive fix', 'не читает': 'not reading fix'
+  };
+
+  let result = text.toLowerCase();
+  for (const [ru, en] of Object.entries(replacements)) {
+    result = result.replace(new RegExp(ru.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), en);
+  }
+  result = result.replace(/[а-яёА-ЯЁ]+/g, '').replace(/\s+/g, ' ').trim();
+  return result;
 }
 
 async function searchSerper(query: string, config: ParserConfig): Promise<SourceCandidate[]> {
