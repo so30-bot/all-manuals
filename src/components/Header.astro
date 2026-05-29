@@ -18,9 +18,24 @@ const navItems = [
         <a class="focus-ring rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white" href={item.href}>{item.label}</a>
       ))}
     </nav>
-    <button id="theme-toggle" class="focus-ring inline-flex h-10 min-w-16 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700" type="button" aria-label="Переключить тему">
-      <span data-theme-label>Светлая</span>
-    </button>
+    <div class="flex items-center gap-2">
+      <button id="theme-toggle" class="focus-ring inline-flex h-10 min-w-16 items-center justify-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700" type="button" aria-label="Переключить тему">
+        <span data-theme-label>Светлая</span>
+      </button>
+      <button id="mobile-menu-btn" class="focus-ring inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700 md:hidden" type="button" aria-label="Меню" aria-expanded="false">
+        <svg class="h-5 w-5 text-slate-700 dark:text-slate-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path id="menu-icon-open" stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          <path id="menu-icon-close" class="hidden" stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  </div>
+  <div id="mobile-menu" class="hidden border-t border-slate-200/70 bg-white/95 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/95 md:hidden">
+    <nav class="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-3 sm:px-6 lg:px-8" aria-label="Мобильная навигация">
+      {navItems.map((item) => (
+        <a class="focus-ring rounded-xl px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-950 dark:text-slate-300 dark:hover:bg-slate-900 dark:hover:text-white" href={item.href}>{item.label}</a>
+      ))}
+    </nav>
   </div>
 </header>
 
@@ -28,7 +43,6 @@ const navItems = [
   const storageKey = 'all-manuals-theme';
   const button = document.getElementById('theme-toggle');
   const label = button?.querySelector('[data-theme-label]');
-  const media = window.matchMedia('(prefers-color-scheme: dark)');
 
   function applyTheme(value) {
     window.__allManualsTheme?.applyTheme(value);
@@ -42,5 +56,18 @@ const navItems = [
     current = current === 'dark' ? 'light' : 'dark';
     try { localStorage.setItem(storageKey, current); } catch {}
     applyTheme(current);
+  });
+
+  const menuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const iconOpen = document.getElementById('menu-icon-open');
+  const iconClose = document.getElementById('menu-icon-close');
+
+  menuBtn?.addEventListener('click', () => {
+    const expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+    menuBtn.setAttribute('aria-expanded', String(!expanded));
+    mobileMenu?.classList.toggle('hidden');
+    iconOpen?.classList.toggle('hidden');
+    iconClose?.classList.toggle('hidden');
   });
 </script>
