@@ -66,7 +66,7 @@ async function main() {
   for (let i = 0; i < queries.length; i++) {
     const query = queries[i];
     try {
-      if (i > 0) await sleep(6000);
+      if (i > 0) await sleep(3000);
       console.log(`[${i + 1}/${queries.length}] Processing query: ${query}`);
       const candidates = await searchSources(query, config);
       let fetchedDocs = candidates;
