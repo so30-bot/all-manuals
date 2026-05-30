@@ -1,0 +1,64 @@
+---
+title: Устранение ошибок загрузки в Arch Linux
+errorId: arch-linux-boot-failure
+category: Linux
+tags:
+  - Arch Linux
+  - загрузка
+  - ядро
+  - grub
+  - восстановление
+description: >-
+  Пошаговое руководство по диагностике и восстановлению системы Arch Linux,
+  которая перестала загружаться после обновлений или сбоев.
+symptoms:
+  - Система зависает при загрузке
+  - Появление сообщений об ошибках ядра (kernel panic)
+  - Остановка на черном экране с курсором
+  - Невозможность смонтировать корневой раздел
+causes:
+  - Повреждение конфигурации загрузчика GRUB
+  - Некорректное обновление ядра
+  - Ошибки в файле fstab
+  - Проблемы с драйверами видеокарты (DRM)
+steps:
+  - title: Загрузка с установочного носителя
+    body: >-
+      Для восстановления системы необходимо загрузиться с Live-USB образа Arch
+      Linux. Вставьте флешку в компьютер, выберите её в меню загрузки BIOS/UEFI
+      (обычно клавиши F2, F11 или F12) и дождитесь появления командной строки.
+    command: null
+    image: null
+  - title: Монтирование корневого раздела (chroot)
+    body: >-
+      Определите, где установлена ваша система, с помощью команды 'lsblk'.
+      Замените /dev/sdXn на ваш системный раздел (например, /dev/sda2).
+      Последовательно смонтируйте корневой раздел и при необходимости
+      загрузочный раздел (EFI).
+    command: mount /dev/sdXn /mnt && arch-chroot /mnt
+    image: null
+  - title: Переустановка ядра и обновление загрузчика
+    body: >-
+      Часто причиной сбоя является повреждение образа ядра или конфигурации
+      GRUB. Внутри окружения chroot переустановите пакет ядра и обновите
+      конфигурацию загрузчика.
+    command: pacman -S linux && grub-mkconfig -o /boot/grub/grub.cfg
+    image: null
+updatedAt: '2026-05-30'
+publishedAt: '2026-05-30'
+readingTime: 2
+popularityScore: 46
+sources:
+  - title: Linux kernel - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Linux_kernel'
+    accessedAt: '2026-05-30'
+  - title: Direct Rendering Manager - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Direct_Rendering_Manager'
+    accessedAt: '2026-05-30'
+dedupe:
+  titleHash: 0554940a66e4df73454b5d53c62c4d060f5f58a7cdcae9eef23bb1a39563d636
+  solutionHash: 543bd664819c6a17a6f53bfd337948992df1c31a5c07c52b974884ee67eced91
+  sourceHash: cc44754a1ac31544d43831fef024a90476bfc9c93b74e651c7350c14b41cb189
+draft: false
+---
+Если ваш Arch Linux перестал загружаться, не паникуйте. Большинство проблем решается через режим chroot с установочного образа. После выполнения вышеуказанных шагов, введите 'exit', размонтируйте разделы командой 'umount -R /mnt', перезагрузитесь и извлеките флешку. Если проблема сохраняется, проверьте файл /etc/fstab на корректность UUID дисков, так как ошибки в нем часто препятствуют монтированию файловой системы при старте.
