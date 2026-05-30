@@ -48,7 +48,7 @@ export async function searchSources(query: string, config: ParserConfig): Promis
     const enQuery = toEnglishQuery(query);
     if (enQuery) {
       console.warn(`Fallback to English query: "${enQuery}"`);
-      const enCandidates = await searchOpenSources(enQuery);
+      const enCandidates = await searchOpenSources(enQuery, config);
       filtered.push(...enCandidates.filter((item) => isAllowedCandidate(item, config)));
     }
   }

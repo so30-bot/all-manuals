@@ -11,13 +11,22 @@
           <span class="hidden sm:inline">Подробнее о cookie — в
           <a href="https://yandex.ru/legal/metrica_termsofuse/" rel="nofollow noopener noreferrer" target="_blank" class="underline hover:text-slate-950 dark:hover:text-white">условиях Яндекс.Метрики</a>.</span>
         </p>
-        <button
-          id="cookie-accept"
-          class="shrink-0 rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
-          type="button"
-        >
-          Принять
-        </button>
+        <div class="flex shrink-0 gap-2">
+          <button
+            id="cookie-reject"
+            class="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700"
+            type="button"
+          >
+            Отклонить
+          </button>
+          <button
+            id="cookie-accept"
+            class="rounded-xl bg-slate-950 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-slate-800 dark:bg-white dark:text-slate-950 dark:hover:bg-slate-200"
+            type="button"
+          >
+            Принять
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -35,6 +44,11 @@
     banner.classList.remove('hidden');
     btn.addEventListener('click', function () {
       try { localStorage.setItem(key, 'accepted'); } catch {}
+      banner.classList.add('hidden');
+    });
+    var rejectBtn = document.getElementById('cookie-reject');
+    rejectBtn?.addEventListener('click', function () {
+      try { localStorage.setItem(key, 'rejected'); } catch {}
       banner.classList.add('hidden');
     });
   })();
