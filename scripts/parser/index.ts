@@ -140,7 +140,7 @@ async function main() {
 
     if (batchWritten > 0) {
       console.log(`\nBatch ${batchNum}: ${batchWritten} articles. Committing...`);
-      const committed = gitCommit(`auto: batch ${batchNum} - ${batchWritten} articles [skip ci]`);
+      const committed = gitCommit(`auto: batch ${batchNum} - ${batchWritten} articles`);
       if (committed) {
         console.log('Committed and pushed.');
         existing = await loadExistingArticles(config);
