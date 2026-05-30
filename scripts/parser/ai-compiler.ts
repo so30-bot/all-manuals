@@ -21,8 +21,10 @@ type OllamaResponse = {
 };
 
 const fallbackGeminiModels = [
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-8b'
+  'gemini-2.5-flash',
+  'gemini-2.5-flash-lite',
+  'gemini-3.1-flash-lite',
+  'gemini-3-flash'
 ];
 
 const systemPrompt = `Ты — переводчик и редактор технических статей. Твоя задача — переписать предоставленные источники в связную русскоязычную статью-инструкцию.

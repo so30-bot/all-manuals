@@ -42,7 +42,7 @@ jobs:
           AI_PROVIDER: 'gemini'
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
-          GEMINI_MODEL: 'gemini-1.5-flash'
+          GEMINI_MODEL: 'gemini-2.5-flash'
           PARSER_MIN_SOURCES: '2'
           PARSER_PUBLISH_THRESHOLD: '0.30'
           PARSER_QUERY_LIMIT: ${{ github.event.inputs.query_limit || '50' }}
