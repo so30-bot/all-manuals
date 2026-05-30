@@ -1,0 +1,68 @@
+---
+title: Как устранить ошибки ядра и графического подсистемы (DRM) в Ubuntu
+errorId: linux-kernel-drm-error
+category: Linux
+tags:
+  - Ubuntu
+  - Linux
+  - ядро
+  - графика
+  - DRM
+  - ремонт
+description: >-
+  Пошаговое руководство по диагностике и исправлению сбоев графической
+  подсистемы и ошибок ядра в ОС Ubuntu.
+symptoms:
+  - Зависание системы при загрузке
+  - Графические артефакты
+  - Ошибки драйверов видеокарты
+  - Системные сообщения об ошибках DRM (Direct Rendering Manager)
+causes:
+  - Конфликты драйверов видеокарты
+  - Некорректная работа подсистемы DRM
+  - Повреждение кэша или конфигурации ядра
+  - Устаревшая версия ядра
+steps:
+  - title: Анализ логов ошибки
+    body: >-
+      Используйте встроенные инструменты Ubuntu для сбора информации о сбое.
+      Если система загружается, откройте терминал и проверьте последние записи
+      журнала, чтобы локализовать проблему с ядром или графикой.
+    command: journalctl -p 3 -xb
+    image: null
+  - title: Проверка статуса графического драйвера
+    body: >-
+      Часто ошибки связаны с конфликтами драйверов GPU. Убедитесь, что
+      используются рекомендованные проприетарные драйверы. Вы можете
+      переключиться на них через утилиту управления драйверами или командную
+      строку.
+    command: ubuntu-drivers devices
+    image: null
+  - title: Обновление или восстановление пакетов ядра
+    body: >-
+      Если ошибка вызвана повреждением текущего ядра, выполните полное
+      обновление системы и переустановку пакетов ядра. Это поможет устранить
+      битые зависимости.
+    command: sudo apt update && sudo apt full-upgrade -y
+    image: null
+updatedAt: '2026-05-30'
+publishedAt: '2026-05-30'
+readingTime: 2
+popularityScore: 63
+sources:
+  - title: Linux kernel - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Linux_kernel'
+    accessedAt: '2026-05-30'
+  - title: Crash reporter - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Crash_reporter'
+    accessedAt: '2026-05-30'
+  - title: Direct Rendering Manager - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Direct_Rendering_Manager'
+    accessedAt: '2026-05-30'
+dedupe:
+  titleHash: 01d25ee618a4740a6269ef7ea530f28cb57ec59e520a0b7445e3837c7b3093f6
+  solutionHash: 1c561cadc184bf6b2e2cb6e82ca24dbb199c910c758b714427cdba23703176bb
+  sourceHash: fd440b0ec525c78223fb0859b5ef90bcc0086bd853cd20b419e9f2c4137908d0
+draft: false
+---
+Ошибки ядра в Ubuntu часто связаны с работой подсистемы Direct Rendering Manager (DRM), которая отвечает за взаимодействие с видеокартой. Если вы столкнулись со сбоями, первым делом проверьте логи системы, чтобы понять, какой именно компонент вызывает конфликт. В большинстве случаев проблема решается обновлением драйверов или исправлением целостности пакетов ядра. Если система не загружается, используйте режим восстановления (Recovery Mode) при старте компьютера (удерживайте клавишу Shift или Esc) для выполнения команд очистки.
