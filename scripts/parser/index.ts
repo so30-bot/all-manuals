@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import { execSync } from 'node:child_process';
 import path from 'node:path';
 import { compileArticle } from './ai-compiler';
 import { getParserConfig } from './config';
@@ -10,6 +11,7 @@ import { writeArticle } from './markdown-writer';
 import { discoverTrends, searchSources } from './sources';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const BATCH_SIZE = 10;
 
 function toEnglishQuery(query: string): string {
   const ruToEn: Record<string, string> = {
@@ -38,6 +40,19 @@ function toEnglishQuery(query: string): string {
   return en;
 }
 
+function gitCommit(message: string): boolean {
+  try {
+    execSync('git add src/content/errors/', { stdio: 'pipe' });
+    const status = execSync('git status --porcelain', { encoding: 'utf-8' });
+    if (!status.trim()) return false;
+    execSync(`git commit -m "${message}"`, { stdio: 'pipe' });
+    execSync('git push', { stdio: 'pipe' });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 loadEnvFile(path.join(process.cwd(), '.env.local'));
 loadEnvFile(path.join(process.cwd(), '.env'));
 
@@ -55,68 +70,89 @@ function loadEnvFile(filePath: string) {
   }
 }
 
-async function main() {
-  const config = getParserConfig();
-  const existing = await loadExistingArticles(config);
-  const queries = await discoverTrends(config);
-  const written: string[] = [];
+async function processQuery(query: string, config: ReturnType<typeof getParserConfig>, existing: Awaited<ReturnType<typeof loadExistingArticles>>): Promise<string | null> {
+  const candidates = await searchSources(query, config);
+  let fetchedDocs = candidates;
 
-  console.log(`Weekly parser will process ${queries.length} query candidates.`);
-
-  for (let i = 0; i < queries.length; i++) {
-    const query = queries[i];
-    try {
-      if (i > 0) await sleep(3000);
-      console.log(`[${i + 1}/${queries.length}] Processing query: ${query}`);
-      const candidates = await searchSources(query, config);
-      let fetchedDocs = candidates;
-
-      if (candidates.length < config.minSources) {
-        const enQuery = toEnglishQuery(query);
-        if (enQuery !== query) {
-          console.log(`  Only ${candidates.length} RU sources. Trying EN: "${enQuery.slice(0, 60)}..."`);
-          await sleep(2000);
-          const enCandidates = await searchSources(enQuery, config);
-          if (enCandidates.length > candidates.length) {
-            fetchedDocs = enCandidates;
-          }
-        }
+  if (candidates.length < config.minSources) {
+    const enQuery = toEnglishQuery(query);
+    if (enQuery !== query) {
+      console.log(`  Only ${candidates.length} RU sources. Trying EN: "${enQuery.slice(0, 60)}..."`);
+      await sleep(2000);
+      const enCandidates = await searchSources(enQuery, config);
+      if (enCandidates.length > candidates.length) {
+        fetchedDocs = enCandidates;
       }
-
-      if (fetchedDocs.length < config.minSources) {
-        console.warn(`Skipped ${query}: only ${fetchedDocs.length} trusted candidates found.`);
-        continue;
-      }
-
-      const fetched = (await Promise.all(fetchedDocs.slice(0, 8).map((candidate) => fetchSource(candidate, config))))
-        .filter(Boolean)
-        .map((document) => extractReadableText(document!))
-        .filter((document) => document.text.length >= 800);
-
-      if (fetched.length < config.minSources) {
-        console.warn(`Skipped ${query}: only ${fetched.length} readable sources found.`);
-        continue;
-      }
-
-      const compiled = await compileArticle(query, fetched.slice(0, 5), config);
-      if (!compiled || compiled.steps.length === 0) continue;
-
-      const duplicate = findDuplicate(compiled, existing);
-      const slug = duplicate?.slug || getArticleSlug(compiled);
-      const withImages = await processArticleImages(compiled, slug, config);
-      const result = await writeArticle(withImages, duplicate, config);
-      written.push(result.filePath);
-      console.log(`${duplicate ? 'Updated' : 'Created'} ${result.slug}`);
-    } catch (error) {
-      console.warn(`Skipped ${query}: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
-  if (written.length === 0) {
-    console.log('No new or updated articles were generated.');
-  } else {
-    console.log(`Generated ${written.length} article file(s).`);
+  if (fetchedDocs.length < config.minSources) return null;
+
+  const fetched = (await Promise.all(fetchedDocs.slice(0, 8).map((candidate) => fetchSource(candidate, config))))
+    .filter(Boolean)
+    .map((document) => extractReadableText(document!))
+    .filter((document) => document.text.length >= 800);
+
+  if (fetched.length < config.minSources) return null;
+
+  const compiled = await compileArticle(query, fetched.slice(0, 5), config);
+  if (!compiled || compiled.steps.length === 0) return null;
+
+  const duplicate = findDuplicate(compiled, existing);
+  const slug = duplicate?.slug || getArticleSlug(compiled);
+  const withImages = await processArticleImages(compiled, slug, config);
+  const result = await writeArticle(withImages, duplicate, config);
+  return result.slug;
+}
+
+async function main() {
+  const config = getParserConfig();
+  let existing = await loadExistingArticles(config);
+  const queries = await discoverTrends(config);
+  let totalWritten = 0;
+
+  console.log(`Parser: ${queries.length} queries, batch size ${BATCH_SIZE}.`);
+
+  for (let batchStart = 0; batchStart < queries.length; batchStart += BATCH_SIZE) {
+    const batch = queries.slice(batchStart, batchStart + BATCH_SIZE);
+    const batchNum = Math.floor(batchStart / BATCH_SIZE) + 1;
+    const totalBatches = Math.ceil(queries.length / BATCH_SIZE);
+    let batchWritten = 0;
+
+    console.log(`\n--- Batch ${batchNum}/${totalBatches} (${batch.length} queries) ---`);
+
+    for (let i = 0; i < batch.length; i++) {
+      const query = batch[i];
+      const globalIdx = batchStart + i;
+      try {
+        if (i > 0) await sleep(3000);
+        console.log(`[${globalIdx + 1}/${queries.length}] ${query}`);
+        const slug = await processQuery(query, config, existing);
+        if (slug) {
+          batchWritten++;
+          totalWritten++;
+          console.log(`  Created: ${slug}`);
+        }
+      } catch (error) {
+        console.warn(`  Skipped: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+
+    if (batchWritten > 0) {
+      console.log(`\nBatch ${batchNum}: ${batchWritten} articles. Committing...`);
+      const committed = gitCommit(`auto: batch ${batchNum} - ${batchWritten} articles [skip ci]`);
+      if (committed) {
+        console.log('Committed and pushed.');
+        existing = await loadExistingArticles(config);
+      } else {
+        console.log('Nothing to commit.');
+      }
+    } else {
+      console.log(`Batch ${batchNum}: 0 articles.`);
+    }
   }
+
+  console.log(`\nDone. Total: ${totalWritten} articles generated.`);
 }
 
 main().catch((error) => {
