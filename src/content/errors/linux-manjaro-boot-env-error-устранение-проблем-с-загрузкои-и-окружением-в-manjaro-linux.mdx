@@ -1,0 +1,72 @@
+---
+title: Устранение проблем с загрузкой и окружением в Manjaro Linux
+errorId: Manjaro-Boot-Env-Error
+category: Linux
+tags:
+  - Manjaro
+  - Linux
+  - boot
+  - troubleshooting
+  - environment
+description: >-
+  Руководство по исправлению типичных ошибок загрузки графического интерфейса и
+  проблем с переменными окружения (PATH) в Manjaro Linux.
+symptoms:
+  - Ошибка загрузки графического сплэша (loading FAILED)
+  - >-
+    Ошибка 'No installed .NET SDK was found' при запуске VS Code через
+    графическую оболочку
+causes:
+  - Конфликт прав доступа к фреймбуферу (/dev/fb0) при загрузке системы
+  - >-
+    Некорректная загрузка переменных окружения PATH при запуске приложений из
+    графического интерфейса
+steps:
+  - title: Исправление ошибки загрузки графического сплэша
+    body: >-
+      Если вы видите ошибку 'loading FAILED' при загрузке системы, это часто
+      вызвано конфликтом доступа к /dev/fb0 между Plymouth и другими процессами.
+      Перенастройте службу вывода изображения, чтобы она запускалась до Plymouth
+      и не захватывала устройство принудительно.
+    command: fbi --noverbose -a
+    image: null
+  - title: Настройка переменных окружения для графических приложений
+    body: >-
+      Если приложения (например, VS Code) не видят установленные компоненты,
+      которые доступны в терминале, проблема в том, что графическая сессия не
+      подгружает файлы конфигурации оболочки (.bashrc). Убедитесь, что
+      необходимые пути прописаны в файле ~/.profile, который считывается при
+      входе в графическую систему.
+    command: nano ~/.profile
+    image: null
+  - title: Принудительное указание путей в VS Code
+    body: >-
+      Если среда разработки не находит SDK, добавьте явные пути к исполняемым
+      файлам в настройки расширения C# Dev Kit. Откройте настройки
+      (settings.json) и добавьте параметры для dotnetAcquisitionExtension,
+      указав актуальные пути из системы.
+    command: dotnetAcquisitionExtension.existingDotnetPath
+    image: null
+updatedAt: '2026-05-30'
+publishedAt: '2026-05-30'
+readingTime: 2
+popularityScore: 46
+sources:
+  - title: >-
+      fix(backroot8): reliable framebuffer boot emblem loading by lasangainc ·
+      Pull Request #43 · lasangainc/os-backroot · GitHub
+    url: 'https://github.com/lasangainc/os-backroot/pull/43'
+    accessedAt: '2026-05-30'
+  - title: >-
+      manjaro - No installed .NET SDK was found on the computer - Vscode (C# dev
+      kit) - Stack Overflow
+    url: >-
+      https://stackoverflow.com/questions/78381689/no-installed-net-sdk-was-found-on-the-computer-vscode-c-dev-kit
+    accessedAt: '2026-05-30'
+dedupe:
+  titleHash: d162254053edeceb50becaebf033da7b25233f508f4b7085d4678d6d9f162c18
+  solutionHash: d31dff8e247a6b01fb46e292b87874f529addca9478808dd6ed8e5a7813583fe
+  sourceHash: f831f791a5cc3e637c43ee79749767583ca95214887fd8b14736fa054385e9ca
+draft: false
+---
+При работе с Manjaro Linux пользователи могут столкнуться с двумя типами проблем: сбоями при инициализации графического экрана загрузки и некорректным определением путей для установленного ПО (например, .NET SDK) при запуске программ через ярлыки в меню. В данной статье мы разобрали, как устранить эти неприятности. Основная причина проблем с окружением заключается в том, что приложения, запущенные через графический интерфейс, не всегда наследуют переменные среды из .bashrc, поэтому использование ~/.profile является более надежным способом для Linux-систем. Для проблем с загрузкой важно соблюдать очередность инициализации служб, чтобы избежать конфликтов доступа к видеопамяти (/dev/fb0).
