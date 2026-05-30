@@ -1,0 +1,64 @@
+---
+title: Устранение проблем с пакетами в Fedora
+errorId: Fedora-Package-Error
+category: Linux
+tags:
+  - Fedora
+  - DNF
+  - Linux
+  - RPM
+  - пакеты
+description: >-
+  Инструкция по диагностике и исправлению ошибок при работе с репозиториями и
+  установке пакетов в ОС Fedora с помощью менеджера пакетов DNF.
+symptoms:
+  - Ошибка при обновлении системы
+  - Невозможность установить программное обеспечение
+  - Конфликты зависимостей при работе с DNF
+  - Ошибки при обращении к репозиториям
+causes:
+  - Повреждение кэша метаданных DNF
+  - Конфликты между версиями установленных пакетов
+  - Некорректные настройки репозиториев
+  - Прерванное соединение во время загрузки обновлений
+steps:
+  - title: Очистка кэша DNF
+    body: >-
+      Часто ошибки возникают из-за устаревших или поврежденных метаданных.
+      Очистка кэша заставляет систему заново загрузить актуальные списки
+      пакетов.
+    command: sudo dnf clean all
+    image: null
+  - title: Обновление метаданных репозиториев
+    body: >-
+      После очистки кэша необходимо принудительно обновить информацию о пакетах,
+      чтобы исключить ошибки доступа к серверам.
+    command: sudo dnf makecache
+    image: null
+  - title: Исправление конфликтов и обновление системы
+    body: >-
+      Используйте команду для синхронизации пакетов и автоматического разрешения
+      конфликтов зависимостей.
+    command: sudo dnf distro-sync
+    image: null
+updatedAt: '2026-05-30'
+publishedAt: '2026-05-30'
+readingTime: 1
+popularityScore: 63
+sources:
+  - title: Software repository - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Software_repository'
+    accessedAt: '2026-05-30'
+  - title: Comparison of Linux distributions - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Comparison_of_Linux_distributions'
+    accessedAt: '2026-05-30'
+  - title: Russian Fedora Remix - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Russian_Fedora_Remix'
+    accessedAt: '2026-05-30'
+dedupe:
+  titleHash: c6c4b70f5e08f54c950ab31f7abfcc0bec3ccf62d82d109fcf52028ba0fab7f6
+  solutionHash: 47b3d42db75f94c92e4b8818ef7f5a604ae956352be9e45a6898e71cf047e682
+  sourceHash: a2fe2129ea1906b6c4899ca7e70ff2196f35724780392970844542efec76b6f7
+draft: false
+---
+При работе с дистрибутивом Fedora управление пакетами осуществляется через менеджер DNF. Если вы столкнулись с ошибками при установке или обновлении, первым делом стоит привести базу данных пакетов в порядок. Выполните последовательно три шага: очистите кэш, обновите метаданные и синхронизируйте состояние системы. Если проблема сохраняется, проверьте стабильность интернет-соединения и корректность подключенных сторонних репозиториев.

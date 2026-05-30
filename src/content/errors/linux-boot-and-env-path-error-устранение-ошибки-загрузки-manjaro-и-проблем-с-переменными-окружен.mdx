@@ -1,0 +1,69 @@
+---
+title: Устранение ошибки загрузки Manjaro и проблем с переменными окружения
+errorId: boot-and-env-path-error
+category: Linux
+tags:
+  - Manjaro
+  - Linux
+  - загрузка
+  - PATH
+  - ошибки
+description: >-
+  Инструкция по решению проблем с загрузкой системы и корректной настройкой
+  путей к исполняемым файлам в Manjaro Linux.
+symptoms:
+  - Система не загружается корректно
+  - >-
+    Ошибка 'No installed .NET SDK was found' при запуске VS Code из графического
+    интерфейса
+  - Различия в работе программ при запуске из терминала и через ярлык
+causes:
+  - Некорректная инициализация переменных окружения в графической сессии
+  - Конфликты драйверов дисплея или графического стека при загрузке (Plymouth)
+  - Отсутствие необходимых путей в файле .profile
+steps:
+  - title: Настройка переменных окружения для графической среды
+    body: >-
+      Если программы (например, VS Code) не видят установленные SDK при запуске
+      через ярлык, проблема заключается в том, что графическая оболочка не
+      считывает файл .bashrc. Добавьте пути к необходимым компонентам в файл
+      ~/.profile, который считывается при входе в систему.
+    command: 'echo ''export PATH=$PATH:/usr/share/dotnet'' >> ~/.profile'
+    image: null
+  - title: Проверка конфликтов графического драйвера (Plymouth)
+    body: >-
+      Если при загрузке системы возникают ошибки отрисовки или зависания,
+      причиной может быть конфликт сервиса Plymouth с доступом к видеопамяти.
+      Попробуйте отключить или перенастроить порядок загрузки splash-экрана,
+      чтобы он не захватывал терминал раньше времени.
+    command: sudo systemctl disable plymouth-start
+    image: null
+  - title: Исправление путей через настройки VS Code
+    body: >-
+      Если переменные окружения не подхватываются, можно принудительно указать
+      пути к SDK в настройках VS Code. Откройте файл настроек settings.json и
+      добавьте параметры для dotnetAcquisitionExtension, указав актуальные пути
+      к исполняемым файлам.
+    command: code ~/.config/Code/User/settings.json
+    image: null
+updatedAt: '2026-05-30'
+publishedAt: '2026-05-30'
+readingTime: 2
+popularityScore: 46
+sources:
+  - title: MX Linux - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/MX_Linux'
+    accessedAt: '2026-05-30'
+  - title: >-
+      manjaro - No installed .NET SDK was found on the computer - Vscode (C# dev
+      kit) - Stack Overflow
+    url: >-
+      https://stackoverflow.com/questions/78381689/no-installed-net-sdk-was-found-on-the-computer-vscode-c-dev-kit
+    accessedAt: '2026-05-30'
+dedupe:
+  titleHash: e2bbdcbd0cc9d1affca05def8a16c13e62d3f5fec8ea60122cc78042fd41935c
+  solutionHash: c3bb7f477e60b5613cc3faaa45626f7fc2b0195e1f0c4496c558aa4032707507
+  sourceHash: 590c4f491fc41e87741e7b4f9f1032aa9e3ad5b9f33b8401a03ae9928e3e55f0
+draft: false
+---
+Проблемы с загрузкой и доступностью путей в Manjaro часто связаны с различиями в том, как система инициализирует окружение для терминала и графического интерфейса. В терминале система считывает .bashrc, тогда как ярлыки программ ориентируются на .profile. Убедитесь, что все необходимые пути экспортированы в ~/.profile. Если вы столкнулись с ошибками при загрузке графики, проверьте логи системы и при необходимости отключите службу Plymouth, которая может блокировать доступ к фреймбуферу.

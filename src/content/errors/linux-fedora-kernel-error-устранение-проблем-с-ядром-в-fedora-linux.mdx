@@ -1,0 +1,67 @@
+---
+title: Устранение проблем с ядром в Fedora Linux
+errorId: Fedora-Kernel-Error
+category: Linux
+tags:
+  - Fedora
+  - Linux
+  - ядро
+  - kernel
+  - ремонт
+description: >-
+  Пошаговое руководство по восстановлению работоспособности системы Fedora при
+  возникновении ошибок загрузки ядра или сбоев после обновления.
+symptoms:
+  - Система не загружается
+  - Ошибка Kernel Panic
+  - Зависание при выборе версии ядра в GRUB
+  - Графическая оболочка не запускается
+causes:
+  - Неудачное обновление ядра
+  - Проблемы с драйверами видеокарты в модуле DRM
+  - Повреждение файловой системы Btrfs
+steps:
+  - title: Выбор предыдущей версии ядра
+    body: >-
+      Если после обновления система перестала загружаться, попробуйте запустить
+      предыдущую стабильную версию ядра. При включении компьютера удерживайте
+      клавишу Shift или Esc, чтобы открыть меню GRUB. В списке выберите пункт
+      'Advanced options for Fedora' и загрузитесь с предыдущим ядром из списка.
+    command: null
+    image: null
+  - title: Проверка целостности файловой системы
+    body: >-
+      Fedora использует файловую систему Btrfs, которая может требовать проверки
+      при сбоях. Загрузитесь в режиме восстановления (Rescue mode) или с
+      установочного USB-носителя. Выполните проверку файловой системы для
+      исправления логических ошибок.
+    command: sudo btrfs check /dev/sdXN
+    image: null
+  - title: Переустановка или обновление ядра
+    body: >-
+      После успешной загрузки системы с рабочим ядром, выполните полную очистку
+      кэша пакетов и переустановку текущего ядра, чтобы устранить возможные
+      повреждения файлов при установке.
+    command: sudo dnf reinstall kernel
+    image: null
+updatedAt: '2026-05-30'
+publishedAt: '2026-05-30'
+readingTime: 2
+popularityScore: 63
+sources:
+  - title: Linux kernel - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Linux_kernel'
+    accessedAt: '2026-05-30'
+  - title: Direct Rendering Manager - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Direct_Rendering_Manager'
+    accessedAt: '2026-05-30'
+  - title: Btrfs - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Btrfs'
+    accessedAt: '2026-05-30'
+dedupe:
+  titleHash: 27d76e8528ef34d66fdb38b0dae1dc4b12afbd6f9c043a19fec336dd6dad29bf
+  solutionHash: a6f23e0ad5306c94382ae99b5b928fce98089acd2ec0c0f096b69243fe38fb6e
+  sourceHash: 11fb4917f8cfd4c842d816377febb93674999951f6f85e5673b4b03157a75ef7
+draft: false
+---
+Ошибки ядра в Fedora часто возникают из-за конфликтов при обновлении или проблем с драйверами графического подсистемы (DRM). Поскольку Fedora использует современную файловую систему Btrfs, важно следовать правильному порядку восстановления. Если система не загружается, первым делом используйте меню GRUB для отката к предыдущей версии ядра. Если это не помогает, воспользуйтесь инструментами командной строки для проверки диска и переустановки поврежденных компонентов ядра.

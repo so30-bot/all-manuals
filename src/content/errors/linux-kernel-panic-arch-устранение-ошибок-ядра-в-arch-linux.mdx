@@ -1,0 +1,69 @@
+---
+title: Устранение ошибок ядра в Arch Linux
+errorId: kernel-panic-arch
+category: Linux
+tags:
+  - Arch Linux
+  - ядро
+  - Linux
+  - диагностика
+  - обновление
+description: >-
+  Пошаговое руководство по диагностике и исправлению критических ошибок ядра в
+  операционной системе Arch Linux.
+symptoms:
+  - Система не загружается
+  - Появление сообщений об ошибках ядра (Kernel Panic)
+  - Зависание системы при старте
+  - 'Ошибки графического интерфейса, связанные с DRM/GPU'
+causes:
+  - Повреждение файлов ядра при обновлении
+  - Несовместимость драйверов видеокарты (DRM)
+  - Некорректная конфигурация загрузчика
+  - Устаревшие версии пакетов
+steps:
+  - title: Обновление системы через Arch-chroot
+    body: >-
+      Если система не загружается, необходимо воспользоваться установочным
+      USB-носителем Arch Linux. Загрузитесь с флешки, примонтируйте корневой
+      раздел вашего диска (например, /dev/sda2) в /mnt и выполните вход в
+      систему через chroot. После этого обновите все пакеты, чтобы исключить
+      конфликты версий.
+    command: mount /dev/sda2 /mnt && arch-chroot /mnt && pacman -Syu
+    image: null
+  - title: Переустановка пакетов ядра
+    body: >-
+      Часто ошибки возникают из-за повреждения образа ядра или файлов
+      конфигурации. Переустановите стандартное ядро и образы initramfs, чтобы
+      убедиться в их целостности.
+    command: pacman -S linux linux-firmware && mkinitcpio -P
+    image: null
+  - title: Проверка драйверов графики (DRM)
+    body: >-
+      Если ошибка связана с подсистемой Direct Rendering Manager (DRM) или
+      графикой, убедитесь, что установлены актуальные драйверы для вашего GPU
+      (например, mesa, nvidia или xf86-video-intel). Проверьте логи ядра на
+      наличие ошибок доступа к /dev/dri/cardX.
+    command: dmesg | grep -i drm
+    image: null
+updatedAt: '2026-05-30'
+publishedAt: '2026-05-30'
+readingTime: 2
+popularityScore: 63
+sources:
+  - title: Linux kernel - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Linux_kernel'
+    accessedAt: '2026-05-30'
+  - title: Comparison of Linux distributions - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Comparison_of_Linux_distributions'
+    accessedAt: '2026-05-30'
+  - title: Direct Rendering Manager - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Direct_Rendering_Manager'
+    accessedAt: '2026-05-30'
+dedupe:
+  titleHash: 3ac34997bef66bdad416b79f41f615995733410ca793a5b2d424b7d41d85a70a
+  solutionHash: a55f7f3928fd750f7fb8e400845afa9f1d3910a57e8cef1c471781b7da121d8c
+  sourceHash: 26eeb725f1ca1cefe4bceda7fbf6c9f738cd27e0f078fa81c730a06d68bc06b6
+draft: false
+---
+Ошибки ядра в Arch Linux могут быть вызваны как аппаратными сбоями, так и программными конфликтами после обновлений. Поскольку Arch является дистрибутивом с плавающим релизом (rolling release), важно поддерживать все компоненты в актуальном состоянии. В случае критической ошибки (Kernel Panic) используйте Arch-chroot для доступа к системе, переустановите пакеты ядра и проверьте логи через команду dmesg для выявления конкретного сбойного модуля.

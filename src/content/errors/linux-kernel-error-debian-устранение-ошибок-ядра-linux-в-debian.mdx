@@ -1,0 +1,70 @@
+---
+title: Устранение ошибок ядра Linux в Debian
+errorId: kernel-error-debian
+category: Linux
+tags:
+  - Debian
+  - Linux
+  - ядро
+  - обновление
+  - ошибки
+description: >-
+  Пошаговое руководство по диагностике и устранению распространенных сбоев ядра
+  Linux в системе Debian.
+symptoms:
+  - Система не загружается после обновления
+  - Зависания при работе с оборудованием
+  - Ошибки при компиляции или установке модулей ядра
+  - Сообщения о критических сбоях (kernel panic)
+causes:
+  - Несовместимость оборудования с текущей версией ядра
+  - Повреждение файлов конфигурации загрузчика
+  - Некорректная установка сторонних модулей
+  - Устаревшие версии прошивок
+steps:
+  - title: Обновление списка пакетов и системы
+    body: >-
+      Первым делом убедитесь, что все компоненты системы актуальны. Это часто
+      устраняет конфликты, вызванные старыми версиями библиотек.
+    command: sudo apt update && sudo apt full-upgrade
+    image: null
+  - title: Установка актуальной версии ядра
+    body: >-
+      Если проблема возникла после обновления, попробуйте переустановить текущее
+      ядро или установить более новую версию из репозиториев, чтобы исправить
+      возможные повреждения файлов.
+    command: sudo apt install --reinstall linux-image-amd64
+    image: null
+  - title: Обновление конфигурации загрузчика GRUB
+    body: >-
+      После внесения изменений в ядро необходимо обновить загрузчик, чтобы
+      система корректно видела все доступные версии ядра при запуске.
+    command: sudo update-grub
+    image: null
+updatedAt: '2026-05-30'
+publishedAt: '2026-05-30'
+readingTime: 2
+popularityScore: 97
+sources:
+  - title: Linux kernel version history - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Linux_kernel_version_history'
+    accessedAt: '2026-05-30'
+  - title: Linux kernel - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Linux_kernel'
+    accessedAt: '2026-05-30'
+  - title: MX Linux - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/MX_Linux'
+    accessedAt: '2026-05-30'
+  - title: Comparison of Linux distributions - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Comparison_of_Linux_distributions'
+    accessedAt: '2026-05-30'
+  - title: Bash (Unix shell) - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Bash_(Unix_shell)'
+    accessedAt: '2026-05-30'
+dedupe:
+  titleHash: 6dd87a77193b2f715f59b90f6d1ede08b311c811287f4b499f012aa68e758d90
+  solutionHash: 6aa95b40fd376706ffdf09426a9809c3dd3249fffa2be9b8a2dd12821bc779cc
+  sourceHash: 182c835a647d918bf9ded7d917ab3e0a7ed55f425cde2f2a67588b72c03d8062
+draft: false
+---
+Ошибки ядра в Debian могут возникать по разным причинам: от несовместимости с новым оборудованием до повреждения файлов при обновлении. Прежде всего, рекомендуется поддерживать систему в актуальном состоянии, используя стандартный менеджер пакетов apt. Если после обновления система работает нестабильно, переустановка пакета ядра и обновление конфигурации GRUB являются наиболее эффективными методами восстановления работоспособности. При работе с командной строкой используйте терминал Bash, который является стандартным интерпретатором в Debian.
