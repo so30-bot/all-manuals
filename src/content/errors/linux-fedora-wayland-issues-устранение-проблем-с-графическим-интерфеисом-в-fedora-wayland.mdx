@@ -1,0 +1,60 @@
+---
+title: Устранение проблем с графическим интерфейсом в Fedora (Wayland)
+errorId: Fedora-Wayland-Issues
+category: Linux
+tags:
+  - Fedora
+  - Linux
+  - Wayland
+  - GNOME
+  - Графика
+description: >-
+  Инструкция по решению проблем с графической оболочкой в Fedora, которая по
+  умолчанию использует протокол Wayland.
+symptoms:
+  - Графический интерфейс не запускается
+  - Приложения с поддержкой X11 работают некорректно
+  - Зависания рабочего стола GNOME
+causes:
+  - Несовместимость некоторых приложений с протоколом Wayland
+  - Ошибки в работе графического сервера
+  - Проблемы с драйверами видеокарты при использовании Wayland
+steps:
+  - title: Переключение на X.org
+    body: >-
+      Если приложения или интерфейс работают нестабильно, попробуйте временно
+      переключиться на классический сервер X.org. При входе в систему (на экране
+      блокировки) нажмите на значок шестеренки в углу экрана и выберите 'GNOME
+      on Xorg'.
+    command: null
+    image: null
+  - title: Проверка обновлений системы
+    body: >-
+      Обновите все пакеты системы, так как разработчики Fedora регулярно
+      выпускают исправления для графического стека и драйверов.
+    command: sudo dnf upgrade --refresh
+    image: null
+  - title: Использование Xwayland для совместимости
+    body: >-
+      Убедитесь, что установлен пакет Xwayland, который позволяет запускать
+      старые приложения, не имеющие нативной поддержки Wayland.
+    command: sudo dnf install xwayland
+    image: null
+updatedAt: '2026-05-30'
+publishedAt: '2026-05-30'
+readingTime: 1
+popularityScore: 46
+sources:
+  - title: Wayland — Википедия
+    url: 'https://ru.wikipedia.org/wiki/Wayland'
+    accessedAt: '2026-05-30'
+  - title: systemd — Википедия
+    url: 'https://ru.wikipedia.org/wiki/Systemd'
+    accessedAt: '2026-05-30'
+dedupe:
+  titleHash: 5f856872dc8be67f2a444bda7bf0f174c0f8d083309fbb4cbdb14a5200c800db
+  solutionHash: 7f5ca55c689fa697323eaba34c81ab918e03d9813843e5e2bc9ba0d64afe6fc6
+  sourceHash: cec35b9b7d1d45250ce706e04a8da5543c94a61cbc6819f1ef033ddf7d2bd9c8
+draft: false
+---
+Fedora использует протокол Wayland в качестве графического сервера по умолчанию. Хотя он является современным и производительным решением, некоторые приложения или специфическое оборудование могут работать с ним некорректно. В данной статье разобраны основные способы решения проблем, возникающих при работе с графическим интерфейсом в Fedora.

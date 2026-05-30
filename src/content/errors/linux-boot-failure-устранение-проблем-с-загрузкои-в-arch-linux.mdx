@@ -1,0 +1,65 @@
+---
+title: Устранение проблем с загрузкой в Arch Linux
+errorId: boot-failure
+category: Linux
+tags:
+  - Arch Linux
+  - загрузка
+  - GRUB
+  - ядро Linux
+description: >-
+  Пошаговое руководство по диагностике и исправлению ошибок при загрузке
+  операционной системы Arch Linux.
+symptoms:
+  - Система не загружается после включения питания
+  - Зависание на этапе инициализации ядра
+  - Появление командной строки GRUB вместо рабочего стола
+causes:
+  - Повреждение конфигурации загрузчика GRUB
+  - Неудачное обновление ядра системы
+  - Ошибки в настройках монтирования файловых систем
+  - Проблемы с драйверами графической подсистемы (DRM)
+steps:
+  - title: Загрузка с установочного носителя
+    body: >-
+      Используйте загрузочную USB-флешку с Arch Linux, чтобы получить доступ к
+      системе в режиме восстановления. После загрузки с флешки вам нужно
+      примонтировать корневой раздел вашей системы. Замените /dev/sdXn на имя
+      вашего раздела (например, /dev/sda2).
+    command: mount /dev/sdXn /mnt
+    image: null
+  - title: Восстановление конфигурации GRUB
+    body: >-
+      Перейдите в среду вашей установленной системы с помощью chroot, чтобы
+      выполнить переустановку или обновление конфигурации загрузчика. Это
+      поможет исправить ошибки, возникшие при обновлении ядра.
+    command: arch-chroot /mnt && grub-mkconfig -o /boot/grub/grub.cfg
+    image: null
+  - title: Обновление или пересборка initramfs
+    body: >-
+      Если система зависает на этапе запуска, возможно, поврежден образ
+      начальной загрузки. Пересоберите его, чтобы гарантировать корректную
+      загрузку всех необходимых модулей ядра.
+    command: mkinitcpio -P
+    image: null
+updatedAt: '2026-05-30'
+publishedAt: '2026-05-30'
+readingTime: 2
+popularityScore: 63
+sources:
+  - title: Linux kernel - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Linux_kernel'
+    accessedAt: '2026-05-30'
+  - title: Linux kernel version history - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Linux_kernel_version_history'
+    accessedAt: '2026-05-30'
+  - title: Direct Rendering Manager - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Direct_Rendering_Manager'
+    accessedAt: '2026-05-30'
+dedupe:
+  titleHash: 243d7ea9afebfc4c1d6d79a4f386c0214bf071327d8568f4e810f672a6a4bd56
+  solutionHash: 2f55ae30033a75054426113ed0cc4f8d1d37887ea1ba3ab4bccde942a54b1c97
+  sourceHash: b4725e5fe020f00f833a66b504bdf54f26121f651c34d06ba846e0b94b354e1e
+draft: false
+---
+Проблемы с загрузкой в Arch Linux часто связаны с обновлением ядра или конфигурацией загрузчика GRUB. Для исправления ситуации необходимо использовать режим chroot через установочный носитель. Убедитесь, что вы правильно идентифицировали свои разделы диска перед началом работ. После выполнения команд восстановления обязательно проверьте целостность файловой системы и убедитесь, что все параметры в файле /etc/fstab указаны верно.

@@ -1,0 +1,76 @@
+---
+title: Устранение ошибки «Missing required command» при установке ПО в Linux и macOS
+errorId: Missing required command
+category: Linux
+tags:
+  - Debian
+  - Linux
+  - macOS
+  - brew
+  - apt
+  - установка ПО
+description: >-
+  Инструкция по исправлению ошибки отсутствия необходимых системных утилит при
+  запуске скриптов установки в Unix-подобных системах.
+symptoms:
+  - >-
+    Скрипт установки прерывается сообщением «Missing required command:
+    <название_утилиты>»
+  - 'Система не сообщает, как именно установить недостающий компонент'
+causes:
+  - >-
+    Отсутствие необходимой утилиты (например, git, curl или tar) в переменной
+    окружения PATH
+  - Несоответствие установленного менеджера пакетов требованиям скрипта
+steps:
+  - title: Определение недостающего компонента
+    body: >-
+      Внимательно изучите текст ошибки в терминале. После сообщения «Missing
+      required command:» будет указано имя программы, которую система не может
+      найти. Чаще всего это базовые инструменты: git, curl или tar.
+    command: null
+    image: null
+  - title: Установка отсутствующей утилиты для Debian/Ubuntu
+    body: >-
+      Если вы работаете в Debian, Ubuntu или их производных, используйте
+      системный менеджер пакетов apt для установки недостающего инструмента.
+    command: sudo apt update && sudo apt install <название_утилиты>
+    image: null
+  - title: Установка отсутствующей утилиты для macOS
+    body: >-
+      В macOS для управления пакетами используется Homebrew. Если команда brew
+      не найдена, сначала установите сам менеджер пакетов с официального сайта.
+      Если brew установлен, выполните команду для нужной утилиты.
+    command: brew install <название_утилиты>
+    image: null
+updatedAt: '2026-05-30'
+publishedAt: '2026-05-30'
+readingTime: 2
+popularityScore: 46
+sources:
+  - title: >-
+      [spark-compete] fix(installer): name an OS-specific install command for
+      the missing required tool by 4gjnbzb4zf-sudo · Pull Request #472 ·
+      vibeforge1111/spark-cli · GitHub
+    url: 'https://github.com/vibeforge1111/spark-cli/pull/472'
+    accessedAt: '2026-05-30'
+  - title: >-
+      Add brew/apt/dnf package install drivers + --dry-run flag by nhangen ·
+      Pull Request #104 · nhangen/claude-ceo · GitHub
+    url: 'https://github.com/nhangen/claude-ceo/pull/104'
+    accessedAt: '2026-05-30'
+dedupe:
+  titleHash: 25804a381530c29b17b55032aca5e757fadae3d3fd0665ee28a3a9b9f4f7aa68
+  solutionHash: c8b6d404019cf833b6c0c69704d33aa8d55de84c2bb5e5fbb9669d596e66e9e6
+  sourceHash: 30b86a10535340c45fa409615e93be58cba828f86b2f24a72084f236684f1b4a
+draft: false
+---
+При запуске скриптов установки на «чистой» системе часто возникает ошибка «Missing required command». Это означает, что скрипт пытается вызвать системную утилиту (например, git для загрузки файлов или curl для сетевых запросов), но она не установлена. 
+
+Для решения проблемы необходимо вручную установить недостающий компонент с помощью вашего менеджера пакетов:
+
+1. Для пользователей Debian/Ubuntu используйте: `sudo apt install <имя_утилиты>`.
+2. Для пользователей Fedora/RHEL используйте: `sudo dnf install <имя_утилиты>`.
+3. Для пользователей macOS используйте: `brew install <имя_утилиты>`.
+
+После установки пакета повторите запуск основного скрипта установки. Если проблема сохраняется, убедитесь, что утилита добавлена в PATH (обычно это происходит автоматически при установке через менеджер пакетов).
