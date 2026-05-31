@@ -131,10 +131,7 @@ async function main() {
       const query = batch[i];
       const globalIdx = batchStart + i;
       try {
-        if (i > 0) {
-          const delay = config.aiProvider.includes('groq') ? 12000 : 4000;
-          await sleep(delay);
-        }
+        if (i > 0) await sleep(4000);
         console.log(`[${globalIdx + 1}/${queries.length}] ${query}`);
         const slug = await processQuery(query, config, existing);
         if (slug) {
