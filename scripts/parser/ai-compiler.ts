@@ -21,7 +21,6 @@ type OllamaResponse = {
 };
 
 const fallbackGeminiModels = [
-  'gemini-3.1-flash-lite',
   'gemini-2.0-flash',
   'gemini-2.0-flash-lite'
 ];
@@ -241,6 +240,7 @@ async function generateOpenAiCompatible(options: {
       { role: 'system', content: options.system },
       { role: 'user', content: options.user }
     ],
+    max_tokens: 40000,
     temperature: 0.7
   };
 
@@ -303,6 +303,7 @@ async function generateWithGeminiFallback(system: string, user: string, config: 
 
   for (const model of models) {
     for (let attempt = 0; attempt < keys.length; attempt++) {
+      if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 2000));
       const keyIndex = (geminiKeyIndex + attempt) % keys.length;
       const apiKey = keys[keyIndex];
       try {
@@ -323,13 +324,14 @@ async function generateWithGeminiFallback(system: string, user: string, config: 
 
         if (!response.ok) {
           const body = await response.text();
-          if (response.status === 404 || /not found|not supported/i.test(body)) {
-            console.warn(`Gemini model ${model} is unavailable. Trying next model.`);
+
+          if (response.status === 404 || response.status === 403 || /not found|not supported|permission/i.test(body)) {
+            console.warn(`Gemini model ${model} unavailable (${response.status}). Trying next model.`);
             break;
           }
 
           if (response.status === 429) {
-            console.warn(`Gemini key ${keyIndex + 1}/${keys.length} quota/rate limit for ${model}. Trying next key...`);
+            console.warn(`Gemini key ${keyIndex + 1}/${keys.length} rate-limited for ${model}. Trying next key...`);
             continue;
           }
 
