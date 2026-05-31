@@ -2,7 +2,7 @@ name: Auto Parser (every 6h)
 
 on:
   schedule:
-    - cron: '0 */4 * * *'
+    - cron: '0 */2 * * *'
   workflow_dispatch:
     inputs:
       query_limit:
@@ -45,7 +45,7 @@ jobs:
           GEMINI_MODEL: 'gemini-2.5-flash'
           PARSER_MIN_SOURCES: '2'
           PARSER_PUBLISH_THRESHOLD: '0.30'
-          PARSER_QUERY_LIMIT: ${{ github.event.inputs.query_limit || '50' }}
+          PARSER_QUERY_LIMIT: ${{ github.event.inputs.query_limit || '200' }}
           PARSER_QUERY_OFFSET: ${{ github.event.inputs.query_offset || '' }}
           PARSER_ALLOW_LICENSED_IMAGES: 'false'
           AI_TIMEOUT_MS: '120000'

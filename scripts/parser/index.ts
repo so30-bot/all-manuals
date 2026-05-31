@@ -11,7 +11,7 @@ import { writeArticle } from './markdown-writer';
 import { discoverTrends, searchSources } from './sources';
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-const BATCH_SIZE = 10;
+const BATCH_SIZE = 20;
 
 function toEnglishQuery(query: string): string {
   const ruToEn: Record<string, string> = {
@@ -125,7 +125,7 @@ async function main() {
       const query = batch[i];
       const globalIdx = batchStart + i;
       try {
-        if (i > 0) await sleep(3000);
+        if (i > 0) await sleep(2000);
         console.log(`[${globalIdx + 1}/${queries.length}] ${query}`);
         const slug = await processQuery(query, config, existing);
         if (slug) {
