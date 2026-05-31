@@ -60,16 +60,17 @@ export async function compileArticle(query: string, documents: SourceDocument[],
     return null;
   }
 
-  const corpus = documents.map((document, index) => {
-    return `SOURCE ${index + 1}\nTitle: ${document.title}\nURL: ${document.url}\nText:\n${document.text.slice(0, 8000)}`;
+  const isGroq = config.groqApiKey && config.aiProvider.includes('groq');
+  const maxCharsPerSource = isGroq ? 1200 : 4000;
+  const maxSources = isGroq ? 3 : 5;
+
+  const corpus = documents.slice(0, maxSources).map((document, index) => {
+    return `SOURCE ${index + 1}\nTitle: ${document.title}\nURL: ${document.url}\nText:\n${document.text.slice(0, maxCharsPerSource)}`;
   }).join('\n\n---\n\n');
 
-  const userPrompt = `Запрос: ${query}
-
-Источники:
-${corpus}
-
-Составь русскоязычную статью-инструкцию по исправлению этой ошибки. publish всегда true. Минимум 3 шага решения.`.trim();
+  const userPrompt = isGroq
+    ? `Запрос: ${query}\n\nИсточники:\n${corpus}\n\nНапиши русскую инструкцию. publish: true. Минимум 3 шага.`
+    : `Запрос: ${query}\n\nИсточники:\n${corpus}\n\nСоставь русскоязычную статью-инструкцию по исправлению этой ошибки. publish всегда true. Минимум 3 шага решения.`;
 
   const text = await generateWithAiProvider(systemPrompt, userPrompt, config);
   if (!text) return null;
