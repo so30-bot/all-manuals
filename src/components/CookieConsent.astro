@@ -35,9 +35,28 @@
 <script is:inline>
   (function () {
     var key = 'all-manuals-cookie-consent';
-    try {
-      if (localStorage.getItem(key) === 'accepted') return;
-    } catch {}
+    var consent = '';
+    try { consent = localStorage.getItem(key) || ''; } catch {}
+
+    function loadMetrica() {
+      if (document.getElementById('metrica-script')) return;
+      var s = document.createElement('script');
+      s.id = 'metrica-script';
+      s.src = '/metrica.js';
+      document.head.appendChild(s);
+      var n = document.createElement('noscript');
+      var img = document.createElement('img');
+      img.src = 'https://mc.yandex.ru/watch/109481893';
+      img.style.cssText = 'position:absolute;left:-9999px;width:1px;height:1px';
+      n.appendChild(img);
+      document.body.appendChild(n);
+    }
+
+    if (consent === 'accepted') {
+      loadMetrica();
+      return;
+    }
+
     var banner = document.getElementById('cookie-consent');
     var btn = document.getElementById('cookie-accept');
     if (!banner || !btn) return;
@@ -45,6 +64,7 @@
     btn.addEventListener('click', function () {
       try { localStorage.setItem(key, 'accepted'); } catch {}
       banner.classList.add('hidden');
+      loadMetrica();
     });
     var rejectBtn = document.getElementById('cookie-reject');
     rejectBtn?.addEventListener('click', function () {
