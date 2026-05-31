@@ -45,7 +45,7 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
           GEMINI_API_KEY_3: ${{ secrets.GEMINI_API_KEY_3 }}
-          GEMINI_MODEL: 'gemini-2.0-flash-lite'
+          GEMINI_MODEL: 'gemini-3.1-flash-lite'
           SERPER_API_KEY: ${{ secrets.SERPER_API_KEY }}
           PARSER_MIN_SOURCES: '2'
           PARSER_PUBLISH_THRESHOLD: '0.30'
