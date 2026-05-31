@@ -58,3 +58,8 @@ jobs:
         env:
           PUBLIC_SITE_URL: https://all-manuals.ru
           PUBLIC_CONTACT_EMAIL: dmca@all-manuals.ru
+
+      - name: Ping Google sitemap
+        if: success()
+        run: |
+          curl -s "https://www.google.com/ping?sitemap=https://all-manuals.ru/sitemap.xml" > /dev/null 2>&1 || true
