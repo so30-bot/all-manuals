@@ -44,20 +44,16 @@ export async function searchSources(query: string, config: ParserConfig): Promis
 
   const filtered = dedupeCandidates(candidates).filter((item) => isAllowedCandidate(item, config));
 
-  if (filtered.length < config.minSources && hasCyrillic(query)) {
+  if (filtered.length < config.minSources) {
     const enQuery = toEnglishQuery(query);
-    if (enQuery) {
-      console.warn(`Fallback to English query: "${enQuery}"`);
+    if (enQuery && enQuery !== query) {
+      console.warn(`Fallback to English query: "${enQuery.slice(0, 60)}..."`);
       const enCandidates = await searchOpenSources(enQuery, config);
       filtered.push(...enCandidates.filter((item) => isAllowedCandidate(item, config)));
     }
   }
 
   return dedupeCandidates(filtered);
-}
-
-function hasCyrillic(text: string): boolean {
-  return /[а-яёА-ЯЁ]/.test(text);
 }
 
 function toEnglishQuery(text: string): string {
@@ -148,12 +144,12 @@ async function searchOpenSources(query: string, config: ParserConfig): Promise<S
 
 async function searchDuckDuckGo(query: string): Promise<SourceCandidate[]> {
   try {
-    const url = `https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(query)}&gl=ru&kl=ru-ru&ia=web`;
+    const url = `https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(query)}&ia=web`;
     const response = await fetch(url, {
       headers: {
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
         'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'accept-language': 'ru-RU,ru;q=0.9,en;q=0.8'
+        'accept-language': 'en-US,en;q=0.9,ru;q=0.8'
       }
     });
     if (!response.ok) return [];
