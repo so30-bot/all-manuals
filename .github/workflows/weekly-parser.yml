@@ -39,7 +39,9 @@ jobs:
       - name: Run parser
         run: npm run parser:weekly
         env:
-          AI_PROVIDER: 'gemini'
+          AI_PROVIDER: 'openrouter,gemini'
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          OPENROUTER_MODEL: 'xiaomi/mimo-v2.5'
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
           GEMINI_MODEL: 'gemini-2.5-flash'
@@ -48,7 +50,7 @@ jobs:
           PARSER_QUERY_LIMIT: ${{ github.event.inputs.query_limit || '200' }}
           PARSER_QUERY_OFFSET: ${{ github.event.inputs.query_offset || '' }}
           PARSER_ALLOW_LICENSED_IMAGES: 'false'
-          AI_TIMEOUT_MS: '120000'
+          AI_TIMEOUT_MS: '180000'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build site

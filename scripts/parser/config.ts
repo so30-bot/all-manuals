@@ -19,7 +19,7 @@ export function getParserConfig(): ParserConfig {
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434',
     ollamaModel: process.env.OLLAMA_MODEL || 'qwen2.5:7b',
     openRouterApiKey: process.env.OPENROUTER_API_KEY,
-    openRouterModel: process.env.OPENROUTER_MODEL || 'qwen/qwen-2.5-7b-instruct:free',
+    openRouterModel: process.env.OPENROUTER_MODEL || 'xiaomi/mimo-v2.5',
     groqApiKey: process.env.GROQ_API_KEY,
     groqModel: process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
     aiTimeoutMs: Number(process.env.AI_TIMEOUT_MS || 180000),
