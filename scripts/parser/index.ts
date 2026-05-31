@@ -86,14 +86,20 @@ async function processQuery(query: string, config: ReturnType<typeof getParserCo
     }
   }
 
-  if (fetchedDocs.length < config.minSources) return null;
+  if (fetchedDocs.length < config.minSources) {
+    console.warn(`  SKIP: only ${fetchedDocs.length} candidate sources (need ${config.minSources})`);
+    return null;
+  }
 
   const fetched = (await Promise.all(fetchedDocs.slice(0, 8).map((candidate) => fetchSource(candidate, config))))
     .filter(Boolean)
     .map((document) => extractReadableText(document!))
     .filter((document) => document.text.length >= 800);
 
-  if (fetched.length < config.minSources) return null;
+  if (fetched.length < config.minSources) {
+    console.warn(`  SKIP: only ${fetched.length} sources with ≥800 chars text (need ${config.minSources})`);
+    return null;
+  }
 
   const compiled = await compileArticle(query, fetched.slice(0, 5), config);
   if (!compiled || compiled.steps.length === 0) return null;

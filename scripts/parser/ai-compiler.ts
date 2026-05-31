@@ -21,10 +21,8 @@ type OllamaResponse = {
 };
 
 const fallbackGeminiModels = [
-  'gemini-2.5-flash',
-  'gemini-2.5-flash-lite',
-  'gemini-3.1-flash-lite',
-  'gemini-3-flash'
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-lite'
 ];
 
 const systemPrompt = `Ты — переводчик и редактор технических статей. Твоя задача — переписать предоставленные источники в связную русскоязычную статью-инструкцию.
@@ -85,8 +83,13 @@ ${corpus}
   }
   if (parsed.confidence === undefined || parsed.confidence === null) parsed.confidence = 0.5;
 
-  if (!parsed.publish || parsed.confidence < config.publishThreshold) {
-    console.warn(`Article rejected by confidence/publish flag for ${query}: ${parsed.reason || parsed.confidence}`);
+  if (!parsed.publish) {
+    console.warn(`Article rejected for ${query}: AI set publish=false (reason: ${parsed.reason || 'none'})`);
+    return null;
+  }
+
+  if (parsed.confidence < config.publishThreshold) {
+    console.warn(`Article rejected for ${query}: confidence ${parsed.confidence} < threshold ${config.publishThreshold}`);
     return null;
   }
 
@@ -96,7 +99,7 @@ ${corpus}
     .map((document) => ({ title: document.title, url: document.url, accessedAt: document.accessedAt }));
 
   if (sources.length < config.minSources) {
-    console.warn(`Article rejected because only ${sources.length} sources were retained.`);
+    console.warn(`Article rejected for ${query}: only ${sources.length}/${config.minSources} sources retained.`);
     return null;
   }
 

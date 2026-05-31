@@ -13,7 +13,8 @@ export function getParserConfig(): ParserConfig {
     geminiApiKey: process.env.GEMINI_API_KEY,
     geminiApiKeys: [
       process.env.GEMINI_API_KEY,
-      process.env.GEMINI_API_KEY_2
+      process.env.GEMINI_API_KEY_2,
+      process.env.GEMINI_API_KEY_3
     ].filter(Boolean) as string[],
     geminiModel: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434',
