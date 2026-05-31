@@ -56,15 +56,3 @@ jobs:
         env:
           PUBLIC_SITE_URL: https://all-manuals.ru
           PUBLIC_CONTACT_EMAIL: dmca@all-manuals.ru
-
-      - name: Commit and push
-        run: |
-          git config user.name "all-manuals-bot"
-          git config user.email "bot@all-manuals.ru"
-          if [[ -z "$(git status --porcelain)" ]]; then
-            echo "No new articles."
-            exit 0
-          fi
-          git add src/content/errors/
-          git commit -m "auto: generate error articles"
-          git push
