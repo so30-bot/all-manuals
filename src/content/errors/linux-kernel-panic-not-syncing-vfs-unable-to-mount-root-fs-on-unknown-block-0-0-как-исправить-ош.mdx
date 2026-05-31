@@ -1,0 +1,101 @@
+---
+title: Как исправить ошибку Kernel Panic в Ubuntu после обновления ядра
+errorId: 'Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)'
+category: Linux
+tags:
+  - Ubuntu
+  - ядро Linux
+  - ошибка запуска
+  - восстановление системы
+  - GRUB
+  - initramfs
+description: >-
+  Пошаговая инструкция по исправлению ошибки «Kernel Panic - not syncing: VFS:
+  Unable to mount root fs», которая возникает при загрузке Ubuntu после
+  обновления или установки нового ядра.
+symptoms:
+  - >-
+    При загрузке Ubuntu появляется сообщение об ошибке Kernel Panic с текстом
+    «Unable to mount root fs».
+  - >-
+    Система зависает или перезагружается на этапе загрузки после установки или
+    обновления ядра.
+  - 'В меню GRUB выбрать другой вариант ядра не помогает, и ошибка повторяется.'
+causes:
+  - Файлы нового ядра повреждены или неполностью установлены.
+  - >-
+    Отсутствует initramfs (начальная файловая система RAM) для нового ядра,
+    необходимая для монтирования корневого раздела.
+  - 'Раздел /boot переполнен, что мешает корректной загрузке ядра.'
+  - Некорректные символические ссылки в директории /boot.
+steps:
+  - title: Загрузитесь в старое рабочее ядро через GRUB
+    body: >-
+      При включении компьютера, когда появляется меню GRUB, выберите пункт
+      «Advanced options for Ubuntu» и затем выберите старую версию ядра, которая
+      точно работала ранее (например, 5.4.0-37-generic). Нажмите Enter для
+      загрузки. Если система загрузится успешно, откройте терминал.
+    command: null
+    image: null
+  - title: Удалите файлы проблемного ядра или пересоздайте initramfs
+    body: >-
+      В зависимости от ситуации, выполните одно из действий. Если вы
+      устанавливали кастомное ядро и хотите его удалить, перейдите в директорию
+      /boot и удалите все файлы, связанные с этой версией ядра (например,
+      config-5.7.5, initrd.img-5.7.5, System.map-5.7.5, vmlinuz-5.7.5). Затем
+      восстановите правильные символические ссылки: создайте ссылку vmlinuz на
+      рабочее ядро (например, vmlinuz -> vmlinuz-5.4.0-37-generic) и vmlinuz.old
+      на предыдущее ядро. Если проблема в отсутствии initramfs, пересоздайте его
+      для нового ядра, используя команду: sudo update-initramfs -u -k <версия
+      ядра>, где <версия ядра> — это, например, 4.15.0-36-generic (узнайте её
+      через uname -r).
+    command: |-
+      cd /boot
+      sudo rm config-5.7.5 initrd.img-5.7.5 System.map-5.7.5 vmlinuz-5.7.5
+      sudo ln -s vmlinuz-5.4.0-37-generic vmlinuz
+      sudo ln -s vmlinuz-5.4.0-26-generic vmlinuz.old
+    image: null
+  - title: Переустановите официальное ядро и обновите GRUB
+    body: >-
+      Выполните переустановку последнего стабильного официального ядра Ubuntu,
+      чтобы гарантировать целостность файлов. Затем обновите загрузчик GRUB,
+      чтобы он распознал изменения. Если команда grub-mkconfig недоступна,
+      установите пакет grub2-common. После этого перезагрузите компьютер.
+      Система должна нормально загрузиться с рабочим ядром.
+    command: |-
+      sudo apt install --reinstall linux-generic
+      sudo apt install grub2-common
+      sudo update-grub
+      sudo reboot
+    image: null
+  - title: Проверьте обновления системы
+    body: >-
+      После успешной загрузки обновите все пакеты системы, чтобы убедиться, что
+      никакие компоненты не повреждены. Это поможет предотвратить будущие
+      проблемы совместимости.
+    command: |-
+      sudo apt update
+      sudo apt upgrade
+    image: null
+updatedAt: '2026-05-31'
+publishedAt: '2026-05-31'
+readingTime: 3
+popularityScore: 50
+sources:
+  - title: boot - How to fix or remove a broken kernel (Ubuntu 20.04) - Ask Ubuntu
+    url: >-
+      https://askubuntu.com/questions/1253247/how-to-fix-or-remove-a-broken-kernel-ubuntu-20-04
+    accessedAt: '2026-05-31'
+  - title: >-
+      Fixing the "Kernel Panic - not syncing: VFS: Unable to mount root fs on
+      unknown-block(0,0)" Error After Upgrading Ubuntu - DEV Community
+    url: >-
+      https://dev.to/dm8ry/fixing-the-kernel-panic-not-syncing-vfs-unable-to-mount-root-fs-on-unknown-block00-error-3ado
+    accessedAt: '2026-05-31'
+dedupe:
+  titleHash: 42819b628af89c7a06309fdc0b977fb1a04bfe7ccad769db1ccdfcf3e99b2e14
+  solutionHash: c7308d4c61d917656e214b81b8368e3cb54386b3ad9c34a15125d28125ff8a89
+  sourceHash: 6e4603175ba3c8657c0895e89d899ad264cc2ebe128a83edabb0cc8a357fe03e
+draft: false
+---
+Ошибка «Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)» в Ubuntu обычно возникает после обновления ядра или установки нестандартной версии. Она означает, что система не может смонтировать корневой раздел файловой системы, что часто связано с повреждением файлов ядра или отсутствием важного компонента — initramfs. Решение проблемы включает несколько простых шагов. Сначала нужно загрузиться в старую рабочую версию ядра через меню GRUB. Затем, в зависимости от ситуации, удалите файлы проблемного ядра или пересоздайте initramfs для новой версии. После этого переустановите официальное ядро Ubuntu, обновите загрузчик GRUB и перезагрузите компьютер. Наконец, проверьте обновления системы для стабильности. Следуйте инструкциям аккуратно, и ваша Ubuntu снова будет загружаться без ошибок.

@@ -1,0 +1,236 @@
+---
+title: Как исправить ошибки Homebrew (Brew) на Ubuntu
+errorId: brew-error-ubuntu
+category: Linux
+tags:
+  - Homebrew
+  - Linuxbrew
+  - Ubuntu
+  - brew update
+  - brew doctor
+  - ошибки пакетного менеджера
+description: >-
+  Пошаговое руководство по исправлению типичных ошибок Homebrew (Linuxbrew) в
+  Ubuntu: сообщения при загрузке, проблемы с обновлением, ошибки прав доступа и
+  неработоспособность команд brew.
+symptoms:
+  - >-
+    При запуске Ubuntu появляется сообщение «Error found when loading
+    /home/user/.profile: /bin/brew: No such file or directory»
+  - Команда brew update выдаёт ошибку и завершается аварийно
+  - Команда brew upgrade падает с ошибкой «homebrew-core is a shallow clone»
+  - >-
+    brew doctor выдаёт предупреждения об устаревших компонентах или неверных
+    правах доступа
+  - Команды brew не работают или выдают «command not found»
+causes:
+  - >-
+    Некорректная установка Linuxbrew, при которой в .profile или .bashrc были
+    добавлены ссылки на несуществующий /bin/brew
+  - >-
+    Повреждённый или неполный Git-клон репозиториев homebrew-core/homebrew-cask
+    (shallow clone)
+  - Неверные права доступа к директории /usr/local или подкаталогам
+  - >-
+    Устаревшие компоненты (Xcode/CLT) или сторонние библиотеки, не установленные
+    через Homebrew
+  - Незавершённая переустановка Homebrew после сбоя
+steps:
+  - title: Удалите некорректные записи из файлов конфигурации shell
+    body: >-
+      Если при загрузке Ubuntu вы видите ошибку вроде «/bin/brew: No such file
+      or directory», значит установщик Linuxbrew внёс в файлы ~/.profile и/или
+      ~/.bashrc строки, ссылающиеся на несуществующий путь. Откройте эти файлы в
+      текстовом редакторе (например, nano) и удалите все строки, содержащие
+      ссылки на brew, такие как:
+
+        • export PATH="/home/linuxbrew/.linuxbrew/bin:..."
+        • export MANPATH="/home/linuxbrew/.linuxbrew/share/man:$MANPATH"
+        • export INFOPATH="/home/linuxbrew/.linuxbrew/share/info:$INFOPATH"
+        • eval $(/bin/brew shellenv)
+
+      После сохранения файла перезагрузите компьютер или выполните source
+      ~/.profile, чтобы ошибка исчезла.
+    command: nano ~/.profile && nano ~/.bashrc
+    image: null
+  - title: Полностью удалите Linuxbrew и установите заново
+    body: >-
+      Если Homebrew установился частично или работает некорректно, лучше
+      полностью удалить его и переустановить. Сначала удалите директорию
+      Linuxbrew и очистите записи из конфигурационных файлов shell (шаг 1).
+      Затем выполните чистую установку, предварительно установив необходимые
+      зависимости.
+    command: >-
+      sudo apt-get install build-essential curl file git
+
+      sh -c "$(curl -fsSL
+      https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+
+      source ~/.bashrc
+    image: null
+  - title: Выполните brew update дважды и brew doctor для диагностики
+    body: >-
+      Согласно официальному руководству по устранению неполадок, перед любыми
+      действиями с Homebrew необходимо выполнить brew update два раза подряд, а
+      затем brew doctor. Команда brew update скачивает последние версии формул,
+      а brew doctor проверяет конфигурацию системы и выдаёт предупреждения о
+      возможных проблемах. Исправьте все замечания, которые покажет brew doctor
+      — это самая частая причина ошибок.
+    command: |-
+      brew update
+      brew update
+      brew doctor
+    image: null
+  - title: Исправьте ошибку shallow clone для homebrew-core и homebrew-cask
+    body: >-
+      Если brew update или brew upgrade падают с ошибкой «homebrew-core is a
+      shallow clone», это значит, что локальный Git-клон репозитория формул
+      неполный. Выполните команду для полной загрузки истории репозитория. Если
+      ошибка повторяется после первой попытки, попробуйте добавить флаг -v для
+      подробного вывода — репозитории большие и загрузка может занять время.
+      Если это не помогло, можно удалить повреждённый клон и склонировать
+      заново.
+    command: >-
+      git -C "/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core" fetch
+      --unshallow
+
+      git -C "/usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask" fetch
+      --unshallow
+    image: null
+  - title: Проверьте и восстановите права доступа к директории /usr/local
+    body: >-
+      Если команды brew падают с ошибками, связанными с правами доступа,
+      убедитесь, что ваш пользователь является владельцем необходимых
+      подкаталогов. Выполните команду для восстановления прав на все ключевые
+      директории. После этого снова запустите brew update и brew doctor.
+    command: >-
+      cd /usr/local && sudo chown -R $(whoami) bin etc include lib sbin share
+      var opt Cellar Caskroom Frameworks
+    image: null
+  - title: Соберите отладочную информацию для создания обращения
+    body: >-
+      Если ни один из шагов не решил проблему, соберите диагностические данные.
+      Если проблема связана с конкретной формулой, используйте brew gist-logs с
+      именем формулы. Если проблема общая — загрузите вывод команд brew config и
+      brew doctor. Эти данные понадобятся при создании обращения на GitHub.
+    command: |-
+      brew gist-logs <имя_формулы>
+      brew config
+      brew doctor
+    image: null
+updatedAt: '2026-05-31'
+publishedAt: '2026-05-31'
+readingTime: 6
+popularityScore: 92
+sources:
+  - title: brew/docs/Troubleshooting.md at master · Linuxbrew/brew · GitHub
+    url: 'https://github.com/Linuxbrew/brew/blob/master/docs/Troubleshooting.md'
+    accessedAt: '2026-05-31'
+  - title: terminal - How to repair and/or reinstall Homebrew safely? - Ask Different
+    url: >-
+      https://apple.stackexchange.com/questions/171785/how-to-repair-and-or-reinstall-homebrew-safely
+    accessedAt: '2026-05-31'
+  - title: Can't update or upgrade Homebrew - Stack Overflow
+    url: >-
+      https://stackoverflow.com/questions/65160625/cant-update-or-upgrade-homebrew
+    accessedAt: '2026-05-31'
+  - title: Homebrew (package manager) - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/Homebrew_(package_manager)'
+    accessedAt: '2026-05-31'
+dedupe:
+  titleHash: e72f1ab455859afe74b10baa7b933d859349efa92a803f4ee1c7283ef683bc56
+  solutionHash: 4d9fd7d395223a175b1ed10d7d48caf434ea1c14a2e0bec2608b0df7a814946c
+  sourceHash: b168e19c92e6bff0a3fa31f1c5e3a5815eb3f85da0e38cf6b0020342aaecbc6b
+draft: false
+---
+## Введение
+
+Homebrew (в Linux-версии известен как Linuxbrew) — это бесплатный менеджер пакетов с открытым исходным кодом, который значительно упрощает установку программного обеспечения на Linux-системы, включая Ubuntu. Он использует Ruby-скрипты (формулы) для сборки программ из исходников и поддерживает бинарные пакеты (bottles) для быстрой установки.
+
+Однако при установке или обновлении Homebrew на Ubuntu могут возникать различные ошибки. Ниже рассмотрены самые частые из них и способы их решения.
+
+---
+
+## Ошибка «/bin/brew: No such file or directory» при загрузке Ubuntu
+
+**Причина.** При установке Linuxbrew в файлы ~/.profile и ~/.bashrc автоматически добавляются строки для настройки переменных окружения (PATH, MANPATH, INFOPATH). Если установка была прервана или выполнена некорректно, в конфигурационных файлах остаются ссылки на несуществующий путь `/bin/brew`, и Ubuntu при каждой загрузке выдаёт предупреждение.
+
+**Решение.** Откройте файл `~/.profile` в текстовом редакторе и удалите все строки, содержащие `brew` — это строки `export PATH`, `export MANPATH`, `export INFOPATH` и `eval $(/bin/brew shellenv)`. То же проделайте с файлом `~/.bashrc`. После сохранения перезагрузите систему, и ошибка исчезнет.
+
+---
+
+## Команды brew update и brew upgrade не работают
+
+**Причина.** Часто это связано с тем, что локальные Git-репозитории формул (`homebrew-core` и `homebrew-cask`) находятся в состоянии shallow clone — неполного клона без полной истории коммитов. Homebrew требует полного репозитория для корректной работы.
+
+**Решение.** Выполните команды для загрузки полной истории:
+
+```
+git -C "/usr/local/Homebrew/Library/Taps/homebrew/homebrew-core" fetch --unshallow
+git -C "/usr/local/Homebrew/Library/Taps/homebrew/homebrew-cask" fetch --unshallow
+```
+
+Репозитории большие, загрузка может занять несколько минут. Если процесс зависает, добавьте флаг `-v` для отслеживания прогресса. Если и это не помогло — удалите директорию `homebrew-core` и склонируйте её заново:
+
+```
+cd /usr/local/Homebrew/Library/Taps/homebrew/
+rm -rf homebrew-core
+git clone https://github.com/Homebrew/homebrew-core.git
+```
+
+После этого повторите `brew update`.
+
+---
+
+## Ошибки прав доступа
+
+**Причина.** Homebrew при установке изменяет права на директорию `/usr/local` и её подкаталоги, назначая владельцем текущего пользователя. Если эти права были нарушены (например, после работы с `sudo`), команды brew начинают выдавать ошибки.
+
+**Решение.** Восстановите права доступа:
+
+```
+cd /usr/local && sudo chown -R $(whoami) bin etc include lib sbin share var opt Cellar Caskroom Frameworks
+```
+
+---
+
+## Диагностика: brew doctor
+
+Перед любыми исправлениями выполните обновление и диагностику:
+
+```
+brew update
+brew update
+brew doctor
+```
+
+Команда `brew update` рекомендуется к запуску дважды, чтобы гарантировать актуальность всех формул. `brew doctor` проверит систему и выдаст список предупреждений — исправьте все замеченные проблемы, особенно связанные с устаревшими инструментами разработчика и посторонними библиотеками (unbrewed dylibs).
+
+---
+
+## Переустановка Homebrew как крайняя мера
+
+Если ни один из способов не помог, выполните полную переустановку:
+
+1. Удалите директорию Linuxbrew и все добавленные строки из конфигурационных файлов shell.
+2. Установите зависимости: `sudo apt-get install build-essential curl file git`.
+3. Запустите официальный скрипт установки.
+4. Обновите shell: `source ~/.bashrc`.
+
+После переустановки все ранее установленные через Homebrew пакеты потребуется установить заново.
+
+---
+
+## Создание обращения о нерешённой проблеме
+
+Если проблему не удалось решить самостоятельно, создайте обращение в репозитории Homebrew на GitHub:
+
+1. Соберите диагностические данные: `brew gist-logs <имя_формулы>` (для проблем с конкретной формулой) или вывод `brew config` и `brew doctor`.
+2. Откройте новое обращение с описательным заголовком, указав имя формулы (если применимо) и версию ОС.
+3. Вставьте ссылки на собранные данные.
+
+---
+
+## Заключение
+
+Homebrew — удобный инструмент, но его корректная работа на Ubuntu требует внимания к правам доступа, целостности Git-репозиториев и содержимому файлов конфигурации shell. Регулярно запускайте `brew update` и `brew doctor` для профилактики, и большинства проблем удастся избежать.

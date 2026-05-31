@@ -1,0 +1,95 @@
+---
+title: Исправление ошибки загрузки Debian после замены диска или сбоя UEFI
+errorId: debian_boot_error_fix
+category: Linux
+tags:
+  - Debian
+  - загрузка
+  - GRUB
+  - UEFI
+  - восстановление
+  - BIOS
+description: >-
+  Инструкция по восстановлению загрузки Debian, когда система не стартует после
+  замены диска или сбоя в записи UEFI загрузчика GRUB.
+symptoms:
+  - >-
+    После перезагрузки или замены диска Debian не появляется в списке загрузки
+    UEFI
+  - При попытке загрузки отображается только курсор или пустой экран
+  - Система не может найти запись загрузчика GRUB для Debian
+causes:
+  - Извлечение или замена диска привела к потере записи UEFI для загрузчика GRUB
+  - >-
+    UEFI-прошивка материнской платы «забыла» запись загрузки после аппаратных
+    изменений
+  - Некорректное завершение работы или сбой при обновлении загрузчика
+steps:
+  - title: Создание загрузочной флешки с Ubuntu Live
+    body: >-
+      Подготовьте USB-накопитель с дистрибутивом Ubuntu (или любым другим,
+      поддерживающим Boot-Repair). Это можно сделать на любой рабочей системе
+      Linux или Windows, используя утилиту Rufus или Etcher. Загрузитесь с этой
+      флешки, выбрав в меню UEFI/BIOS соответствующий диск.
+    command: null
+    image: null
+  - title: Восстановление загрузчика с помощью Boot-Repair
+    body: >-
+      В Live-сессии откройте терминал и установите Boot-Repair: sudo
+      add-apt-repository ppa:yannubuntu/boot-repair && sudo apt update && sudo
+      apt install -y boot-repair. Запустите утилиту (boot-repair) и выберите
+      «Рекомендуемое восстановление». Программа автоматически переустановит GRUB
+      и добавит запись в UEFI. После завершения перезагрузитесь, убрав флешку.
+    command: null
+    image: null
+  - title: Ручное добавление записи UEFI через efibootmgr
+    body: >-
+      Если Boot-Repair недоступен или не помог, загрузитесь с Live USB и
+      откройте терминал. Определите номер раздела ESP (обычно /dev/sda1 или
+      /dev/nvme0n1p1, файловая система FAT32). Установите efibootmgr (sudo apt
+      install efibootmgr) и используйте команду: sudo efibootmgr -c -d /dev/sda
+      -p 1 -L "Debian" -l "\EFI\debian\grubx64.efi". Эта команда создаст новую
+      запись загрузки в UEFI. Проверьте результат командой sudo efibootmgr -v.
+    command: null
+    image: null
+  - title: Проверка настроек BIOS/UEFI и Secure Boot
+    body: >-
+      Перезагрузитесь и войдите в настройки BIOS/UEFI (обычно клавиша Del, F2
+      или F12). Убедитесь, что: 1) включен режим UEFI (не Legacy/CSM), 2) Secure
+      Boot отключен (если он блокирует загрузку неавтентизированных
+      загрузчиков), 3) приоритет загрузки выставлен правильно. Сохраните
+      изменения и попробуйте запустить Debian.
+    command: null
+    image: null
+  - title: 'Альтернатива: использование Super Grub2 Disk'
+    body: >-
+      Если предыдущие методы недоступны, попробуйте Super Grub2 Disk — это
+      загрузочный инструмент, работающий в текстовом режиме и совместимый с
+      большинством видеокарт. Он позволяет вручную выбрать ядро и загрузить
+      систему, после чего можно восстановить GRUB штатным способом.
+    command: null
+    image: null
+updatedAt: '2026-05-31'
+publishedAt: '2026-05-31'
+readingTime: 3
+popularityScore: 71
+sources:
+  - title: >-
+      Debian 12 bricked (won't boot). How to unbrick it? - Unix & Linux Stack
+      Exchange
+    url: >-
+      https://unix.stackexchange.com/questions/768427/debian-12-bricked-wont-boot-how-to-unbrick-it
+    accessedAt: '2026-05-31'
+  - title: MX Linux - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/MX_Linux'
+    accessedAt: '2026-05-31'
+  - title: BIOS - Wikipedia
+    url: 'https://en.wikipedia.org/wiki/BIOS'
+    accessedAt: '2026-05-31'
+dedupe:
+  titleHash: cbda6851869f25d2614d363f0a0a8fdba6f92554d84537692128f8930b092120
+  solutionHash: 2bb2b8a16dbfd3f2b2363603aefd2be3fedfc4d2423d1629e053597f63892726
+  sourceHash: c28cfbae8e31d064df1d0b2831d5a95f610e8e06285eb779e4eb8ff7c6ae4d6d
+draft: false
+---
+Эта инструкция поможет восстановить загрузку Debian, если система перестала стартовать после замены диска или сбоя UEFI. Проблема обычно возникает из-за того, что при извлечении накопителя UEFI-прошивка материнской платы теряет запись загрузчика GRUB. Для решения понадобится загрузочная флешка с Ubuntu Live или аналогичным дистрибутивом. Основной инструмент — Boot-Repair, который автоматически переустанавливает GRUB и восстанавливает запись в UEFI. Если утилита не помогает, можно вручную добавить запись через команду efibootmgr. Также стоит проверить настройки BIOS/UEFI, особенно режим загрузки и Secure Boot. В крайнем случае используйте Super Grub2 Disk для запуска системы и последующего восстановления. Следуйте шагам последовательно, и Debian снова загрузится.
