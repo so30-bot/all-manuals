@@ -39,8 +39,10 @@ jobs:
       - name: Run parser
         run: npm run parser:weekly
         env:
-          AI_PROVIDER: 'gemini,openrouter'
+          AI_PROVIDER: 'groq,gemini,openrouter'
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          GROQ_MODEL: 'llama-3.1-8b-instant'
           OPENROUTER_MODEL: 'xiaomi/mimo-v2.5'
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_API_KEY_2: ${{ secrets.GEMINI_API_KEY_2 }}
