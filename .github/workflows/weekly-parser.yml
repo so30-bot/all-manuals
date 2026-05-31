@@ -66,5 +66,5 @@ jobs:
             exit 0
           fi
           git add src/content/errors/
-          git commit -m "auto: generate error articles [skip ci]"
+          git commit -m "auto: generate error articles"
           git push
