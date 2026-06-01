@@ -7,11 +7,6 @@ import categories from '@/data/categories.json';
 const articles = (await getCollection('errors')).filter((article) => !article.data.draft).sort(
   (a, b) => new Date(b.data.updatedAt).getTime() - new Date(a.data.updatedAt).getTime()
 );
-
-const selectedCategory = Astro.url.searchParams.get('category');
-const filtered = selectedCategory
-  ? articles.filter((a) => a.data.category === categories.find((c) => c.slug === selectedCategory)?.name)
-  : articles;
 ---
 
 <BaseLayout title="Все ошибки" description="Полный список всех ошибок с решениями на All Manuals." path="/errors/">
@@ -19,26 +14,58 @@ const filtered = selectedCategory
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>
         <h1 class="text-3xl font-bold tracking-tight text-slate-950 dark:text-white">Все ошибки</h1>
-        <p class="mt-2 text-sm text-slate-600 dark:text-slate-400">{filtered.length} {filtered.length === 1 ? 'статья' : 'статей'}</p>
+        <p id="article-count" class="mt-2 text-sm text-slate-600 dark:text-slate-400">{articles.length} статей</p>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <a href="/errors/" class="focus-ring rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-700">Все</a>
+      <div id="category-filters" class="flex flex-wrap gap-2">
+        <a href="/errors/" data-category="" class="focus-ring cat-pill rounded-full border px-3 py-1.5 text-sm transition border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-700">Все</a>
         {categories.map((cat) => (
-          <a href={`/errors/?category=${cat.slug}`} class={`focus-ring rounded-full border px-3 py-1.5 text-sm transition ${
-            selectedCategory === cat.slug
-              ? 'border-sky-500 bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-300'
-              : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-700'
-          }`}>{cat.name}</a>
+          <a href={`/errors/?category=${cat.slug}`} data-category={cat.slug} class="focus-ring cat-pill rounded-full border px-3 py-1.5 text-sm transition border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-700">{cat.name}</a>
         ))}
       </div>
     </div>
 
-    <div class="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-      {filtered.map((article) => <ErrorCard article={article} />)}
+    <div id="articles-grid" class="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {articles.map((article) => (
+        <div data-category={categories.find((c) => c.name === article.data.category)?.slug || ''}>
+          <ErrorCard article={article} />
+        </div>
+      ))}
     </div>
 
-    {filtered.length === 0 && (
-      <p class="mt-10 text-center text-slate-500 dark:text-slate-400">В этой категории пока нет статей.</p>
-    )}
+    <p id="no-articles" class="mt-10 hidden text-center text-slate-500 dark:text-slate-400">В этой категории пока нет статей.</p>
   </section>
+
+  <script is:inline>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const active = params.get('category') || '';
+      const cards = document.querySelectorAll('#articles-grid > div');
+      const pills = document.querySelectorAll('.cat-pill');
+      const count = document.getElementById('article-count');
+      const noArticles = document.getElementById('no-articles');
+
+      pills.forEach((pill) => {
+        const slug = pill.getAttribute('data-category');
+        if (slug === active) {
+          pill.classList.add('border-sky-500', 'bg-sky-50', 'text-sky-700', 'dark:bg-sky-950', 'dark:text-sky-300');
+          pill.classList.remove('border-slate-200', 'bg-white', 'text-slate-600', 'dark:border-slate-800', 'dark:bg-slate-900', 'dark:text-slate-300');
+        }
+      });
+
+      let shown = 0;
+      cards.forEach((card) => {
+        const slug = card.getAttribute('data-category');
+        if (!active || slug === active) {
+          card.style.display = '';
+          shown++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      const word = shown === 1 ? 'статья' : (shown >= 2 && shown <= 4 ? 'статьи' : 'статей');
+      count.textContent = shown + ' ' + word;
+      noArticles.classList.toggle('hidden', shown > 0);
+    })();
+  </script>
 </BaseLayout>
