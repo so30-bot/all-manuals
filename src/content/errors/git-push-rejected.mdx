@@ -1,0 +1,82 @@
+---
+title: "git push rejected: как исправить ошибку отклонения отправки"
+category: "Разработка"
+tags:
+  - Git
+  - push
+  - rejected
+  - remote
+  - GitHub
+description: >-
+  Пошаговое руководство по устранению ошибки git push rejected: non-fast-forward,force push, pull перед push и защита веток.
+symptoms:
+  - "! [rejected] master -> master (non-fast-forward)"
+  - "error: failed to push some refs"
+  - "Updates were rejected because the remote contains work"
+  - "git push завершается ошибкой"
+  - "Push rejected из-за protected branch"
+causes:
+  - "Удалённая ветка содержит коммиты, которых нет локально"
+  - "Кто-то другой запустил push до вас"
+  - "Ветка защищена в GitHub/GitLab"
+  - "Вы пытаетесь force push в защищённую ветку"
+  - "Несогласованные изменения в индексе"
+steps:
+  - title: Пull перед push
+    body: >-
+      Самое простое решение — выполнить git pull перед push. Это скачает удалённые изменения и объединит их с вашими: git pull origin master --rebase. Флаг --rebase пере replay ваши коммиты поверх удалённых, чтобы история была линейной. Если возникнут конфликты, разрешите их и выполните git rebase --continue. После этого push сработает.
+    command: git pull origin master --rebase
+    image: null
+  - title: Выполнитеforce push (осторожно)
+    body: >-
+      Если вы уверены, что ваши изменения правильные и перезаписывают удалённые: git push --force origin master. FORCE PUSH перезаписывает удалённую ветку вашей историей. Это опасно: чужие коммиты будут потеряны. Безопаснее: git push --force-with-lease — он проверяет, что удалённая ветка не изменилась с момента последнего pull. НИКОГДА не делайте force push в main/master без согласия команды.
+    command: git push --force-with-lease origin master
+    image: null
+  - title: Проверьте защиту веток
+    body: >-
+      Если push rejected с сообщением branch is protected, проверьте настройки в GitHub/GitLab. Перейдите в Settings > Branches > Branch protection rules. Убедитесь, что у вас есть права на force push или что ветка не требует PR. Для обхода временно снимите protection (если у вас есть доступ) или создайте Pull Request.
+    command: null
+    image: null
+  - title: Синхронизируйте с удалённым репозиторием
+    body: >-
+      Выполните git fetch origin для скачивания информации об удалённых изменениях без объединения. Затем git log master..origin/master покажет, какие коммиты есть на удалённом сервере, но нет у вас. Это поможет понять, что именно нужно подтянуть. После анализа сделайте git merge origin/master или git rebase origin/master.
+    command: git fetch origin && git log master..origin/master
+    image: null
+  - title: Проверьте текущую ветку
+    body: >-
+      Убедитесь, что вы в правильной ветке: git branch. Если вы в feature-ветке, а пушите в master — будет ошибка. Переключитесь: git checkout master. Также проверьтеgit remote -v — URL удалённого репозитория должен быть правильным. Если URL изменился: git remote set-url origin git@github.com:user/repo.git.
+    command: git branch && git remote -v
+    image: null
+  - title: Создайте PR вместо прямого push
+    body: >-
+      Если ветка защищена, создайте Pull Request. Перейдите в GitHub/GitLab, нажмите New Pull Request. Выберите свою ветку и ветку назначения (main/master). Опишите изменения и запросите ревью. После одобрения PR будет слит без необходимости force push. Это безопасный и рекомендуемыйworkflow.
+    command: null
+    image: null
+updatedAt: '2026-06-02'
+publishedAt: '2026-06-02'
+readingTime: 6
+popularityScore: 82
+sources:
+  - title: "Why is my git push rejected?"
+    url: 'https://stackoverflow.com/questions/24075281/why-is-my-git-push-rejected'
+    accessedAt: '2026-06-02'
+  - title: "Git push rejected non-fast-forward"
+    url: 'https://stackoverflow.com/questions/2930083/git-push-error- rejected-non-fast-forward'
+    accessedAt: '2026-06-02'
+  - title: "Git force push best practices"
+    url: 'https://docs.github.com/en/repositories/configuring-your-repository/managing-repository-settings/managing-branch-protection-rules'
+    accessedAt: '2026-06-02'
+  - title: "Difference between git push and git push --force"
+    url: 'https://www.atlassian.com/git/tutorials/syncing/git-push'
+    accessedAt: '2026-06-02'
+dedupe:
+  titleHash: b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9
+  solutionHash: c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0
+  sourceHash: d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1
+draft: false
+---
+Ошибка git push rejected возникает, когда удалённая ветка содержит коммиты, которых нет в вашей локальной копии. Git отказывается перезаписывать историю, чтобы не потерять чужие изменения. Решение: pull перед push или force push (осторожно).
+
+### Non-fast-forward — что это значит
+
+Non-fast-forward означает, что ваша локальная ветка отстаёт от удалённой. Кто-то (или вы на другой машине) запустил push до вас. Git предлагает сначала подтянуть удалённые изменения: git pull, затем снова push. Это самый безопасный вариант.

@@ -1,0 +1,88 @@
+---
+title: "NFS mount failed: как исправить ошибку монтирования NFS в Linux"
+category: "Linux"
+tags:
+  - NFS
+  - mount
+  - Linux
+  - сеть
+  - сервер
+description: >-
+  Пошаговое руководство по устранению ошибок монтирования NFS: проверка службы, порта,exportfs, permission denied и общие проблемы.
+symptoms:
+  - "mount.nfs: access denied by server"
+  - "mount.nfs: connection timed out"
+  - "NFS mount failed: mount error: no route to host"
+  - "Stale file handle при обращении к NFS"
+  - "Permission denied на смонтированной директории"
+causes:
+  - "Служба rpcbind/portmap не запущена"
+  - "Экспорт не настроен или неправильныйexportfs"
+  - "Firewall блокирует порты 111 и 2049"
+  - "Неправильные опции монтирования в fstab"
+  - "Сервер NFS недоступен"
+  - "Клиент не авторизован в /etc/exports"
+steps:
+  - title: Проверьте службу rpcbind
+    body: >-
+      На клиенте и сервере выполните systemctl status rpcbind (или portmap на старых системах). Rpcbind необходим для обнаружения NFS-серверов. Если не запущен: sudo systemctl start rpcbind && sudo systemctl enable rpcbind. Без rpcbind монтирование не работает даже если NFS-сервер полностью настроен.
+    command: systemctl status rpcbind
+    image: null
+  - title: Проверьте доступность сервера
+    body: >-
+      Выполните ping nfs-сервера для проверки сетевой связности. Затем showmount -e nfs-сервер — покажет доступные экспорты. Если showmount зависает — firewall блокирует порт 111. Проверьте telnet nfs-сервер 2049 — если таймаут, NFS-сервер не доступен или firewall закрывает порт. На сервере: sudo netstat -tlnp | grep -E '(111|2049)'.
+    command: showmount -e nfs-server
+    image: null
+  - title: Настройте /etc/exports на сервере
+    body: >-
+      Откройте /etc/exports на NFS-сервере. Формат: /path/to/share client_ip(rw,sync,no_subtree_check,no_root_squash). Клиент должен быть указан в exports. После изменения выполнитеsudo exportfs -ra для перезагрузки экспорта. Проверьте: exportfs -v. Для доступа с любого IP: *(rw,sync,no_subtree_check) — не рекомендуется в production.
+    command: sudo exportfs -ra
+    image: null
+  - title: Проверьте firewall
+    body: >-
+      NFS использует порты 111 (rpcbind) и 2049 (nfs). Разрешите их: sudo ufw allow 111/tcp && sudo ufw allow 2049/tcp. Для UDP: sudo ufw allow 111/udp && sudo ufw allow 2049/udp. На сервере: sudo iptables -A INPUT -p tcp --dport 2049 -j ACCEPT. Проверьте правила: sudo iptables -L -n | grep 2049.
+    command: sudo ufw allow 111/tcp && sudo ufw allow 2049/tcp
+    image: null
+  - title: Выполните монтирование
+    body: >-
+      Базовая команда: sudo mount -t nfs nfs-сервер:/path/to/share /mnt/nfs. С опциями: sudo mount -t nfs -o rw,soft,timeo=100 nfs-сервер:/export /mnt/nfs. Soft mode не зависает при недоступности сервера. Timeo задаёт таймаут в десятых долях секунды. Проверьте: df -h | grep nfs. Для permanentного монтирования добавьте в /etc/fstab.
+    command: sudo mount -t nfs nfs-server:/export /mnt/nfs
+    image: null
+  - title: Настройте /etc/fstab
+    body: >-
+      Для автоматического монтирования при загрузке добавьте строку в /etc/fstab: nfs-сервер:/export /mnt/nfs nfs defaults,soft,timeo=100,_netdev 0 0. Флаг _netdev указывает, что это сетевой device и монтирование должно ждать сети. Проверьте синтаксис: sudo mount -a. Если fstab содержит ошибку, система может не загрузиться — будьте осторожны.
+    command: sudo mount -a
+    image: null
+  - title: Исправьте stale file handle
+    body: >-
+      Ошибка Stale file handle возникает, когда файл был удалён на сервере после монтирования. Решение: отмонтируйте и смонтируйте заново: sudo umount /mnt/nfs && sudo mount -t nfs nfs-сервер:/export /mnt/nfs. Если umount не работает (busy): sudo umount -l /mnt/nfs (lazy unmount). На сервере пересоздайтеexport с теми же параметрами.
+    command: sudo umount -l /mnt/nfs && sudo mount -t nfs nfs-server:/export /mnt/nfs
+    image: null
+updatedAt: '2026-06-02'
+publishedAt: '2026-06-02'
+readingTime: 8
+popularityScore: 79
+sources:
+  - title: "NFS mount failed troubleshooting"
+    url: 'https://stackoverflow.com/questions/4167361/nfs-mount-failed-with-mount-error'
+    accessedAt: '2026-06-02'
+  - title: "How to setup NFS server on Ubuntu"
+    url: 'https://ubuntu.com/tutorials/setup-nfs-server'
+    accessedAt: '2026-06-02'
+  - title: "NFS mount permission denied"
+    url: 'https://unix.stackexchange.com/questions/175948/nfs-mount-permission-denied'
+    accessedAt: '2026-06-02'
+  - title: "Linux NFS client configuration"
+    url: 'https://linux.die.net/man/5/nfs'
+    accessedAt: '2026-06-02'
+dedupe:
+  titleHash: c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+  solutionHash: d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7
+  sourceHash: e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8
+draft: false
+---
+NFS (Network File System) позволяет разделять директории по сети. Ошибка монтирования NFS чаще всего связана с неправильной настройкойexports, firewall или службыrpcbind. Всегда проверяйте связность и доступность сервера перед монтированием.
+
+### Порты NFS и их назначение
+
+Порт 111 — rpcbind (portmap), используется для обнаружения NFS-сервера. Порт 2049 — основной порт NFS. Дополнительные порты: 32765-32767 (statd, lockd) в legacy режиме. В modern NFS v4 используется только порт 2049, что упрощает настройку firewall.

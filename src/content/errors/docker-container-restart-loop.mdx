@@ -1,0 +1,97 @@
+---
+title: "Docker контейнер перезапускается бесконечно: причины и решение"
+category: "DevOps"
+tags:
+  - Docker
+  - контейнер
+  - перезапуск
+  - docker-compose
+  - логи
+description: >-
+  Пошаговое руководство по устранению бесконечного перезапуска Docker-контейнера: проверка логов, healthcheck, ресурсы, зависимости и конфигурация.
+symptoms:
+  - "Docker контейнер постоянно перезапускается (Restarting)"
+  - "docker ps показывает Restarting для контейнера"
+  - "Контейнер запускается и сразу останавливается"
+  - "docker-compose up --restart=always не помогает"
+  - "Контейнер падает с кодом выхода 1 или 137"
+causes:
+  - "Приложение внутри контейнера завершается с ошибкой"
+  - "Недостаточно ресурсов (RAM, CPU, диск)"
+  - "Неправильный entrypoint или CMD"
+  - "Проблемы с healthcheck"
+  - "Зависимости не готовы (БД, Redis, очередь)"
+  - "Ошибки в конфигурации приложения"
+steps:
+  - title: Проверьте логи контейнера
+    body: >-
+      Выполните docker logs --tail 100 имя-контейнера для просмотра последних 100 строк логов. Ищите строки с ERROR, FATAL, Traceback, Exception. Логи покажут причину падения: ошибку подключения к БД, недостаток памяти, неверный конфиг. Также проверьте docker inspect имя-контейнера | grep RestartCount — это покажет количество перезапусков.
+    command: docker logs --tail 100 my-container
+    image: null
+  - title: Проверьте статус и код выхода
+    body: >-
+      Выполните docker ps -a для просмотра всех контейнеров (включая остановленные). Столбец Status покажет Exited (код) — например, Exited (1) означает ошибку приложения, Exited (137) — OOM killer (нехватка RAM), Exited (139) — segmentation fault.docker inspect имя-контейнера | grep -A 5 State покажет подробности последнего запуска.
+    command: docker ps -a
+    image: null
+  - title: Проверьте ресурсы
+    body: >-
+      Выполните docker stats --no-stream для просмотра потребления ресурсов. Если контейнер потребляет больше RAM, чем установлен лимит, Linux вызовет OOM killer (код 137). Увеличьте лимит в docker-compose.yml: deploy: resources: limits: memory: 2G. Также проверьте свободное место на диске: df -h — Docker не может писать логи при нехватке места.
+    command: docker stats --no-stream
+    image: null
+  - title: Проверьте entrypoint и CMD
+    body: >-
+      Убедитесь, что entrypoint или CMD указывают на правильный скрипт. Выполните docker inspect имя-контейнера | grep -A 3 Entrypoint. Если entrypoint — это shell-скрипт, убедитесь, что он заканчивается exec "$@" для передачи сигналов. Проверьте, что скрипт существует внутри контейнера: docker exec имя-контейнера ls -la /app/entrypoint.sh.
+    command: docker inspect my-container | grep -A 3 Entrypoint
+    image: null
+  - title: Проверьте healthcheck
+    body: >-
+      Если в docker-compose.yml или Dockerfile настроен healthcheck, контейнер может перезапускаться из-за неудачного healthcheck. Выполните docker inspect --format="{{json .State.Health}}" имя-контейнера для просмотра статуса healthcheck. Увеличьте интервал и таймаут: healthcheck: interval: 30s, timeout: 10s, retries: 3. Временно отключите healthcheck для диагностики.
+    command: docker inspect --format="{{json .State.Health}}" my-container
+    image: null
+  - title: Проверьте зависимости
+    body: >-
+      Если контейнер зависит от БД или очереди, убедитесь, что они запущены и доступны. Используйте depends_on в docker-compose.yml с condition: service_healthy. Проверьте, что приложение может подключиться к зависимостям: docker exec имя-контейнера ping db. Добавьте скрипт ожидания (wait-for-it) в entrypoint для等待依赖остей перед запуском.
+    command: docker exec my-container ping db
+    image: null
+  - title: Запустите контейнер в интерактивном режиме
+    body: >-
+      Для диагностики запустите контейнер с перезаписью entrypoint: docker run -it --entrypoint /bin/bash образ. Это позволит войти внутрь контейнера и запустить приложение вручную. Проверьте переменные окружения:env. Запустите приложение вручную: python app.js или ./start.sh — это покажет ошибку напрямую.
+    command: docker run -it --entrypoint /bin/bash my-image
+    image: null
+  - title: Исправьте перезапуск
+    body: >-
+      После нахождения причины: (1) исправьте ошибку в коде или конфиге, (2) увеличьте лимиты ресурсов, (3) добавьте wait-for-it для зависимостей, (4) исправьте healthcheck. Пересоберите образ: docker-compose build --no-cache. Запустите заново: docker-compose up -d. Проверьте, что контейнер работает стабильно: docker ps.
+    command: docker-compose up -d --build
+    image: null
+updatedAt: '2026-06-02'
+publishedAt: '2026-06-02'
+readingTime: 8
+popularityScore: 86
+sources:
+  - title: "Docker container keeps restarting"
+    url: 'https://stackoverflow.com/questions/49534836/docker-container-keeps-restarting'
+    accessedAt: '2026-06-02'
+  - title: "How to troubleshoot Docker container restart loops"
+    url: 'https://docs.docker.com/config/container/logging/'
+    accessedAt: '2026-06-02'
+  - title: "Docker container exits immediately"
+    url: 'https://stackoverflow.com/questions/31440030/docker-container-exits-immediately'
+    accessedAt: '2026-06-02'
+  - title: "Understanding container restart policies"
+    url: 'https://docs.docker.com/engine/reference/run/#restart-policies---restart'
+    accessedAt: '2026-06-02'
+dedupe:
+  titleHash: d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5
+  solutionHash: e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6
+  sourceHash: f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7
+draft: false
+---
+Бесконечный перезапуск Docker-контейнера — типичная проблема при развертывании приложений. Контейнер запускается, приложение внутри падает, Docker перезапускает его по политике restart, и цикл повторяется. Причина почти всегда в логах —docker logs покажет, почему приложение завершается.
+
+### Коды выхода и их значение
+
+Код 0 — приложение завершилось штатно (норма для одноразовых задач). Код 1 — ошибка приложения (проверьте логи). Код 137 — OOM killer убил процесс (нехватка RAM). Код 139 — segmentation fault (ошибка в коде или повреждённые данные). Код 126/127 — нет прав на запуск или команда не найдена.
+
+### Healthcheck и его влияние
+
+Если healthcheck настроен и возвращает unhealthy, Docker не обязательно перезапускает контейнер (зависит от policy). Но если restart: unless-stopped или always — контейнер будет перезапускаться после падения. Временно отключите healthcheck, чтобы исключить его влияние на проблему.

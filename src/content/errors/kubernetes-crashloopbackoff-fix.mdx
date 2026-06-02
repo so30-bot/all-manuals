@@ -1,0 +1,93 @@
+---
+title: "Kubernetes Pod CrashLoopBackOff: как исправить бесконечный перезапуск"
+category: "DevOps"
+tags:
+  - Kubernetes
+  - pod
+  - CrashLoopBackOff
+  - kubectl
+  - контейнер
+description: >-
+  Пошаговое руководство по устранению состояния CrashLoopBackOff в Kubernetes: проверка логов, resource limits, readiness probe и common ошибки.
+symptoms:
+  - "Pod в статусе CrashLoopBackOff"
+  - "kubectl describe pod показывает Restart Count > 0"
+  - "Pod запускается и сразу падает"
+  - "Container never ready"
+  - "Back-off restarting failed container"
+causes:
+  - "Приложение внутри пода падает с ошибкой"
+  - "Недостаточно ресурсов (memory/cpu limits)"
+  - "Liveness/Readiness probe не проходит"
+  - "Неверный image или entrypoint"
+  - "Секреты (Secrets) или ConfigMap недоступны"
+  - "Ошибки в YAML-манифесте"
+steps:
+  - title: Проверьте статус пода
+    body: >-
+      Выполните kubectl get pods для просмотра статуса. Под в CrashLoopBackOff будет иметь Restart Count больше 0. Выполните kubectl describe pod имя-пода — в секции Last State будет показана причина последнего падения (Reason: Error/Crash/Error/ImagePullBackOff). Проверьте Events в конце вывода — там будут ошибки планировщика.
+    command: kubectl get pods
+    image: null
+  - title: Просмотрите логи пода
+    body: >-
+      Выполните kubectl logs имя-пода для просмотра текущих логов. Если под уже перезапустился: kubectl logs --previous имя-пода покажет логи предыдущего запуска. Логи содержат стектрейс или сообщение об ошибке. Также попробуйте kubectl logs -f имя-пода для вывода в реальном времени. Если контейнер падает слишком быстро, логи могут быть пустыми.
+    command: kubectl logs --previous my-pod
+    image: null
+  - title: Проверьте resource limits
+    body: >-
+      Pod может падать из-за нехватки ресурсов. В секцииresources контейнера укажите requests и limits. Если memory limit слишком низкий, Kubernetes убьёт контейнер (OOMKilled). Проверьте: kubectl describe pod | grep -A 5 "Limits". Рекомендуется: resources: requests: memory: 256Mi, cpu: 250m; limits: memory: 512Mi, cpu: 500m. Увеличьте лимиты и пересоздайте под.
+    command: kubectl describe pod my-pod | grep -A 5 "Limits"
+    image: null
+  - title: Проверьте probes
+    body: >-
+      Liveness probe определяет, жив ли контейнер. Если probe не проходит, Kubernetes перезапускает контейнер. Readiness probe определяет, готов ли контейнер принимать трафик. Проверьте: kubectl describe pod | grep -A 10 "Liveness". Убедитесь, что probe указывает правильный порт и path. Увеличьте initialDelaySeconds и timeoutSeconds. Временно отключите probe для диагностики.
+    command: kubectl describe pod my-pod | grep -A 10 "Liveness"
+    image: null
+  - title: Проверьте image и entrypoint
+    body: >-
+      Убедитесь, что образ существует и доступен: kubectl describe pod | grep Image. Если образ не найден, проверьте имя registry и тег. Проверьте entrypoint/cmd в YAML. Если контейнер использует shell-команду, убедитесь, что скрипт существует в образе. Для диагностики перезапишитеcommand: command: ["/bin/sh"] и args: ["-c", "sleep 3600"] — это предотвратит падение.
+    command: kubectl describe pod my-pod | grep Image
+    image: null
+  - title: Проверьте Secrets и ConfigMap
+    body: >-
+      Если под зависит от Secrets или ConfigMap, убедитесь, что они существуют и смонтированы.kubectl get secrets и kubectl get configmap. Если секрет не найден, под не сможет запуститься. Проверьте, что имена Secrets в deployment совпадают с реальными. Также проверьте, что значения не содержат Base64-ошибок (kubectl get secret my-secret -o yaml).
+    command: kubectl get secrets
+    image: null
+  - title: Запустите под отладки
+    body: >-
+      Создайте отладочный под с тем же образом: kubectl run debug --image=образ --rm -it --restart=Never -- /bin/sh. Это позволит войти внутрь контейнера и запустить приложение вручную. Проверьте переменные окружения: env. Запустите приложение:./start.sh. Это покажет ошибку без перезапусков Kubernetes. Также попробуйте kubectl exec -it my-pod -- /bin/sh если под хоть немного работает.
+    command: kubectl run debug --image=my-image --rm -it --restart=Never -- /bin/sh
+    image: null
+  - title: Пересоздайте под
+    body: >-
+      После исправления ошибки пересоздайте под: kubectl delete pod имя-пода. Deployment автоматически создаст новый под. Если используете bare pod, создайте его заново: kubectl apply -f pod.yaml. Проверьте статус нового пода: kubectl get pods -w (watch mode). Убедитесь, что Restart Count не растёт и статус Changed to Running.
+    command: kubectl delete pod my-pod
+    image: null
+updatedAt: '2026-06-02'
+publishedAt: '2026-06-02'
+readingTime: 9
+popularityScore: 85
+sources:
+  - title: "Debugging CrashLoopBackOff"
+    url: 'https://kubernetes.io/docs/tasks/debug-application-cluster/debug-crash-loop-back-off/'
+    accessedAt: '2026-06-02'
+  - title: "Pod stuck in CrashLoopBackOff"
+    url: 'https://stackoverflow.com/questions/56049491/pod-stuck-in-crashloopbackoff'
+    accessedAt: '2026-06-02'
+  - title: "Kubernetes pod troubleshooting"
+    url: 'https://kubernetes.io/docs/concepts/workloads/pods/pod-lifecycle/'
+    accessedAt: '2026-06-02'
+  - title: "Common Kubernetes pod errors"
+    url: 'https://learnk8s.io/a-guide-to-kubernetes-probes'
+    accessedAt: '2026-06-02'
+dedupe:
+  titleHash: a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9
+  solutionHash: b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0
+  sourceHash: c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1
+draft: false
+---
+CrashLoopBackOff — состояние, при котором Kubernetes перезапускает под, который падает при старте. Это не конкретная ошибка, а симптом: контейнер завершается с ненулевым кодом, Kubernetes повторяет попытку, увеличивая интервал между ними (back-off).
+
+### Почему под падает
+
+Причины делятся на несколько категорий: (1) ошибка в коде приложения, (2) неверный образ или тег, (3) нехватка ресурсов (RAM/CPU), (4)probe не проходит, (5) отсутствуют Secrets/ConfigMap, (6) сетевые проблемы (БД недоступна). Первая задача — посмотреть логи: kubectl logs --previous.

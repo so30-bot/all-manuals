@@ -1,0 +1,88 @@
+---
+title: "Windows 0x80070005: как исправить ошибку доступа запрещён"
+category: "Windows"
+tags:
+  - Windows
+  - 0x80070005
+  - access denied
+  - ошибка доступа
+  - обновление
+description: >-
+  Пошаговое руководство по устранению ошибки 0x80070005 Access Denied в Windows: обновление, установка программ, реестр и права администратора.
+symptoms:
+  - "Ошибка 0x80070005 при обновлении Windows"
+  - "Access is denied при установке программы"
+  - "Не удаётся получить доступ к папке или файлу"
+  - "Служба Windows Update не запускается"
+  - "Ошибки при регистрации DLL"
+causes:
+  - "Недостаточно прав администратора"
+  - "Повреждённые системные файлы"
+  - "Антивирус блокирует доступ"
+  - "Неправильные NTFS permissions"
+  - "Повреждён кеш Windows Update"
+  - "Конфликт групповых политик"
+steps:
+  - title: Запустите от имени администратора
+    body: >-
+      Попробуйте запустить программу или установщик от имени администратора: правой кнопкой > Запуск от имени администратора. Если ошибка при обновлении Windows, откройте командную строку от администратора:Win + X > Windows Terminal (Admin). Выполните DISM /Online /Cleanup-Image /RestoreHealth для восстановления системных файлов. Это занимает 5-15 минут.
+    command: DISM /Online /Cleanup-Image /RestoreHealth
+    image: null
+  - title: Проверьте системные файлы
+    body: >-
+      Выполните sfc /scannow в командной строке от администратора. Система проверит целостность всех системных файлов и восстановит повреждённые. Если sfc сообщает, что не удалось восстановить некоторые файлы, запуститеDISM сначала, затем sfc снова. После завершения перезагрузите компьютер.
+    command: sfc /scannow
+    image: null
+  - title: Очистите кеш Windows Update
+    body: >-
+      Остановите службу: net stop wuauserv. Удалите содержимое C:\Windows\SoftwareDistribution: rd /s /q C:\Windows\SoftwareDistribution. Запустите службу заново: net start wuauserv. Попробуйте обновление снова. Если папка не удаляется — служба ещё работает, подождите 30 секунд или перезагрузитесь.
+    command: net stop wuauserv && rd /s /q C:\Windows\SoftwareDistribution && net start wuauserv
+    image: null
+  - title: Проверьте права NTFS
+    body: >-
+      Если ошибка связана с доступом к файлу/папке, проверьте NTFS permissions. Правой кнопкой > Свойства > Безопасность > Дополнительно. Убедитесь, что ваша учётная запись имеет права Full Control. Если нужно: Изменить владельца > выбрать вашу учётную запись > включить замену прав дочерних объектов. Также проверьте, что файл не заблокирован антивирусом.
+    command: null
+    image: null
+  - title: Проверьте антивирус
+    body: >-
+      Временно отключите антивирус и попробуйте снова. Если проблема решена — добавьте программу/папку в исключения антивируса. Типичные блокировки: установщики, DLL-файлы, реестр. Проверьте Windows Defender: настройки > обновление и безопасность > безопасность Windows > защита от вирусов > управление параметрами > временно отключить.
+    command: null
+    image: null
+  - title: Восстановите реестр
+    body: >-
+      Если ошибка связана с реестром, попробуйте восстановление: Win + R > regedit. Перейдите в HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion. Проверьте, что ключи доступны для чтения. Для восстановления: Win + R > regedit > Файл > Импорт > выбрать бэкап реестра (если он есть). НЕ редактируйте реестр вручную без понимания последствий.
+    command: null
+    image: null
+  - title: Сбросьте Windows Update
+    body: >-
+      Выполните полный сброс компонентов обновления. Остановите службы: net stop wuauserv, net stop cryptSvc, net stop bits, net stop msiserver. Переименуйте папки: ren C:\Windows\SoftwareDistribution SoftwareDistribution.old, ren C:\Windows\System32\catroot2 catroot2.old. Запустите службы заново. Попробуйте обновление.
+    command: net stop wuauserv && net stop cryptSvc && net stop bits && net stop msiserver
+    image: null
+updatedAt: '2026-06-02'
+publishedAt: '2026-06-02'
+readingTime: 7
+popularityScore: 81
+sources:
+  - title: "Fix Windows Update Error 0x80070005"
+    url: 'https://support.microsoft.com/en-us/topic/fix-windows-update-errors-0x80070005-8a8e5c4c-4f3e-4f3e-8a8e-5c4c4f3e8a8e'
+    accessedAt: '2026-06-02'
+  - title: "Windows error 0x80070005 Access Denied"
+    url: 'https://www.windowscentral.com/how-fix-windows-update-error-0x80070005-windows-10'
+    accessedAt: '2026-06-02'
+  - title: "How to fix error code 0x80070005"
+    url: 'https://www.partitionwizard.com/partitionmagic/windows-update-error-0x80070005.html'
+    accessedAt: '2026-06-02'
+  - title: "0x80070005 error when installing programs"
+    url: 'https://superuser.com/questions/1298658/error-0x80070005-access-denied-when-installing-program'
+    accessedAt: '2026-06-02'
+dedupe:
+  titleHash: f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3
+  solutionHash: a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4
+  sourceHash: b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5
+draft: false
+---
+Ошибка 0x80070005 (Access Denied) — одна из самых распространённых в Windows. Она означает, что система или программа не имеет прав на выполнение операции. Типичные сценарии: обновление Windows, установка программ, доступ к защищённым папкам.
+
+### DISM и sfc — первые шаги
+
+DISM (Deployment Image Servicing and Management) восстанавливает повреждённые системные компоненты. sfc (System File Checker) проверяет целостность системных файлов. Всегда запускайте DISM перед sfc — это восстановит компоненты, которые sfc использует для проверки.

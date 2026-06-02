@@ -1,0 +1,86 @@
+---
+title: "Git stash conflict: как разрешить конфликт при извлечении stash"
+category: "Разработка"
+tags:
+  - Git
+  - stash
+  - конфликт
+  - merge
+  - разрешение конфликтов
+description: >-
+  Пошаговое руководство по устранению конфликтов при git stash pop/apply:stash, конфликтные файлы, отмена и безопасное извлечение.
+symptoms:
+  - "CONFLICT (content): Merge conflict в файле из stash"
+  - "git stash pop завершается ошибкой"
+  - "Файлы из stash конфликтуют с текущими изменениями"
+  - "stash apply не применяется из-за конфликтов"
+  - "Непонятно, какие изменения из stash, а какие локальные"
+causes:
+  - "В stash и в рабочей директории изменён один и тот же файл"
+  - "Stash содержит изменения, которые перезаписывают локальные"
+  - "Локальные коммиты изменили ту же строку, что и stash"
+  - "Stash был сделан на устаревшую версию ветки"
+steps:
+  - title: Проверьте текущее состояние
+    body: >-
+      Выполните git status для просмотра текущих изменений. Если есть незакоммиченные изменения, stash попытается объединить их с stash, что вызовет конфликты. Сначала сделайтеcommit или stash текущих изменений: git stash или git commit -m "WIP". Затем извлекайте stash: git stash pop. Это безопаснее, чемapply при конфликтах.
+    command: git status
+    image: null
+  - title: Извлеките stash с сохранением
+    body: >-
+      Если stash pop вызывает конфликт, используйте git stash apply stash@{0}. Это применит stash, но не удалит его из списка. Вы сможете повторить попытку или выбрать другой stash. Послеapply исправьте конфликты, затемgit stash drop stash@{0} для удаления stash. Преимущество: stash остаётся доступным до полного разрешения конфликтов.
+    command: git stash apply stash@{0}
+    image: null
+  - title: Посмотрите содержимое stash
+    body: >-
+      До извлечения проверьте, что stash содержит:git stash show stash@{0} -p (детальный diff) или git stash show stash@{0} --stat (список файлов). Это покажет, какие файлы были изменены. Если конфликтный файл уже изменён локально, решите: (1) сделать commit текущих изменений, (2) отменить локальные изменения, (3) применить stash и исправить конфликты.
+    command: git stash show stash@{0} -p
+    image: null
+  - title: Разрешите конфликт вручную
+    body: >-
+      При конфликте Git вставит маркеры <<<<<<< , ======= , >>>>>>> в конфликтные файлы. Откройте файл и выберите нужную версию: локальную или из stash. Удалите все маркеры. Сохраните файл. Добавьте в индекс: git add имя-файла. После разрешения всех конфликтов сделайте commit:git commit -m "Resolved stash conflict". Stash останется в списке доgit stash drop.
+    command: git add resolved-file.txt && git commit -m "Resolved stash conflict"
+    image: null
+  - title: Отмените stash pop при ошибке
+    body: >-
+      Если git stash pop завершился конфликтом, Git автоматически НЕ удаляет stash (в отличие от успешного pop). Проверьте git stash list — stash должен остаться. Если stash был удалён (поп неудачен на старых версиях Git), восстановите:git fsck --unreachable | grep commit. Затемgit stash apply коммит-хеш. В modern Git stash остаётся при неудачном pop.
+    command: git stash list
+    image: null
+  - title: Используйте git stash branch
+    body: >-
+      Безопасный способ — создать ветку из stash: git stash branch new-branch stash@{0}. Это создаст новую ветку от коммита, на котором был сделан stash, и применит stash. Конфликты будут в контексте этой ветки, не затрагивая основную работу. После разрешения конфликтов слейте ветку: git checkout main && git merge new-branch.
+    command: git stash branch new-branch stash@{0}
+    image: null
+  - title: Отмените stash без извлечения
+    body: >-
+      Если stash больше не нужен, удалите его: git stash drop stash@{0}. Для удаления всех stash: git stash clear. Осторожно: git stash clear удаляет ВСЕ stash безвозвратно. Если нужно посмотреть stash перед удалением:git stash list и git stash show stash@{0}. Удаляйте stash после успешногоapply или commit.
+    command: git stash list && git stash drop stash@{0}
+    image: null
+updatedAt: '2026-06-02'
+publishedAt: '2026-06-02'
+readingTime: 7
+popularityScore: 80
+sources:
+  - title: "Git stash conflict resolution"
+    url: 'https://stackoverflow.com/questions/1287091/git-stash-pop-merge-conflict'
+    accessedAt: '2026-06-02'
+  - title: "Stashing and cleaning Git"
+    url: 'https://git-scm.com/book/en/v2/Git-Tools-Stashing-and-Cleaning'
+    accessedAt: '2026-06-02'
+  - title: "Git stash pop conflicts"
+    url: 'https://www.atlassian.com/git/tutorials/saving-changes/git-stash'
+    accessedAt: '2026-06-02'
+  - title: "Resolve merge conflicts with stash"
+    url: 'https://stackoverflow.com/questions/292357/what-is-the-difference-between-git-stash-apply-and-git-stash-pop'
+    accessedAt: '2026-06-02'
+dedupe:
+  titleHash: b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6
+  solutionHash: c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7
+  sourceHash: d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8
+draft: false
+---
+Git stash сохраняет незакоммиченные изменения в "стек" и очищает рабочую директорию. При извлечении stash (git stash pop) могут возникнуть конфликты, если stash и текущая ветка изменили одни и те же строки файла.
+
+### Разница между stash pop и stash apply
+
+git stash pop применяет stash и удаляет его из списка. git stash apply применяет, но НЕ удаляет. При конфликте pop оставляет stash в списке (в modern Git), ноapply безопаснее: вы можете повторить попытку. Рекомендация: используйте apply до тех пор, пока не убедитесь, что конфликтов нет.

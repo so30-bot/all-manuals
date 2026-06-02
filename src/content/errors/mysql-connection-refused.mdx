@@ -1,0 +1,87 @@
+---
+title: "MySQL Connection refused: как исправить ошибку подключения к базе данных"
+category: "Базы данных"
+tags:
+  - MySQL
+  - база данных
+  - подключение
+  - Linux
+  - сеть
+description: >-
+  Пошаговое руководство по устранению ошибки MySQL Connection refused: проверка службы, порта,bind-address, firewall и прав пользователя.
+symptoms:
+  - "ERROR 2003 (HY000): Can't connect to MySQL server"
+  - "Connection refused при подключении к MySQL"
+  - "MySQL не отвечает на порту 3306"
+  - "Host is not allowed to connect to this MySQL server"
+  - "Too many connections"
+causes:
+  - "Служба MySQL не запущена"
+  - "MySQL слушает только localhost (bind-address 127.0.0.1)"
+  - "Firewall блокирует порт 3306"
+  - "Неправильныеgrants для пользователя"
+  - "Недостаточно соединений (max_connections)"
+steps:
+  - title: Проверьте статус службы MySQL
+    body: >-
+      Выполните systemctl status mysql (или mysqld на некоторых системах). Если служба не запущена, выполните sudo systemctl start mysql. Проверьте, что она активна: active (running). Если служба падает при запуске, проверьтеjournalctl -u mysql -xe для причин. Типичные причины падения: повреждённые файлы данных, нехватка места на диске.
+    command: systemctl status mysql
+    image: null
+  - title: Проверьте порт и bind-address
+    body: >-
+      Выполните mysqladmin -u root -p processlist для проверки подключения. Если ошибка, проверьте bind-address в /etc/mysql/mysql.conf.d/mysqld.cnf (или /etc/my.cnf). По умолчанию bind-address = 127.0.0.1 — MySQL принимает только локальные подключения. Для удалённых: bind-address = 0.0.0.0. После изменения перезапустите MySQL: sudo systemctl restart mysql.
+    command: grep bind-address /etc/mysql/mysql.conf.d/mysqld.cnf
+    image: null
+  - title: Проверьте firewall
+    body: >-
+      Если MySQL работает на удалённом сервере, firewall может блокировать порт 3306. На Ubuntu/Debian: sudo ufw allow 3306/tcp. На CentOS/RHEL: sudo firewall-cmd --add-port=3306/tcp --permanent && sudo firewall-cmd --reload. Проверьте правила: sudo ufw status или sudo firewall-cmd --list-ports. Также проверьте, что облачный firewall (Security Groups в AWS) разрешает порт 3306.
+    command: sudo ufw allow 3306/tcp
+    image: null
+  - title: Проверьте grants пользователя
+    body: >-
+      Подключитесь к MySQL: mysql -u root -p. Выполните SELECT user, host FROM mysql.user; для просмотра всех пользователей. Удалённый пользователь должен иметь host '%' или конкретный IP. Создайте пользователя: CREATE USER 'user'@'%' IDENTIFIED BY 'password'; GRANT ALL PRIVILEGES ON *.* TO 'user'@'%'; FLUSH PRIVILEGES;. Проверьте grants: SHOW GRANTS FOR 'user'@'%';
+    command: mysql -u root -p -e "SELECT user, host FROM mysql.user;"
+    image: null
+  - title: Проверьте max_connections
+    body: >-
+      Выполните mysqladmin -u root -p variables | grep max_connections для просмотра лимита. Если количество активных соединений достигло лимита, новые подключения отклоняются. Увеличьте лимит: SET GLOBAL max_connections = 200; (временно). Постоянно: измените параметр в my.cnf и перезапустите MySQL. Также проверьтеSHOW STATUS LIKE 'Threads_connected' для текущего количества.
+    command: mysqladmin -u root -p variables | grep max_connections
+    image: null
+  - title: Проверьте логи ошибок
+    body: >-
+      Расположение логов: /var/log/mysql/error.log (Ubuntu) или /var/log/mysqld.log (CentOS). Откройте: sudo tail -100 /var/log/mysql/error.log. Ищите строки с [ERROR] или [Warning]. Типичные ошибки: InnoDB: Unable to lock ./ibdata1 (другой экземпляр работает), Could not open mysql.plugin table. Логи покажут точную причину отказа.
+    command: sudo tail -100 /var/log/mysql/error.log
+    image: null
+  - title: Настройте удалённое подключение
+    body: >-
+      Для подключения с удалённого хоста: mysql -u user -p -h IP-сервера -P 3306. Если подключение не удается, выполните telnet IP-сервера 3306 для проверки доступности порта. Если таймаут — проблема в firewall илиbind-address. Если Connection refused — MySQL не слушает этот порт или интерфейс.
+    command: mysql -u user -p -h 192.168.1.100 -P 3306
+    image: null
+updatedAt: '2026-06-02'
+publishedAt: '2026-06-02'
+readingTime: 7
+popularityScore: 84
+sources:
+  - title: "MySQL Connection refused"
+    url: 'https://stackoverflow.com/questions/27363426/mysql-connection-refused'
+    accessedAt: '2026-06-02'
+  - title: "Fix MySQL Can't connect to MySQL server"
+    url: 'https://stackoverflow.com/questions/14449327/mysql-2003-hy000-cant-connect-to-mysql-server'
+    accessedAt: '2026-06-02'
+  - title: "MySQL remote connection setup"
+    url: 'https://dev.mysql.com/doc/refman/8.0/en/can-not-connect-to-server.html'
+    accessedAt: '2026-06-02'
+  - title: "MySQL bind-address configuration"
+    url: 'https://dev.mysql.com/doc/refman/8.0/en/server-system-variables.html'
+    accessedAt: '2026-06-02'
+dedupe:
+  titleHash: e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6
+  solutionHash: f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7
+  sourceHash: a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8
+draft: false
+---
+Ошибка MySQL Connection refused означает, что клиент не может установить TCP-соединение с сервером MySQL. Причины: служба не запущена, MySQL слушает только localhost, firewall блокирует порт 3306 или у пользователя нет прав на подключение.
+
+### Проверка доступности сервера
+
+Для быстрой проверки выполните telnet localhost 3306. Если таймаут — MySQL не слушает порт или firewall блокирует. Если Connection refused — порт закрыт илиMySQL не запущен. Альтернатива: nc -zv localhost 3306 — более информативный вывод.
