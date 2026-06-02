@@ -325,13 +325,13 @@ async function generateWithGeminiFallback(system: string, user: string, config: 
         if (!response.ok) {
           const body = await response.text();
 
-          if (response.status === 404 || response.status === 403 || /not found|not supported|permission/i.test(body)) {
-            console.warn(`Gemini model ${model} unavailable (${response.status}). Trying next model.`);
+          if (response.status === 404 || /not found|not supported/i.test(body)) {
+            console.warn(`Gemini model ${model} not found. Trying next model.`);
             break;
           }
 
-          if (response.status === 429) {
-            console.warn(`Gemini key ${keyIndex + 1}/${keys.length} rate-limited for ${model}. Trying next key...`);
+          if (response.status === 429 || response.status === 403) {
+            console.warn(`Gemini key ${keyIndex + 1}/${keys.length} ${response.status === 403 ? 'no access' : 'rate-limited'} for ${model}. Trying next key...`);
             continue;
           }
 
