@@ -37,7 +37,13 @@ export async function searchSources(query: string, config: ParserConfig): Promis
   if (!config.serperApiKey) {
     console.warn(`SERPER_API_KEY is not set. Using open-source fallback search for: ${query}`);
   } else {
-    candidates.push(...await searchSerper(query, config));
+    try {
+      const serperResults = await searchSerper(query, config);
+      console.log(`  Serper: ${serperResults.length} results for "${query.slice(0, 50)}"`);
+      candidates.push(...serperResults);
+    } catch (error) {
+      console.warn(`  Serper failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
   }
 
   candidates.push(...await searchOpenSources(query, config));
@@ -79,7 +85,9 @@ function toEnglishQuery(text: string): string {
   for (const [ru, en] of Object.entries(replacements)) {
     result = result.replace(new RegExp(ru.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi'), en);
   }
-  result = result.replace(/[а-яёА-ЯЁ]+/g, '').replace(/\s+/g, ' ').trim();
+  result = result.replace(/[а-яёА-ЯЁ]+/g, '');
+  result = result.replace(/\bfix\s+fix\b/gi, 'fix');
+  result = result.replace(/\s+/g, ' ').trim();
   return result;
 }
 
@@ -137,50 +145,65 @@ async function searchOpenSources(query: string, config: ParserConfig): Promise<S
     searchReddit(query)
   ]);
 
-  return results
+  const successful = results.filter((r) => r.status === 'fulfilled').length;
+  const failed = results.filter((r) => r.status === 'rejected').length;
+  const allResults = results
     .flatMap((result) => result.status === 'fulfilled' ? result.value : [])
     .filter((item) => isAllowedCandidate(item, config));
+  
+  if (allResults.length === 0) {
+    console.warn(`  OpenSources: 0 results from ${successful} sources (${failed} failed) for "${query.slice(0, 40)}"`);
+  }
+
+  return allResults;
 }
 
 async function searchDuckDuckGo(query: string): Promise<SourceCandidate[]> {
-  try {
-    const url = `https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(query)}&ia=web`;
-    const response = await fetch(url, {
-      headers: {
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
-        'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'accept-language': 'en-US,en;q=0.9,ru;q=0.8'
+  for (let attempt = 0; attempt < 2; attempt++) {
+    if (attempt > 0) await new Promise((resolve) => setTimeout(resolve, 3000));
+    try {
+      const url = `https://lite.duckduckgo.com/lite/?q=${encodeURIComponent(query)}&ia=web`;
+      const response = await fetch(url, {
+        headers: {
+          'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+          'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'accept-language': 'en-US,en;q=0.9,ru;q=0.8'
+        }
+      });
+      if (!response.ok) {
+        if (attempt === 0) console.warn(`  DuckDuckGo returned ${response.status}, retrying...`);
+        continue;
       }
-    });
-    if (!response.ok) return [];
 
-    const html = await response.text();
-    const $ = cheerio.load(html);
-    const results: SourceCandidate[] = [];
+      const html = await response.text();
+      const $ = cheerio.load(html);
+      const results: SourceCandidate[] = [];
 
-    $('.result-link').each((_, el) => {
-      const href = $(el).attr('href');
-      if (!href) return;
-      try {
-        const redirectUrl = new URL(href, 'https://duckduckgo.com');
-        const rawUrl = redirectUrl.searchParams.get('uddg');
-        if (!rawUrl) return;
-        const actualUrl = decodeURIComponent(rawUrl);
-        const parsed = new URL(actualUrl);
-        const snippet = $(el).parent().find('.result-snippet').first().text().trim().slice(0, 240);
-        results.push({
-          title: $(el).text().trim() || parsed.hostname,
-          url: parsed.toString(),
-          snippet,
-          domain: parsed.hostname.replace(/^www\./, '')
-        });
-      } catch { /* skip invalid URLs */ }
-    });
+      $('.result-link').each((_, el) => {
+        const href = $(el).attr('href');
+        if (!href) return;
+        try {
+          const redirectUrl = new URL(href, 'https://duckduckgo.com');
+          const rawUrl = redirectUrl.searchParams.get('uddg');
+          if (!rawUrl) return;
+          const actualUrl = decodeURIComponent(rawUrl);
+          const parsed = new URL(actualUrl);
+          const snippet = $(el).parent().find('.result-snippet').first().text().trim().slice(0, 240);
+          results.push({
+            title: $(el).text().trim() || parsed.hostname,
+            url: parsed.toString(),
+            snippet,
+            domain: parsed.hostname.replace(/^www\./, '')
+          });
+        } catch { /* skip invalid URLs */ }
+      });
 
-    return results;
-  } catch {
-    return [];
+      return results;
+    } catch {
+      if (attempt === 0) console.warn(`  DuckDuckGo failed, retrying...`);
+    }
   }
+  return [];
 }
 
 async function searchWikipedia(query: string, lang: string): Promise<SourceCandidate[]> {

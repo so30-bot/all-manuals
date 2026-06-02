@@ -330,8 +330,9 @@ async function generateWithGeminiFallback(system: string, user: string, config: 
             break;
           }
 
-          if (response.status === 429 || response.status === 403) {
-            console.warn(`Gemini key ${keyIndex + 1}/${keys.length} ${response.status === 403 ? 'no access' : 'rate-limited'} for ${model}. Trying next key...`);
+          if (response.status === 429 || response.status === 403 || response.status === 503) {
+            const reason = response.status === 403 ? 'no access' : response.status === 503 ? 'server overloaded' : 'rate-limited';
+            console.warn(`Gemini key ${keyIndex + 1}/${keys.length} ${reason} for ${model}. Trying next key...`);
             continue;
           }
 
@@ -352,6 +353,43 @@ async function generateWithGeminiFallback(system: string, user: string, config: 
         console.warn(`Gemini model ${model} key ${keyIndex + 1} failed: ${error instanceof Error ? error.message : String(error)}`);
       }
     }
+  }
+
+  console.warn('All Gemini keys exhausted for this request. Waiting 60s before retry...');
+  await new Promise((resolve) => setTimeout(resolve, 60000));
+
+  const retryKeyIndex = geminiKeyIndex % keys.length;
+  const apiKey = keys[retryKeyIndex];
+  const model = models[0];
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const response = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        contents: [
+          { role: 'user', parts: [{ text: `${system}\n\n${user}` }] }
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          responseMimeType: 'application/json'
+        }
+      })
+    }, config.aiTimeoutMs);
+
+    if (!response.ok) {
+      console.warn(`Gemini retry failed with ${response.status}. Article skipped.`);
+      return null;
+    }
+
+    const data = (await response.json()) as GeminiResponse;
+    const text = data.candidates?.[0]?.content?.parts?.map((part) => part.text || '').join('') || '';
+    if (text) {
+      geminiKeyIndex = (retryKeyIndex + 1) % keys.length;
+      return text;
+    }
+  } catch (error) {
+    console.warn(`Gemini retry failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 
   console.warn('No Gemini model produced content. Article skipped.');
