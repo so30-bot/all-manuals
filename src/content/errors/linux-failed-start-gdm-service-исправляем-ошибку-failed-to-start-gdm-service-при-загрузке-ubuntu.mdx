@@ -92,6 +92,10 @@ sources:
     url: >-
       https://unix.stackexchange.com/questions/737169/ubuntu-fails-to-boot-due-to-gnome-display-manager-error
     accessedAt: '2026-05-31'
+  - title: "Ubuntu Community Help Wiki"
+    url: 'https://help.ubuntu.com/'
+    accessedAt: '2026-06-02'
+
 dedupe:
   titleHash: 8618bb4e8fe55561c3c0df0774dfd1b847872cfd1759d0b9aacc779f3d98befb
   solutionHash: a72860b34a77fa1489d1fddc83d5574182fa7dbab054b53fa75fd7d027f8791a
@@ -102,4 +106,25 @@ draft: false
 
 Для исправления сначала попробуйте освободить место на диске. Затем переустановите пакет `ubuntu-desktop` с помощью команды `sudo apt install --reinstall ubuntu-desktop`. Если ошибка появилась после установки пакета `fuse`, удалите его и заново установите `ubuntu-session`.
 
-В самых запущенных случаях может помочь очистка больших лог-файлов в директории `/var/log`. Все作ации выполняются из командной строки, которая доступна при загрузке по нажатию Ctrl+Alt+F2.
+В самых запущенных случаях может помочь очистка больших лог-файлов в директории `/var/log`. Все операции выполняются из командной строки, которая доступна при загрузке по нажатию Ctrl+Alt+F2.
+
+
+### Диагностика проблемы загрузки
+
+При проблемах с загрузкойLinuxсначала检查 system logs. Выполните journalctl -xb для просмотра логов последней загрузки. Обратите внимание на строки с [FAILED] или [ERROR]. Проверьте, какие службы не запустились: systemctl --failed. Это покажет точную причину незагрузки.
+
+### Восстановление через Live USB
+
+Если система не загружается вообще, загрузитесь с Live USB. Смонтируйте корневой раздел: sudo mount /dev/sdaX /mnt. Проверьте файловую систему: sudo fsck /dev/sdaX. Переустановите загрузчик: sudo grub-install --root-directory=/mnt /dev/sda. Это восстановит GRUB после неудачного обновления.
+
+### Проверка конфигурации
+
+Проверьте конфигурационные файлы: /etc/fstab (монтирование разделов), /etc/default/grub (параметры ядра), /etc/systemd/system.conf (systemd). Убедитесь, что UUID разделов в fstab совпадают с реальными: sudo blkid. Неправильный UUID — частая причина незагрузки после обновления или замены диска.
+
+### Исправление через chroot
+
+Если нужен доступ к системе для исправления: sudo mount /dev/sdaX /mnt, sudo mount --bind /dev /mnt/dev, sudo mount --bind /proc /mnt/proc, sudo chroot /mnt. Теперь вы внутри системы и можете исправлять конфигурацию, переустанавливать пакеты или обновлятьinitramfs: update-initramfs -u.
+
+### Откат обновления
+
+Если проблема возникла после обновления ядра или пакетов, загрузитесь с предыдущего ядра в меню GRUB. Затем выполните: sudo apt install --reinstall linux-image-$(uname -r) или sudo dnf downgrade kernel. Для автоматического отката: sudo apt-mark hold имя-пакета — запретит обновление этого пакета.

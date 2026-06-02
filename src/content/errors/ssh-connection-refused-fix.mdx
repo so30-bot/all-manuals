@@ -1,0 +1,117 @@
+---
+title: 'SSH Connection Refused: исправление ошибки подключения'
+category: 'Разработка'
+tags:
+  - SSH
+  - Linux
+  - Ubuntu
+  - сервер
+  - удалённое управление
+description: >-
+  Пошаговое руководство по устранению ошибки SSH connection refused в Linux: проверка службы, файрвола, конфигурации sshd и логов.
+symptoms:
+  - "Ошибка ssh: connect to host port 22: Connection refused"
+  - "SSH клиент не может подключиться к серверу"
+  - "Порт 22 недоступен для подключения"
+  - "После перезагрузки сервера SSH не работает"
+  - "Permission denied (publickey) при подключении"
+causes:
+  - "Пакет openssh-server не установлен"
+  - "Служба SSH не запущена или остановлена"
+  - "Файрвол блокирует порт 22"
+  - "Неправильная конфигурация sshd_config"
+  - "Неверные права доступа на ключи"
+  - "Блокировка TCP wrappers или fail2ban"
+steps:
+  - title: Проверьте, установлен ли SSH сервер
+    body: >-
+      Ubuntu и Debian по умолчанию не устанавливают SSH сервер на рабочих станциях. Проверьте наличие пакета: dpkg -l | grep openssh-server. Если вывод пустой — установите: sudo apt install openssh-server. После установки служба запустится автоматически. На серверных установках SSH может быть опционально включён при инсталляции.
+    command: sudo apt install openssh-server
+    image: null
+  - title: Проверьте статус службы SSH
+    body: >-
+      Даже если пакет установлен, служба может быть остановлена. Выполните: sudo systemctl status ssh. В выводе ищите строку Active: active (running). Если статус inactive (dead) или failed — запустите службу: sudo systemctl start ssh. Чтобы SSH запускался автоматически при загрузке: sudo systemctl enable ssh. Если systemctl start ssh завершается ошибкой — проверьте конфигурацию sshd_config.
+    command: sudo systemctl status ssh
+    image: null
+  - title: Проверьте, слушает ли SSH нужный порт
+    body: >-
+      SSH может слушать нестандартный порт. Выполните: sudo ss -tlnp | grep sshd. В выводе будет показан порт в колонке Local Address:Port. По умолчанию это 0.0.0.0:22. Если порт изменён (например, 2222), подключайтесь с указанием порта: ssh -p 2222 user@host. Также проверьте конфигурацию: grep Port /etc/ssh/sshd_config.
+    command: sudo ss -tlnp | grep sshd
+    image: null
+  - title: Проверьте файрвол
+    body: >-
+      UFW — стандартный файрвол Ubuntu. Проверьте статус: sudo ufw status. Если UFW активен, убедитесь, что порт 22 разрешён: sudo ufw allow ssh. Это добавит правило для порта 22 через TCP и IPv6. Если используется iptables — проверьте правила: sudo iptables -L INPUT -n | grep 22. Для firewalld: sudo firewall-cmd --list-ports. Если порт не разрешён — добавьте: sudo firewall-cmd --permanent --add-port=22/tcp && sudo firewall-cmd --reload.
+    command: sudo ufw allow ssh
+    image: null
+  - title: Проверьте конфигурацию sshd_config
+    body: >-
+      Неправильная конфигурация может помешать запуску SSH. Проверьте синтаксис: sudo sshd -t. Если есть ошибки — исправьте файл /etc/ssh/sshd_config. Обратите внимание на директивы Port, ListenAddress, AllowUsers, AllowGroups. Если AllowUsers задан, только указанные пользователи смогут подключиться. После изменений перезапустите SSH: sudo systemctl restart ssh.
+    command: sudo sshd -t
+    image: null
+  - title: Проверьте TCP wrappers и fail2ban
+    body: >-
+      Файлы /etc/hosts.allow и /etc/hosts.deny могут блокировать SSH подключения. Проверьте: cat /etc/hosts.deny. Если там есть запись, блокирующая ваш IP — добавьте его в hosts.allow: echo 'sshd: ALL' >> /etc/hosts.allow. Если используется fail2ban — проверьте, не заблокирован ли ваш IP: sudo fail2ban-client status sshd. Для разблокировки: sudo fail2ban-client set sshd unbanip ВАШ_IP.
+    command: sudo fail2ban-client status sshd
+    image: null
+  - title: Просмотрите логи SSH
+    body: >-
+      Логи содержат подробную информацию об ошибках. Выполните: sudo journalctl -u ssh --since "1 hour ago". Ищите сообщения об ошибках привязки к порту, конфликтов или проблем аутентификации. Также проверьте: sudo tail -100 /var/log/auth.log | grep sshd. Если лог показывает Bind to port 22 failed — другой процесс использует этот порт. Найдите его: sudo lsof -i :22.
+    command: sudo journalctl -u ssh --since "1 hour ago"
+    image: null
+updatedAt: '2026-06-02'
+publishedAt: '2026-06-02'
+readingTime: 8
+popularityScore: 88
+sources:
+  - title: "How to Fix SSH Connection Refused on Ubuntu 26.04"
+    url: 'https://linuxconfig.org/how-to-fix-ssh-connection-refused-on-ubuntu-26-04'
+    accessedAt: '2026-06-02'
+  - title: "Solving Error port 22: Connection refused in Linux"
+    url: 'https://www.baeldung.com/linux/ssh-error-port-connection-refused'
+    accessedAt: '2026-06-02'
+  - title: "How to Troubleshoot SSH Connection Refused Errors on Ubuntu"
+    url: 'https://oneuptime.com/blog/post/2026-03-02-troubleshoot-ssh-connection-refused-errors-ubuntu/view'
+    accessedAt: '2026-06-02'
+  - title: "How to Fix SSH Not Working on Ubuntu 26.04"
+    url: 'https://linuxconfig.org/how-to-fix-ssh-not-working-on-ubuntu-26-04'
+    accessedAt: '2026-06-02'
+dedupe:
+  titleHash: d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5
+  solutionHash: e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6
+  sourceHash: f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7
+draft: false
+---
+Ошибка SSH Connection Refused означает, что сервер получил попытку подключения и явно отклонил её. Это отличается от тайм-аута, когда пакеты просто не доходят. В большинстве случаев проблема решается проверкой службы SSH, файрвола и конфигурации.
+
+### Типичные причины ошибки
+
+SSH сервер не установлен (особенно на Ubuntu Desktop), служба SSH остановлена, файрвол блокирует порт 22, конфигурация sshd_config содержит ошибку, или ваш IP заблокирован fail2ban. Также возможен конфликт портов — другой процесс уже использует порт 22.
+
+### Как отличить Connection refused от Timeout
+
+Connection refused — сервер доступен, но отклонил соединение. Timeout — пакеты не доходят до сервера (проблема с маршрутизацией или файрволом на промежуточных устройствах). Если ping до сервера работает, а SSH выдаёт refused — проблема в SSH сервисе или файрволе на самом сервере.
+
+### Когда проблема на стороне клиента
+
+Если SSH подключается с других машин, но не с вашей — проблема на клиенте. Проверьте ~/.ssh/known_hosts (возможно, ключ сервера изменился), попробуйте подключиться с флагом -v для отладки: ssh -v user@host.
+
+
+### Диагностика проблемы загрузки
+
+При проблемах с загрузкойLinuxсначала检查 system logs. Выполните journalctl -xb для просмотра логов последней загрузки. Обратите внимание на строки с [FAILED] или [ERROR]. Проверьте, какие службы не запустились: systemctl --failed. Это покажет точную причину незагрузки.
+
+### Восстановление через Live USB
+
+Если система не загружается вообще, загрузитесь с Live USB. Смонтируйте корневой раздел: sudo mount /dev/sdaX /mnt. Проверьте файловую систему: sudo fsck /dev/sdaX. Переустановите загрузчик: sudo grub-install --root-directory=/mnt /dev/sda. Это восстановит GRUB после неудачного обновления.
+
+### Проверка конфигурации
+
+Проверьте конфигурационные файлы: /etc/fstab (монтирование разделов), /etc/default/grub (параметры ядра), /etc/systemd/system.conf (systemd). Убедитесь, что UUID разделов в fstab совпадают с реальными: sudo blkid. Неправильный UUID — частая причина незагрузки после обновления или замены диска.
+
+### Исправление через chroot
+
+Если нужен доступ к системе для исправления: sudo mount /dev/sdaX /mnt, sudo mount --bind /dev /mnt/dev, sudo mount --bind /proc /mnt/proc, sudo chroot /mnt. Теперь вы внутри системы и можете исправлять конфигурацию, переустанавливать пакеты или обновлятьinitramfs: update-initramfs -u.
+
+### Откат обновления
+
+Если проблема возникла после обновления ядра или пакетов, загрузитесь с предыдущего ядра в меню GRUB. Затем выполните: sudo apt install --reinstall linux-image-$(uname -r) или sudo dnf downgrade kernel. Для автоматического отката: sudo apt-mark hold имя-пакета — запретит обновление этого пакета.

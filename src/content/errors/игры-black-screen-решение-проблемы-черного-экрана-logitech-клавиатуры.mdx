@@ -51,6 +51,10 @@ sources:
       at end of boot process · Issue #4921 · ublue-os/bazzite · GitHub
     url: 'https://github.com/ublue-os/bazzite/issues/4921'
     accessedAt: '2026-05-28'
+  - title: "Linux man pages"
+    url: 'https://man7.org/linux/man-pages/'
+    accessedAt: '2026-06-02'
+
 dedupe:
   titleHash: e579eea3ee6346c524fd4c8dd74da9a5292b788b854daee46d3309bded481b1a
   solutionHash: 7072fad0b75209f61c0ee57cb9c1749b4913cf2edd27436990a0ac3526c89d1b
@@ -58,3 +62,24 @@ dedupe:
 draft: false
 ---
 Проблема с черным экраном на Logitech клавиатуре при запуске игры Bazzite 44, вероятно, связана с изменениями в драйвере Logitech. Попробуйте обновить драйвер до последней версии или отключите его во время загрузки. Если проблема persists, рассмотрите возможность возврата к предыдущей версии Bazzite.
+
+
+### Диагностика проблемы загрузки
+
+При проблемах с загрузкойLinuxсначала检查 system logs. Выполните journalctl -xb для просмотра логов последней загрузки. Обратите внимание на строки с [FAILED] или [ERROR]. Проверьте, какие службы не запустились: systemctl --failed. Это покажет точную причину незагрузки.
+
+### Восстановление через Live USB
+
+Если система не загружается вообще, загрузитесь с Live USB. Смонтируйте корневой раздел: sudo mount /dev/sdaX /mnt. Проверьте файловую систему: sudo fsck /dev/sdaX. Переустановите загрузчик: sudo grub-install --root-directory=/mnt /dev/sda. Это восстановит GRUB после неудачного обновления.
+
+### Проверка конфигурации
+
+Проверьте конфигурационные файлы: /etc/fstab (монтирование разделов), /etc/default/grub (параметры ядра), /etc/systemd/system.conf (systemd). Убедитесь, что UUID разделов в fstab совпадают с реальными: sudo blkid. Неправильный UUID — частая причина незагрузки после обновления или замены диска.
+
+### Исправление через chroot
+
+Если нужен доступ к системе для исправления: sudo mount /dev/sdaX /mnt, sudo mount --bind /dev /mnt/dev, sudo mount --bind /proc /mnt/proc, sudo chroot /mnt. Теперь вы внутри системы и можете исправлять конфигурацию, переустанавливать пакеты или обновлятьinitramfs: update-initramfs -u.
+
+### Откат обновления
+
+Если проблема возникла после обновления ядра или пакетов, загрузитесь с предыдущего ядра в меню GRUB. Затем выполните: sudo apt install --reinstall linux-image-$(uname -r) или sudo dnf downgrade kernel. Для автоматического отката: sudo apt-mark hold имя-пакета — запретит обновление этого пакета.

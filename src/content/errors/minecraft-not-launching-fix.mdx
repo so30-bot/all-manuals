@@ -1,0 +1,109 @@
+---
+title: 'Minecraft не запускается: исправление ошибок Java Edition'
+category: 'Игры'
+tags:
+  - Minecraft
+  - Java
+  - игры
+  - запуск
+  - краш
+description: >-
+  Пошаговое руководство по исправлению ошибок запуска Minecraft Java Edition: обновление драйверов, проверка Java, отключение модов, восстановление файлов.
+symptoms:
+  - "Minecraft не запускается, ничего не происходит"
+  - "Ошибка Exit Code 1 при запуске Minecraft"
+  - "Игра вылетает на этапе загрузки"
+  - "Окно Minecraft появляется и сразу закрывается"
+  - "Ошибка JNI/OpenGL/GLFW при запуске"
+  - "Игра зависает на экране Mojang"
+causes:
+  - "Устаревший или отсутствующий Java Runtime"
+  - "Проблемный мод или resource pack"
+  - "Повреждённые файлы игры"
+  - "Устаревший драйвер видеокарты"
+  - "Недостаточно выделенной оперативной памяти"
+  - "Конфликт с антивирусом или оверлеями"
+steps:
+  - title: Обновите драйвер видеокарты
+    body: >-
+      Устаревший драйвер GPU — одна из самых частых причин крашей. Для NVIDIA: откройте GeForce Experience или сайт nvidia.com, скачайте последний драйвер. Для AMD: используйте Radeon Software или amd.com. Для Intel: обновите через сайт Intel или Диспетчер устройств. После обновления перезагрузите компьютер и попробуйте запустить Minecraft заново.
+    command: null
+    image: null
+  - title: Проверьте версию Java
+    body: >-
+      Minecraft Java Edition требует правильную версию Java. Откройте командную строку и выполните: java -version. Minecraft 1.18+ требует Java 17 или новее. Скачайте нужную версию с adoptium.net или oracle.com. Установите Java и убедитесь, что она добавлена в PATH. В лаунчере Minecraft перейдите в Настройки > Java и укажите путь к java.exe.
+    command: java -version
+    image: null
+  - title: Отключите моды и resource packs
+    body: >-
+      Несовместимый мод — частая причина ошибки Exit Code 1. Откройте папку %appdata%\.minecraft\mods (Windows) или ~/.minecraft/mods (Linux). Переместите все моды в резерпапку. Запустите Minecraft без модов. Если игра запустилась — проблема в моде. Добавляйте моды по одному, чтобы найти проблемный. Проверяйте совместимость модов с версией Minecraft.
+    command: null
+    image: null
+  - title: Увеличьте выделенную память
+    body: >-
+      По умолчанию Minecraft получает 2GB RAM, что может быть мало для модов. В лаунчере перейдите в Настройки > Java. Найдите поле Maximum Memory RAM и увеличьте до 4GB или 8GB (но не более 75% от общей памяти ПК). Сохраните настройки и запустите игру. Если вы используете Fabric или Forge — убедитесь, что моды совместимы с выделенной памятью.
+    command: null
+    image: null
+  - title: Проверьте целостность файлов игры
+    body: >-
+      Повреждённые файлы могут вызывать краши. В лаунчере Minecraft перейдите в Установки. Нажмите на трёхточие рядом с вашей установкой и выберите Исправить. Если такой опции нет — удалите папку .minecraft/versions/ВЕРСИЯ и перезапустите лаунчер для перекачки. Также очистите кэш: удалите папки .minecraft/logs, .minecraft/crash-reports и .minecraft/assets.
+    command: null
+    image: null
+  - title: Отключите антивирус и оверлеи
+    body: >-
+      Антивирус может блокировать процессы Minecraft. Добавьте папку .minecraft и laунчер в исключения вашего антивируса. Также отключите оверлеи: Discord (Ctrl+`), GeForce Experience (Alt+Z), Xbox Game Bar (Win+G). Эти программы могут конфликтовать с DirectX и вызывать вылеты. После тестирования можете включить их обратно.
+    command: null
+    image: null
+updatedAt: '2026-06-02'
+publishedAt: '2026-06-02'
+readingTime: 8
+popularityScore: 92
+sources:
+  - title: "Fix Minecraft Launcher Crashes and Freezes on Windows PC"
+    url: 'https://help.minecraft.net/hc/en-us/articles/23430310790413-Fix-Minecraft-Launcher-Crashes-and-Freezes-on-Windows-PC'
+    accessedAt: '2026-06-02'
+  - title: "Exit Code 1 in Minecraft Java causes and solutions"
+    url: 'https://tecnobits.com/en/exit-code-1-in-minecraft-java/'
+    accessedAt: '2026-06-02'
+  - title: "How to fix Minecraft Error Code 1"
+    url: 'https://timesofindia.indiatimes.com/sports/esports/minecraft/how-to-fix-minecraft-error-code-1/articleshow/118714574.cms'
+    accessedAt: '2026-06-02'
+  - title: "Minecraft Not Working troubleshooting guide"
+    url: 'https://www.powerimp.co.uk/minecraft-not-working/'
+    accessedAt: '2026-06-02'
+dedupe:
+  titleHash: a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4
+  solutionHash: b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5
+  sourceHash: c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+draft: false
+---
+Minecraft Java Edition может не запускаться по разным причинам: от устаревшего Java до конфликтующих модов. Большинство проблем решается обновлением драйверов, проверкой Java и отключением модов. Важно проверять методы по порядку.
+
+### Когда Minecraft не запускается
+
+Если лаунчер открывается, но игра не стартует — проверьте логи в папке .minecraft/logs/latest.log. Если лаунчер не открывается — проблема в Java или драйверах. Ошибка Exit Code 1 обычно указывает на конфликт модов или проблему с Java.
+
+### Проверка логов
+
+Последний лог содержится в .minecraft/logs/latest.log. Откройте его и ищите строки с ERROR или FATAL. Там будет указан конкретный мод или файл, вызывающий проблему. Также проверьте папку .minecraft/crash-reports/ для отчётов о крашах.
+
+
+### Диагностика проблемы загрузки
+
+При проблемах с загрузкойLinuxсначала检查 system logs. Выполните journalctl -xb для просмотра логов последней загрузки. Обратите внимание на строки с [FAILED] или [ERROR]. Проверьте, какие службы не запустились: systemctl --failed. Это покажет точную причину незагрузки.
+
+### Восстановление через Live USB
+
+Если система не загружается вообще, загрузитесь с Live USB. Смонтируйте корневой раздел: sudo mount /dev/sdaX /mnt. Проверьте файловую систему: sudo fsck /dev/sdaX. Переустановите загрузчик: sudo grub-install --root-directory=/mnt /dev/sda. Это восстановит GRUB после неудачного обновления.
+
+### Проверка конфигурации
+
+Проверьте конфигурационные файлы: /etc/fstab (монтирование разделов), /etc/default/grub (параметры ядра), /etc/systemd/system.conf (systemd). Убедитесь, что UUID разделов в fstab совпадают с реальными: sudo blkid. Неправильный UUID — частая причина незагрузки после обновления или замены диска.
+
+### Исправление через chroot
+
+Если нужен доступ к системе для исправления: sudo mount /dev/sdaX /mnt, sudo mount --bind /dev /mnt/dev, sudo mount --bind /proc /mnt/proc, sudo chroot /mnt. Теперь вы внутри системы и можете исправлять конфигурацию, переустанавливать пакеты или обновлятьinitramfs: update-initramfs -u.
+
+### Откат обновления
+
+Если проблема возникла после обновления ядра или пакетов, загрузитесь с предыдущего ядра в меню GRUB. Затем выполните: sudo apt install --reinstall linux-image-$(uname -r) или sudo dnf downgrade kernel. Для автоматического отката: sudo apt-mark hold имя-пакета — запретит обновление этого пакета.

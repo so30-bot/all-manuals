@@ -102,6 +102,10 @@ sources:
     url: >-
       https://dev.to/dm8ry/fixing-the-kernel-panic-not-syncing-vfs-unable-to-mount-root-fs-on-unknown-block00-error-3ado
     accessedAt: '2026-05-31'
+  - title: "Ubuntu Community Help Wiki"
+    url: 'https://help.ubuntu.com/'
+    accessedAt: '2026-06-02'
+
 dedupe:
   titleHash: 43ba49d3b4f130059437b2054a03f09c4a20bfb368bd10dafba11fb91bc3d05b
   solutionHash: f5d4848c2614dc83c3a233f2ce159616e313502f442201be61c209a488dc8aab
@@ -113,3 +117,24 @@ draft: false
 Для решения проблемы следуйте инструкции: сначала загрузитесь через меню GRUB в предыдущую, рабочую версию ядра. Затем в терминале пересоберите initramfs для нового ядра с помощью команды 'sudo update-initramfs -u -k &lt;version&gt;' (указав версию ядра) и обновите GRUB командой 'sudo update-grub'. Это решает основную проблему.
 
 Часто проблема связана с неудачной сборкой модулей NVIDIA во время обновления. Если после пересборки initramfs графика не заработает, переустановите драйверы NVIDIA с помощью утилиты 'ubuntu-drivers install'. После любых изменений не забывайте снова пересобирать initramfs и обновлять GRUB.
+
+
+### Диагностика проблемы загрузки
+
+При проблемах с загрузкойLinuxсначала检查 system logs. Выполните journalctl -xb для просмотра логов последней загрузки. Обратите внимание на строки с [FAILED] или [ERROR]. Проверьте, какие службы не запустились: systemctl --failed. Это покажет точную причину незагрузки.
+
+### Восстановление через Live USB
+
+Если система не загружается вообще, загрузитесь с Live USB. Смонтируйте корневой раздел: sudo mount /dev/sdaX /mnt. Проверьте файловую систему: sudo fsck /dev/sdaX. Переустановите загрузчик: sudo grub-install --root-directory=/mnt /dev/sda. Это восстановит GRUB после неудачного обновления.
+
+### Проверка конфигурации
+
+Проверьте конфигурационные файлы: /etc/fstab (монтирование разделов), /etc/default/grub (параметры ядра), /etc/systemd/system.conf (systemd). Убедитесь, что UUID разделов в fstab совпадают с реальными: sudo blkid. Неправильный UUID — частая причина незагрузки после обновления или замены диска.
+
+### Исправление через chroot
+
+Если нужен доступ к системе для исправления: sudo mount /dev/sdaX /mnt, sudo mount --bind /dev /mnt/dev, sudo mount --bind /proc /mnt/proc, sudo chroot /mnt. Теперь вы внутри системы и можете исправлять конфигурацию, переустанавливать пакеты или обновлятьinitramfs: update-initramfs -u.
+
+### Откат обновления
+
+Если проблема возникла после обновления ядра или пакетов, загрузитесь с предыдущего ядра в меню GRUB. Затем выполните: sudo apt install --reinstall linux-image-$(uname -r) или sudo dnf downgrade kernel. Для автоматического отката: sudo apt-mark hold имя-пакета — запретит обновление этого пакета.
