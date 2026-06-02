@@ -55,6 +55,10 @@ sources:
   - title: 'Ошибка postgresql при старте сервиса'
     url: 'https://ru.stackoverflow.com/questions/967162/'
     accessedAt: '2026-06-02'
+dedupe:
+  titleHash: 250f2a4babe9b222a7cd4f364b063726d1d1cc1b7b9acc26e0f36d46f58470af
+  solutionHash: 5eeeaa1d39fbb7db5fd90992b94ae874a7c134985c559f2e0cd025ad50d335e6
+  sourceHash: 5841aef507cc48f4e44f610f2177f994d5ea95e691f665eba522f336e1495916
 draft: false
 ---
 Если PostgreSQL не запускается, начните с проверки логов — они покажут точную причину. Часто проблема в занятом порту 5432 или ошибке в pg_hba.conf. Запуск вручную через pg_ctl с выводом в лог-файл поможет найти ошибку.

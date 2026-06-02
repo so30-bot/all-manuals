@@ -1,0 +1,105 @@
+---
+title: Исправляем ошибку «Failed to start gdm.service» при загрузке Ubuntu
+errorId: failed-start-gdm-service
+category: Linux
+tags:
+  - Ubuntu
+  - gdm
+  - загрузка
+  - systemd
+  - рабочий стол
+description: >-
+  Пошаговое руководство по устранению ошибки, из-за которой Ubuntu не может
+  загрузить графический интерфейс (GDM), и вы видите сообщение «Failed to start
+  Gnome Display Manager».
+symptoms:
+  - >-
+    При включении компьютера Ubuntu зависает на заставке или показывает черный
+    экран.
+  - >-
+    На экране появляется ошибка: «[FAILED] Failed to start Gnome Display
+    Manager».
+  - >-
+    Система не загружается в графический рабочий стол, доступна только командная
+    строка (после нажатия Ctrl+Alt+F2).
+causes:
+  - >-
+    Недостаточно свободного места на диске, что не даёт системе нормально
+    обновиться или запустить графический сервер.
+  - >-
+    Установка пакета `fuse` (или `fuse2`), который случайно удаляет важный пакет
+    `ubuntu-session`, отвечающий за рабочее окружение GNOME.
+  - >-
+    Слишком большие или повреждённые файлы логов в директории `/var/log`,
+    которые могут блокировать нормальную работу сервисов.
+steps:
+  - title: Шаг 1. Проверьте место на диске и освободите его
+    body: >-
+      Если диск заполнен, система не сможет корректно работать. Зайдите в
+      командную строку, нажав **Ctrl+Alt+F2**, войдите под своим логином и
+      паролем. Затем удалите ненужные большие файлы, например, из папки
+      `~/Downloads`. После этого попробуйте снова выполнить перезагрузку. Если
+      свободного места станет достаточно, ошибка может исчезнуть.
+    command: du -sh ~/Downloads/*
+    image: null
+  - title: Шаг 2. Переустановите пакет рабочего стола Ubuntu
+    body: >-
+      В командной строке (после входа через Ctrl+Alt+F2) выполните переустановку
+      базового пакета рабочего стола. Это восстановит необходимые файлы для
+      запуска GDM. После успешного выполнения команды попробуйте запустить
+      графический интерфейс командой `startx`. Если он запустится, перезагрузите
+      компьютер — при следующей загрузке графическая оболочка должна работать
+      нормально.
+    command: sudo apt install --reinstall ubuntu-desktop
+    image: null
+  - title: 'Шаг 3. Восстановите пакет ubuntu-session, если удалилсяfuse'
+    body: >-
+      Ошибка часто возникает после установки пакета `fuse` (например, для работы
+      AppImage). Он может удалить пакет `ubuntu-session`. Чтобы это исправить,
+      удалите `fuse` и заново установите `ubuntu-session`. При необходимости
+      вместо удалённого `fuse` поставьте современную версию `fuse3`. После этого
+      перезагрузите систему.
+    command: |-
+      sudo apt remove fuse
+      sudo apt install ubuntu-session
+      sudo apt install fuse3
+    image: null
+  - title: Дополнительно. Очистите большие логи в /var/log
+    body: >-
+      Если предыдущие шаги не помогли, проверьте папку с логами. Большие файлы
+      вроде `syslog.1` или `messages.1` могут занимать гигабайты и мешать
+      загрузке. Зайдите в `/var/log` и очистите содержимое самых тяжёлых файлов
+      (не удаляйте их, а просто обнуляйте). Это безопасно и не повредит работу
+      системы.
+    command: |-
+      cd /var/log
+      ls -lhS
+    image: null
+updatedAt: '2026-05-31'
+publishedAt: '2026-05-31'
+readingTime: 3
+popularityScore: 50
+sources:
+  - title: >-
+      24.04 - Can't boot Ubuntu - I get a failed to start gdm.service - [FAILED]
+      Failed to start Gnome Display Manager error - Ask Ubuntu
+    url: >-
+      https://askubuntu.com/questions/1540679/cant-boot-ubuntu-i-get-a-failed-to-start-gdm-service-failed-failed-to-sta
+    accessedAt: '2026-05-31'
+  - title: >-
+      Ubuntu fails to boot due to GNOME display manager error - Unix & Linux
+      Stack Exchange
+    url: >-
+      https://unix.stackexchange.com/questions/737169/ubuntu-fails-to-boot-due-to-gnome-display-manager-error
+    accessedAt: '2026-05-31'
+dedupe:
+  titleHash: 8618bb4e8fe55561c3c0df0774dfd1b847872cfd1759d0b9aacc779f3d98befb
+  solutionHash: a72860b34a77fa1489d1fddc83d5574182fa7dbab054b53fa75fd7d027f8791a
+  sourceHash: 0634d209480e4329923a35ec8f4ee5713e18eec5dac6faa09709a9014cb33952
+draft: false
+---
+Ошибка «Failed to start gdm.service» возникает, когда Ubuntu не может запустить графический интерфейс (GDM). Чаще всего это происходит из-за нехватки места на системном диске или из-за случайного удаления ключевого пакета `ubuntu-session` при установке другой программы.
+
+Для исправления сначала попробуйте освободить место на диске. Затем переустановите пакет `ubuntu-desktop` с помощью команды `sudo apt install --reinstall ubuntu-desktop`. Если ошибка появилась после установки пакета `fuse`, удалите его и заново установите `ubuntu-session`.
+
+В самых запущенных случаях может помочь очистка больших лог-файлов в директории `/var/log`. Все作ации выполняются из командной строки, которая доступна при загрузке по нажатию Ctrl+Alt+F2.
