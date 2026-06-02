@@ -21,6 +21,7 @@ type OllamaResponse = {
 };
 
 const fallbackGeminiModels = [
+  'gemini-2.5-flash',
   'gemini-2.0-flash',
   'gemini-2.0-flash-lite'
 ];

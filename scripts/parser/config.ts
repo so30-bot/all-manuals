@@ -14,9 +14,12 @@ export function getParserConfig(): ParserConfig {
     geminiApiKeys: [
       process.env.GEMINI_API_KEY,
       process.env.GEMINI_API_KEY_2,
-      process.env.GEMINI_API_KEY_3
+      process.env.GEMINI_API_KEY_3,
+      process.env.GEMINI_API_KEY_4,
+      process.env.GEMINI_API_KEY_5,
+      process.env.GEMINI_API_KEY_6
     ].filter(Boolean) as string[],
-    geminiModel: process.env.GEMINI_MODEL || 'gemini-2.0-flash',
+    geminiModel: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
     ollamaBaseUrl: process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434',
     ollamaModel: process.env.OLLAMA_MODEL || 'qwen2.5:7b',
     openRouterApiKey: process.env.OPENROUTER_API_KEY,
