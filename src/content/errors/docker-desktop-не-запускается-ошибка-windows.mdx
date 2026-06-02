@@ -1,0 +1,60 @@
+---
+title: 'Docker Desktop не запускается в Windows: как исправить ошибку'
+category: Docker и контейнеры
+tags:
+  - Docker Desktop
+  - не запускается
+  - WSL ошибка
+description: >-
+  Пошаговое руководство по исправлению ошибок запуска Docker Desktop в Windows: включение Hyper-V, настройка WSL 2, исправление демона.
+symptoms:
+  - Docker Desktop зависает на этапе запуска
+  - Ошибка «Cannot Connect to the Docker Daemon»
+  - Ошибка WSL или Virtual Machine Platform
+causes:
+  - Не включены Hyper-V и Virtual Machine Platform
+  - WSL не обновлён до версии 2
+  - Конфликт с другими виртуальными платформами
+steps:
+  - title: Включите Hyper-V и Virtual Machine Platform
+    body: >-
+      Откройте «Включение или отключение компонентов Windows» (optionalfeatures.exe). Отметьте «Hyper-V» и «Платформа виртуальной машины». Перезагрузите компьютер.
+    command: null
+    image: null
+  - title: Обновите WSL до версии 2
+    body: >-
+      Откройте командную строку от администратора и выполните: wsl --set-default-version 2. Затем выполните wsl --update для обновления WSL. Перезагрузите компьютер.
+    command: wsl --set-default-version 2
+    image: null
+  - title: Перезапустите WSL
+    body: >-
+      Выполните wsl --shutdown для полной остановки WSL. Затем запустите Docker Desktop заново. Это перезапустит все подсистемы Linux.
+    command: wsl --shutdown
+    image: null
+  - title: Проверьте настройки виртуализации в BIOS
+    body: >-
+      Перезагрузите компьютер и войдите в BIOS (обычно F2 или Del). Найдите настройку Intel VT-x или AMD-V и убедитесь, что она включена. Сохраните настройки и перезагрузитесь.
+    command: null
+    image: null
+  - title: Отключите защиту от эксплойтов для Docker
+    body: >-
+      Откройте «Параметры Windows» → «Конфиденциальность и безопасность» → «Безопасность Windows» → «Защита от эксплойтов». Отключите CFG для programa vmcompute.exe. Перезапустите Docker.
+    command: null
+    image: null
+updatedAt: '2026-06-02'
+publishedAt: '2026-06-02'
+readingTime: 3
+popularityScore: 70
+sources:
+  - title: 'Ошибка virtual machine platform not enabled в Docker'
+    url: 'https://purpleschool.ru/knowledge-base/docker/error/virtual-machine-platform-not-enabled'
+    accessedAt: '2026-06-02'
+  - title: 'Как исправить ошибку Cannot Connect to the Docker Daemon в Windows'
+    url: 'https://blog.openreplay.com/ru/исправить-не-удается-подключиться-к-daemon-docker-windows/'
+    accessedAt: '2026-06-02'
+  - title: 'Решение ошибок wsl error в Docker'
+    url: 'https://purpleschool.ru/knowledge-base/docker/error/wsl-error'
+    accessedAt: '2026-06-02'
+draft: false
+---
+Если Docker Desktop не запускается в Windows, начните с включения Hyper-V и Virtual Machine Platform, затем обновите WSL до версии 2. В большинстве случаев этого достаточно для запуска Docker.

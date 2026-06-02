@@ -1,0 +1,60 @@
+---
+title: 'PostgreSQL не запускается: как исправить ошибку'
+category: Базы данных
+tags:
+  - PostgreSQL
+  - не запускается
+  - ошибка старта
+description: >-
+  Пошаговое руководство по устранению ошибок запуска PostgreSQL: проверка логов, конфигурации, порта 5432, прав доступа.
+symptoms:
+  - Сервис PostgreSQL не запускается через systemctl или pg_ctl
+  - Ошибка «could not create listening socket»
+  - База данных не отвечает на подключения
+causes:
+  - Занят порт 5432 другим процессом
+  - Ошибка в конфигурационных файлах postgresql.conf или pg_hba.conf
+  - Повреждён или не инициализирован каталог данных
+steps:
+  - title: Проверьте логи PostgreSQL
+    body: >-
+      Файл лога обычно находится в /var/log/postgresql/ (Linux) или в data/pg_log/ (Windows). Откройте последний лог-файл и найдите строки с ERROR или FATAL — они укажут на причину отказа.
+    command: null
+    image: null
+  - title: Проверьте занятость порта 5432
+    body: >-
+      Выполните команду lsof -i :5432 (Linux) или netstat -ano | findstr 5432 (Windows). Если порт занят другим процессом — завершите его или измените порт в postgresql.conf (параметр port).
+    command: lsof -i :5432
+    image: null
+  - title: Проверьте конфигурацию pg_hba.conf
+    body: >-
+      Откройте pg_hba.conf и убедитесь, что строки аутентификации правильные. Для локальных подключений обычно используется trust или md5. Проверьте, что clientEncoding = 'UTF8'.
+    command: null
+    image: null
+  - title: Инициализируйте каталог данных
+    body: >-
+      Если каталог данных повреждён или не существует, выполните initdb: initdb -D /var/lib/postgresql/data (Linux) или initdb -D "C:\Program Files\PostgreSQL\data" (Windows). Убедитесь, что права доступа принадлежат пользователю postgres.
+    command: initdb -D /var/lib/postgresql/data
+    image: null
+  - title: Запустите PostgreSQL вручную
+    body: >-
+      Попробуйте запустить PostgreSQL вручную для получения подробных ошибок: pg_ctl -D /var/lib/postgresql/data start -l /var/log/postgresql/startup.log. Это покажет точную ошибку, если сервис не запускается.
+    command: pg_ctl -D /var/lib/postgresql/data start
+    image: null
+updatedAt: '2026-06-02'
+publishedAt: '2026-06-02'
+readingTime: 3
+popularityScore: 63
+sources:
+  - title: 'Не запускается PostgreSQL. Как исправить?'
+    url: 'https://qna.habr.com/q/1232530'
+    accessedAt: '2026-06-02'
+  - title: 'Проблема с запуском PostgreSQL на Arch Linux через systemctl'
+    url: 'https://ru.stackoverflow.com/questions/1431755/'
+    accessedAt: '2026-06-02'
+  - title: 'Ошибка postgresql при старте сервиса'
+    url: 'https://ru.stackoverflow.com/questions/967162/'
+    accessedAt: '2026-06-02'
+draft: false
+---
+Если PostgreSQL не запускается, начните с проверки логов — они покажут точную причину. Часто проблема в занятом порту 5432 или ошибке в pg_hba.conf. Запуск вручную через pg_ctl с выводом в лог-файл поможет найти ошибку.
