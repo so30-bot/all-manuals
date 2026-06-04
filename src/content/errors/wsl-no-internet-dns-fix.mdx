@@ -1,0 +1,109 @@
+---
+title: 'WSL нет интернета или не работает DNS: как исправить'
+category: 'Разработка'
+tags:
+  - 'WSL'
+  - 'Windows'
+  - 'DNS'
+  - 'Linux'
+  - 'Сеть'
+description: >-
+  Подробное руководство по исправлению проблем WSL, когда Linux-дистрибутив не открывает сайты, apt не обновляется, DNS не резолвит домены или сеть ломается после VPN.
+symptoms:
+  - 'В WSL работает ping 8.8.8.8, но не открываются домены'
+  - 'apt update возвращает Temporary failure resolving'
+  - 'curl не может подключиться к HTTPS-сайтам'
+  - 'Интернет пропадает после включения VPN или прокси'
+  - 'Файл /etc/resolv.conf каждый раз перезаписывается'
+causes:
+  - 'WSL сгенерировал неверный DNS-сервер в resolv.conf'
+  - 'VPN или корпоративный прокси меняет маршруты Windows'
+  - 'Поврежден сетевой стек WSL NAT'
+  - 'Брандмауэр или антивирус блокирует vEthernet адаптер'
+  - 'Включена устаревшая конфигурация resolv.conf'
+steps:
+  - title: 'Проверьте, проблема в DNS или в маршрутизации'
+    body: >-
+      Сначала отделите DNS от полного отсутствия сети. Если ping до 8.8.8.8 работает, но ping google.com нет, сломан DNS. Если не работает даже IP-адрес, проблема в маршрутах, NAT, VPN или брандмауэре. Это определяет дальнейший путь исправления.
+    command: |-
+      ping -c 4 8.8.8.8
+      ping -c 4 google.com
+    image: null
+  - title: 'Перезапустите WSL и сетевой стек'
+    body: >-
+      Многие сбои WSL появляются после сна, смены сети или подключения VPN. Полностью остановите WSL из Windows Terminal или PowerShell. Затем откройте дистрибутив заново и повторите проверку. Это безопасный первый шаг, который не меняет файлы Linux.
+    command: 'wsl --shutdown'
+    image: null
+  - title: 'Проверьте текущий resolv.conf'
+    body: >-
+      В WSL DNS обычно хранится в /etc/resolv.conf. Если там указан недоступный адрес, домены не будут резолвиться. Проверьте nameserver и сравните его с DNS в Windows. В корпоративных сетях WSL может получить адрес, недоступный из NAT-сети.
+    command: |-
+      cat /etc/resolv.conf
+      grep nameserver /etc/resolv.conf
+    image: null
+  - title: 'Отключите автогенерацию resolv.conf'
+    body: >-
+      Если WSL каждый запуск записывает неправильный DNS, отключите генерацию resolv.conf через /etc/wsl.conf. После изменения завершите WSL командой wsl --shutdown. Затем создайте собственный resolv.conf с надежными DNS-серверами или DNS вашей организации.
+    command: |-
+      sudo tee /etc/wsl.conf
+      [network]
+      generateResolvConf = false
+    image: null
+  - title: 'Задайте DNS вручную'
+    body: >-
+      После отключения автогенерации удалите старый resolv.conf и создайте новый. Для домашней сети можно использовать Cloudflare или Google DNS. Для корпоративной сети лучше указать DNS, который выдает VPN, иначе внутренние домены компании не будут открываться.
+    command: |-
+      sudo rm -f /etc/resolv.conf
+      sudo tee /etc/resolv.conf
+      nameserver 1.1.1.1
+      nameserver 8.8.8.8
+    image: null
+  - title: 'Проверьте VPN, прокси и firewall'
+    body: >-
+      VPN-клиенты часто меняют маршруты и DNS только для Windows, а WSL остается в отдельной NAT-сети. Попробуйте отключить VPN, затем проверить apt update. Если без VPN все работает, настройте split tunneling, разрешите vEthernet WSL в firewall или используйте DNS VPN вручную.
+    command: 'ip route && cat /etc/resolv.conf'
+    image: null
+  - title: 'Сбросьте сетевые настройки Windows при полном отказе сети'
+    body: >-
+      Если не работает даже подключение по IP, проблема может быть в Winsock или сетевом стеке Windows. Выполните сброс от имени администратора и перезагрузите компьютер. Этот шаг влияет на сетевые настройки Windows, поэтому используйте его после простых проверок.
+    command: |-
+      netsh winsock reset
+      netsh int ip reset
+    image: null
+updatedAt: '2026-06-04'
+publishedAt: '2026-06-04'
+readingTime: 9
+popularityScore: 88
+sources:
+  - title: 'Microsoft Learn - Troubleshooting Windows Subsystem for Linux'
+    url: 'https://learn.microsoft.com/en-us/windows/wsl/troubleshooting'
+    accessedAt: '2026-06-04'
+  - title: 'Microsoft Learn - WSL configuration settings'
+    url: 'https://learn.microsoft.com/en-us/windows/wsl/wsl-config'
+    accessedAt: '2026-06-04'
+  - title: 'Microsoft Learn - Basic commands for WSL'
+    url: 'https://learn.microsoft.com/en-us/windows/wsl/basic-commands'
+    accessedAt: '2026-06-04'
+  - title: 'Ubuntu Manpage - resolv.conf'
+    url: 'https://manpages.ubuntu.com/manpages/jammy/man5/resolv.conf.5.html'
+    accessedAt: '2026-06-04'
+dedupe:
+  titleHash: '2222222222222222222222222222222222222222222222222222222222222221'
+  solutionHash: '2222222222222222222222222222222222222222222222222222222222222222'
+  sourceHash: '2222222222222222222222222222222222222222222222222222222222222223'
+draft: false
+---
+В WSL проблемы с интернетом почти всегда делятся на две группы: не работает DNS или не работает сама маршрутизация. Если IP-адреса открываются, а домены нет, не нужно переустанавливать Ubuntu. Достаточно исправить resolv.conf или настройки DNS.
+
+Самая частая причина — WSL автоматически создает /etc/resolv.conf на основе сетевых настроек Windows, но получает адрес DNS, который недоступен из Linux-дистрибутива. Такое часто происходит после VPN, корпоративного прокси, сна ноутбука или смены Wi-Fi сети.
+
+Если вы вручную задаете DNS, помните о внутренних корпоративных доменах. Публичные DNS вроде 1.1.1.1 не знают адреса внутренних сервисов компании. Для рабочей сети лучше использовать DNS, который выдает VPN-клиент.
+
+После каждого изменения выполняйте wsl --shutdown из Windows, иначе WSL может продолжать использовать старую сетевую конфигурацию.
+
+## Быстрая проверка
+
+- ping 8.8.8.8 работает, но google.com нет: проблема DNS.
+- Не работает даже 8.8.8.8: проблема маршрутов или NAT.
+- После VPN ломается apt update: проверьте DNS VPN.
+- resolv.conf меняется после перезапуска: отключите generateResolvConf.
