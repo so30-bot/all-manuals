@@ -3,35 +3,29 @@ title: 'Что делать, если Call of Duty не запускается �
 errorId: COD_LAUNCH_FAIL_001
 category: Игры
 tags:
-  - Call of Duty
-  - не запускается
-  - ошибка запуска
-  - ПК
-  - Windows
-  - Modern Warfare
-  - Warzone
-  - GoodbyeDPI
+  - 'Call of Duty'
+  - 'не запускается'
+  - 'ошибка запуска'
+  - 'ПК'
+  - 'Windows'
+  - 'Modern Warfare'
+  - 'Warzone'
+  - 'GoodbyeDPI'
 description: >-
   Подробная инструкция по устранению распространённых проблем, из-за которых
   игры серии Call of Duty могут не запускаться на компьютере. Решения включают в
   себя проверку системных требований, обновление драйверов, отключен
 symptoms:
-  - Игра не запускается при клике на ярлык
-  - При запуске игры ничего не происходит
-  - >-
-    Игра закрывается или вылетает после использования программ для обхода
-    блокировок (например, GoodbyeDPI)
-  - Отказ в доступе при попытке остановить службу WinDivert
+  - 'Игра не запускается при клике на ярлык'
+  - 'При запуске игры ничего не происходит Игра закрывается или вылетает после использования программ для обхода блокировок (например, GoodbyeDPI)'
+  - 'Отказ в доступе при попытке остановить службу WinDivert'
 causes:
-  - >-
-    Конфликт с фоновыми программами (GoodbyeDPI, Zapret, NZXT CAM, MSI
-    Afterburner, Razer Cortex)
-  - Поврежденные или отсутствующие игровые файлы
-  - Устаревшие или некорректные драйверы видеокарты
+  - 'Поврежденные или отсутствующие игровые файлы'
+  - 'Устаревшие или некорректные драйверы видеокарты'
   - 'Проблемы со службой Randgrid, особенно после перемещения папки с игрой'
-  - Неправильные настройки антивирусного программного обеспечения
-  - Отключенный ASLR (Address Space Layout Randomization) в Windows
-  - Несоответствие системным требованиям или устаревшая версия Windows
+  - 'Неправильные настройки антивирусного программного обеспечения'
+  - 'Отключенный ASLR (Address Space Layout Randomization) в Windows'
+  - 'Несоответствие системным требованиям или устаревшая версия Windows'
 steps:
   - title: 'Шаг 1: Базовые проверки системы и обновление драйверов'
     body: >-
@@ -89,7 +83,7 @@ steps:
       net session >nul 2>&1
 
       if %errorlevel% neq 0 (
-          echo Requesting administrative privileges...
+          echo Requesting administrative privileges..
           powershell Start-Process -FilePath "%~f0" -Verb RunAs
           exit /b
       )
@@ -159,21 +153,21 @@ steps:
 
       echo.
 
-      echo Updating Randgrid service location...
+      echo Updating Randgrid service location..
 
       :: Remove existing service if present
 
       sc query atvi-randgrid_sr >nul 2>&1
 
       if %errorlevel% equ 0 (
-          echo Removing existing Randgrid service...
+          echo Removing existing Randgrid service..
           sc delete atvi-randgrid_sr
           timeout /t 2 >nul
       )
 
       :: Create service with new location
 
-      echo Installing Randgrid service at new location...
+      echo Installing Randgrid service at new location..
 
       sc create atvi-randgrid_sr type= kernel binPath=
       "%INSTALLDIR%\randgrid.sys"
@@ -185,7 +179,7 @@ steps:
 
       :: Set service permissions
 
-      echo Setting Randgrid service permissions...
+      echo Setting Randgrid service permissions..
 
       sc sdset atvi-randgrid_sr
       D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCLCSWRPWPLOCRRC;;;IU)(A;;CCLCSWLOCRRC;;;SU)S:(AU;FA;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;WD)
@@ -273,7 +267,7 @@ setlocal enabledelayedexpansion
 :: Check for admin privileges
 net session >nul 2>&1
 if %errorlevel% neq 0 (
-    echo Requesting administrative privileges...
+    echo Requesting administrative privileges.
     powershell Start-Process -FilePath "%~f0" -Verb RunAs
     exit /b
 )
@@ -321,23 +315,23 @@ echo Please verify the folder path and try again.
 )
 :PROCESS_SERVICE
 echo.
-echo Updating Randgrid service location...
+echo Updating Randgrid service location.
 :: Remove existing service if present
 sc query atvi-randgrid_sr >nul 2>&1
 if %errorlevel% equ 0 (
-    echo Removing existing Randgrid service...
+    echo Removing existing Randgrid service.
     sc delete atvi-randgrid_sr
     timeout /t 2 >nul
 )
 :: Create service with new location
-echo Installing Randgrid service at new location...
+echo Installing Randgrid service at new location.
 sc create atvi-randgrid_sr type= kernel binPath= "%INSTALLDIR%\randgrid.sys"
 if %errorlevel% neq 0 (
     echo Failed to create the service. Please verify you are running as administrator.
     goto END
 )
 :: Set service permissions
-echo Setting Randgrid service permissions...
+echo Setting Randgrid service permissions.
 sc sdset atvi-randgrid_sr D:(A;;CCLCSWRPWPDTLOCRRC;;;SY)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCLCSWRPWPLOCRRC;;;IU)(A;;CCLCSWLOCRRC;;;SU)S:(AU;FA;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;WD)
 if %errorlevel% neq 0 (
     echo Failed to update service permissions.

@@ -3,34 +3,22 @@ title: Исправление ошибки "Failed to start gdm.service" в Ubun
 errorId: gdm.service-failed-to-start
 category: Веб-разработка
 tags:
-  - Ubuntu
-  - gdm.service
-  - Linux
-  - startup error
-  - display manager
+  - 'Ubuntu'
+  - 'gdm.service'
+  - 'Linux'
+  - 'startup error'
+  - 'display manager'
 description: >-
   Данная инструкция поможет устранить ошибку "Failed to start gdm.service",
   которая препятствует нормальному запуску системы Ubuntu и загрузке
   графического интерфейса.
 symptoms:
-  - Система Ubuntu не загружается.
-  - >-
-    При запуске появляется сообщение "Failed to start gdm.service" или "Failed
-    to start Gnome Display Manager error".
-  - >-
-    Экран остается черным или отображает только логотип Ubuntu с индикатором
-    загрузки.
-  - Графический интерфейс (рабочий стол) не запускается.
+  - 'Система Ubuntu не загружается. При запуске появляется сообщение "Failed to start gdm.service" или "Failed to start Gnome Display Manager error". Экран остается черным или отображает только логотип Ubuntu с индикатором загрузки.'
+  - 'Графический интерфейс (рабочий стол) не запускается.'
 causes:
-  - >-
-    Недостаточно места на диске, из-за чего обновление системы могло завершиться
-    с ошибкой.
-  - Ошибка при установке обновлений системы.
-  - >-
-    Конфликт пакетов, например, установка пакета `fuse` могла привести к
-    удалению `ubuntu-session`.
-  - Повреждение файлов конфигурации GDM (GNOME Display Manager).
-  - Переполненные файлы логов в директории `/var/log`.
+  - 'Ошибка при установке обновлений системы. Конфликт пакетов, например, установка пакета `fuse` могла привести к удалению `ubuntu-session`.'
+  - 'Повреждение файлов конфигурации GDM (GNOME Display Manager).'
+  - 'Переполненные файлы логов в директории `/var/log`.'
 steps:
   - title: Освобождение места на диске и переустановка desktop-окружения
     body: >-

@@ -5,29 +5,20 @@ title: >-
 errorId: kernel-panic-vfs-unable-to-mount-root-fs
 category: Linux
 tags:
-  - Ubuntu
-  - kernel panic
-  - VFS
-  - initramfs
-  - GRUB
-  - boot error
+  - 'Ubuntu'
+  - 'kernel panic'
+  - 'VFS'
+  - 'initramfs'
+  - 'GRUB'
+  - 'boot error'
 description: >-
   Инструкция по устранению критической ошибки ядра Ubuntu, которая возникает
   после обновления системы и препятствует ее загрузке. Ошибка "Kernel Panic -
   not syncing: VFS: Unable to mount root fs on unknown-block(0,0)" обыч
 symptoms:
-  - Система Ubuntu не загружается после обновления.
-  - >-
-    При загрузке появляется сообщение об ошибке: "Kernel Panic - not syncing:
-    VFS: Unable to mount root fs on unknown-block(0,0)".
+  - 'Система Ubuntu не загружается после обновления. При загрузке появляется сообщение об ошибке: "Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)".'
 causes:
-  - >-
-    Отсутствие или некорректное создание файла initramfs (initial RAM file
-    system) для новой версии ядра.
-  - Сбой в процессе обновления ядра или его компонентов.
-  - >-
-    Проблемы с драйверами, например, NVIDIA, которые могут помешать корректной
-    сборке initramfs.
+  - 'Сбой в процессе обновления ядра или его компонентов. Проблемы с драйверами, например, NVIDIA, которые могут помешать корректной сборке initramfs.'
 steps:
   - title: 1. Загрузка с предыдущей версии ядра через GRUB
     body: >-
@@ -70,7 +61,6 @@ popularityScore: 67
 sources:
   - title: >-
       boot - Getting a Kernel Panic on Ubuntu 24.04 with kernel version
-      6.11.0-24-generic - Ask Ubuntu
     url: >-
       https://askubuntu.com/questions/1553488/getting-a-kernel-panic-on-ubuntu-24-04-with-kernel-version-6-11-0-24-generic
     accessedAt: '2026-05-30'
@@ -120,7 +110,7 @@ draft: false
 1.  После успешной загрузки в систему откройте терминал. Это можно сделать, нажав `Ctrl+Alt+T`.
 2.  Теперь выполните команду для перегенерации initramfs. Вам нужно будет указать точную версию ядра, с которой возникла проблема. Если вы не уверены в номере версии, можно попробовать команду `uname -r` (если она покажет рабочее ядро) или посмотреть в выводе ошибок при загрузке.
     ```bash
-    sudo update-initramfs -u -k <версия_ядра>
+    sudo update-initramfs -u -k `версия_ядра`
     ```
     Например, если проблема возникла с ядром `6.14.0-24-generic`, команда будет выглядеть так:
     ```bash

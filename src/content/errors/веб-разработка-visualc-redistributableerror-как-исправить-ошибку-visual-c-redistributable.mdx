@@ -3,43 +3,23 @@ title: Как исправить ошибку Visual C++ Redistributable
 errorId: VisualC++RedistributableError
 category: Веб-разработка
 tags:
-  - Visual C++
-  - Redistributable
-  - ошибка
-  - игры
-  - Windows
-  - Linux
-  - Wine
-  - vc_redist
+  - 'Visual C++'
+  - 'Redistributable'
+  - 'ошибка'
+  - 'игры'
+  - 'Windows'
+  - 'Linux'
+  - 'Wine'
+  - 'vc_redist'
 description: >-
   Ошибка, связанная с отсутствием или повреждением пакетов Microsoft Visual C++
   Redistributable, является одной из наиболее распространенных проблем при
   запуске игр и приложений в Windows и Linux (через Wine). Эти пакеты с
 symptoms:
-  - >-
-    Сообщения об ошибке, явно указывающие на "vc_redist.x86.exe",
-    "vc_redist.x64.exe" или "Microsoft Visual C++ Redistributable".
-  - >-
-    Приложения или игры не запускаются, выдавая ошибки, связанные с отсутствием
-    DLL-файлов (например, MSVCR*.dll, VCRUNTIME*.dll).
-  - >-
-    Сбои программ при попытке выполнить определенные действия (например,
-    "Injection failed" в Bakkesmod для Rocket League).
-  - >-
-    Программы, разработанные на C++, не могут найти необходимые компоненты для
-    запуска.
+  - 'Ошибка повторяется или компонент работает нестабильно'
 causes:
-  - >-
-    Отсутствие необходимых пакетов Microsoft Visual C++ Redistributable на вашей
-    системе.
-  - Повреждение уже установленных пакетов Visual C++ Redistributable.
-  - >-
-    Установка неверной версии пакета (например, x86 вместо x64 или наоборот, или
-    неверный год выпуска).
-  - Конфликты между различными версиями пакетов Visual C++ Redistributable.
-  - >-
-    Проблемы с окружением выполнения (например, некорректная настройка префикса
-    Wine в Linux).
+  - 'Повреждение уже установленных пакетов Visual C++ Redistributable. Установка неверной версии пакета (например, x86 вместо x64 или наоборот, или неверный год выпуска).'
+  - 'Конфликты между различными версиями пакетов Visual C++ Redistributable. Проблемы с окружением выполнения (например, некорректная настройка префикса Wine в Linux).'
 steps:
   - title: Установка или обновление пакетов Microsoft Visual C++ Redistributable
     body: >-
