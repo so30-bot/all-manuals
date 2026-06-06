@@ -1,73 +1,67 @@
 import fs from 'node:fs';
 import path from 'node:path';
 
-const categories = JSON.parse(fs.readFileSync('src/data/categories.json', 'utf8'));
-const dir = path.join(process.cwd(), 'src', 'content', 'errors');
+const root = process.cwd();
+const articlesDir = path.join(root, 'src', 'content', 'errors');
+const categories = JSON.parse(fs.readFileSync(path.join(root, 'src', 'data', 'categories.json'), 'utf8'));
 
-const known = {
-  Windows: 'windows',
-  Linux: 'linux',
-  macOS: 'macos',
-  Игры: 'games',
-  'Мобильные устройства': 'mobile',
-  'Мобильные': 'mobile',
-  'Веб-разработка': 'web-development',
-  Программирование: 'programming',
-  'Базы данных': 'databases',
-  'DevOps и облака': 'devops',
-  DevOps: 'devops',
-  'Docker и контейнеры': 'docker',
-  Docker: 'docker',
-  Оборудование: 'hardware',
-  Сеть: 'network',
-  Безопасность: 'security',
-  'Хранилища и файлы': 'storage',
-  'BIOS и UEFI': 'bios-uefi',
-  'Принтеры и сканеры': 'printers',
-  'Аудио и видео': 'audio-video',
-  'Аудио/Видео': 'audio-video',
-  'Офисные программы': 'office',
-  Офис: 'office',
-  Браузеры: 'browsers',
-  'Электронная почта': 'email',
-  Почта: 'email',
-  'Дизайн и графика': 'design',
-  Виртуализация: 'virtualization',
-  'Стиральные машины': 'washing-machines',
-  Холодильники: 'refrigerators',
-  'Посудомоечные машины': 'dishwashers',
-  'Микроволновки и духовки': 'microwaves-ovens',
-  'Кондиционеры и обогрев': 'ac-heating',
-  'Телевизоры и аудио': 'tvs-audio',
-  'Пылесосы и роботы-пылесосы': 'vacuums',
-  Электроинструмент: 'power-tools',
-  'Бытовая техника': 'ac-heating',
-  Разработка: 'programming',
-};
-
-function slugify(value) {
-  return value
-    .toLowerCase()
-    .normalize('NFKD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9а-яё]+/gi, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 96);
-}
+const slugMap = new Map([
+  ['windows', 'windows'],
+  ['linux', 'linux'],
+  ['macos', 'macos'],
+  ['игры', 'games'],
+  ['мобильные', 'mobile'],
+  ['мобильные устройства', 'mobile'],
+  ['веб-разработка', 'web-development'],
+  ['разработка', 'programming'],
+  ['программирование', 'programming'],
+  ['базы данных', 'databases'],
+  ['devops', 'devops'],
+  ['devops и облака', 'devops'],
+  ['docker', 'docker'],
+  ['docker и контейнеры', 'docker'],
+  ['оборудование', 'hardware'],
+  ['сеть', 'network'],
+  ['безопасность', 'security'],
+  ['хранилища и файлы', 'storage'],
+  ['bios и uefi', 'bios-uefi'],
+  ['принтеры', 'printers'],
+  ['принтеры и сканеры', 'printers'],
+  ['аудио/видео', 'audio-video'],
+  ['аудио и видео', 'audio-video'],
+  ['офис', 'office'],
+  ['офисные программы', 'office'],
+  ['браузеры', 'browsers'],
+  ['почта', 'email'],
+  ['электронная почта', 'email'],
+  ['дизайн', 'design'],
+  ['дизайн и графика', 'design'],
+  ['виртуализация', 'virtualization'],
+  ['стиральные машины', 'washing-machines'],
+  ['холодильники', 'refrigerators'],
+  ['посудомоечные машины', 'dishwashers'],
+  ['микроволновки и духовки', 'microwaves-ovens'],
+  ['кондиционеры и обогрев', 'ac-heating'],
+  ['бытовая техника', 'ac-heating'],
+  ['телевизоры и аудио', 'tvs-audio'],
+  ['пылесосы и роботы-пылесосы', 'vacuums'],
+  ['электроинструмент', 'power-tools'],
+]);
 
 function categoryToSlug(category) {
-  return known[category] || slugify(category);
+  return slugMap.get(String(category).trim().toLowerCase()) || String(category).trim().toLowerCase();
 }
 
 const counts = Object.fromEntries(categories.map((category) => [category.slug, 0]));
 let total = 0;
 
-for (const file of fs.readdirSync(dir).filter((file) => file.endsWith('.mdx'))) {
-  const content = fs.readFileSync(path.join(dir, file), 'utf8');
+for (const file of fs.readdirSync(articlesDir)) {
+  if (!file.endsWith('.mdx')) continue;
+  const content = fs.readFileSync(path.join(articlesDir, file), 'utf8');
   const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) continue;
-  const category = match[1].match(/^category:\s*['"]?([^'"\n]+)['"]?/m)?.[1]?.trim();
-  if (!category) continue;
+  const categoryLine = match[1].split(/\r?\n/).find((line) => line.startsWith('category:'));
+  const category = categoryLine ? categoryLine.replace(/^category:\s*/, '').replace(/^['"]|['"]$/g, '').trim() : '(no category)';
   const slug = categoryToSlug(category);
   counts[slug] = (counts[slug] || 0) + 1;
   total += 1;
@@ -75,5 +69,5 @@ for (const file of fs.readdirSync(dir).filter((file) => file.endsWith('.mdx'))) 
 
 console.log(`total\t${total}`);
 for (const category of categories) {
-  console.log(`${String(counts[category.slug] || 0).padStart(3, ' ')}\t${category.slug}\t${category.name}`);
+  console.log(`${String(counts[category.slug] || 0).padStart(4)}\t${category.slug}\t${category.name}`);
 }
