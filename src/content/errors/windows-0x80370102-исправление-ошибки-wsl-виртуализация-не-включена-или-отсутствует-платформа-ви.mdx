@@ -1,49 +1,49 @@
 ---
 title: >-
-  Исправление ошибки WSL: Виртуализация не включена или отсутствует платформа
-  виртуальной машины (0x80370102)
+  Исправление ошибки WSL: Виртуализация не включена или отсутствует платформа виртуальной машины
+  (0x80370102)
 errorId: '0x80370102'
 category: Windows
 tags:
-  - 'WSL'
-  - 'Windows'
-  - 'виртуализация'
-  - 'Hyper-V'
+  - WSL
+  - Windows
+  - виртуализация
+  - Hyper-V
   - '0x80370102'
-  - 'Virtual Machine Platform'
-  - 'Linux'
+  - Virtual Machine Platform
+  - Linux
 description: >-
-  Инструкция по устранению распространенных ошибок при запуске Подсистемы
-  Windows для Linux (WSL), связанных с отключенной виртуализацией или
-  отсутствием необходимых компонентов Windows, таких как 'Платформа виртуальной
-  ма
+  Инструкция по устранению распространенных ошибок при запуске Подсистемы Windows для Linux (WSL),
+  связанных с отключенной виртуализацией или отсутствием необходимых компонентов Windows, таких как
+  'Платформа виртуальной ма
 symptoms:
-  - 'WSL не запускается, выдавая сообщение ''''виртуализация не включена''''.'' Ошибка с кодом 0x80370102 (HCS_E_SERVICE_NOT_AVAILABLE) при попытке запуска дистрибутива WSL. Сообщения об ошибках, указывающие на проблемы с ''Платформой виртуальной машины'' или ''Hyper-V''.'
-  - 'Дистрибутивы WSL не могут быть запущены или установлены.'
+  - >-
+    WSL не запускается, выдавая сообщение ''виртуализация не включена''.' Ошибка с кодом 0x80370102
+    (HCS_E_SERVICE_NOT_AVAILABLE) при попытке запуска дистрибутива WSL. Сообщения об ошибках,
+    указывающие на проблемы с 'Платформой виртуальной машины' или 'Hyper-V'.
+  - Дистрибутивы WSL не могут быть запущены или установлены.
 causes:
-  - 'Конфликты с другими программами виртуализации или антивирусным ПО.'
+  - Конфликты с другими программами виртуализации или антивирусным ПО.
 steps:
   - title: 'Шаг 1: Проверка и активация виртуализации в BIOS/UEFI'
     body: >-
-      Для корректной работы WSL 2 требуется аппаратная виртуализация. Убедитесь,
-      что она включена в настройках BIOS/UEFI вашей системы.
+      Для корректной работы WSL 2 требуется аппаратная виртуализация. Убедитесь, что она включена в
+      настройках BIOS/UEFI вашей системы.
 
 
-      1.  Перезагрузите компьютер и войдите в BIOS/UEFI (обычно нажатием клавиш
-      Del, F2, F10, F12 или Esc во время загрузки).
+      1.  Перезагрузите компьютер и войдите в BIOS/UEFI (обычно нажатием клавиш Del, F2, F10, F12
+      или Esc во время загрузки).
 
-      2.  Найдите раздел, связанный с настройками процессора или безопасности
-      (например, "CPU Configuration", "Virtualization Technology", "VT-x",
-      "AMD-V", "SVM Mode").
+      2.  Найдите раздел, связанный с настройками процессора или безопасности (например, "CPU
+      Configuration", "Virtualization Technology", "VT-x", "AMD-V", "SVM Mode").
 
       3.  Убедитесь, что опция виртуализации включена (Enabled).
 
       4.  Сохраните изменения и выйдите из BIOS/UEFI.
 
 
-      *Примечание:* Если вы не можете найти эти настройки или они уже включены,
-      переходите к следующему шагу. Также убедитесь, что ваш процессор
-      поддерживает виртуализацию.
+      *Примечание:* Если вы не можете найти эти настройки или они уже включены, переходите к
+      следующему шагу. Также убедитесь, что ваш процессор поддерживает виртуализацию.
     command: null
     image: null
   - title: 'Шаг 2: Включение необходимых компонентов Windows'
@@ -53,25 +53,23 @@ steps:
 
       1.  Откройте PowerShell от имени администратора.
 
-      2.  Выполните следующие команды для включения "Подсистемы Windows для
-      Linux" и "Платформы виртуальной машины":
+      2.  Выполните следующие команды для включения "Подсистемы Windows для Linux" и "Платформы
+      виртуальной машины":
           *   `dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart`
           *   `dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart`
 
           Если вы используете Windows Pro, Enterprise или Education, вы также можете включить Hyper-V (хотя для WSL 2 это не всегда строго обязательно, "Платформа виртуальной машины" является достаточной):
           *   `dism.exe /online /enable-feature /featurename:HypervisorPlatform /all /norestart`
-      3.  Перезагрузите компьютер после выполнения команд, если это не было
-      сделано автоматически.
+      3.  Перезагрузите компьютер после выполнения команд, если это не было сделано автоматически.
     command: >-
-      dism.exe /online /enable-feature
-      /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart && dism.exe
-      /online /enable-feature /featurename:VirtualMachinePlatform /all
+      dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all
+      /norestart && dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all
       /norestart
     image: null
   - title: 'Шаг 3: Обновление WSL и установка WSL 2 по умолчанию'
     body: >-
-      Убедитесь, что у вас установлена последняя версия WSL и что WSL 2
-      используется в качестве версии по умолчанию.
+      Убедитесь, что у вас установлена последняя версия WSL и что WSL 2 используется в качестве
+      версии по умолчанию.
 
 
       1.  Откройте PowerShell от имени администратора.
@@ -80,8 +78,7 @@ steps:
           *   `wsl --update`
       3.  Завершите работу всех дистрибутивов WSL:
           *   `wsl --shutdown`
-      4.  Установите WSL 2 в качестве версии по умолчанию для новых
-      дистрибутивов:
+      4.  Установите WSL 2 в качестве версии по умолчанию для новых дистрибутивов:
           *   `wsl --set-default-version 2`
       5.  Проверьте версию установленных дистрибутивов:
           *   `wsl -l -v`
@@ -95,23 +92,22 @@ readingTime: 6
 popularityScore: 46
 sources:
   - title: >-
-      Fix local dev setup: Node.js prereq, log link, WSL diagnostics by kmahone
-      · Pull Request #575 · openclaw/openclaw-windows-node · GitHub
+      Fix local dev setup: Node.js prereq, log link, WSL diagnostics by kmahone · Pull Request #575
+      · openclaw/openclaw-windows-node · GitHub
     url: 'https://github.com/openclaw/openclaw-windows-node/pull/575'
     accessedAt: '2026-05-28'
   - title: >-
-      Fix potential channel corruption after cancelled ReceiveMessageOrClosed()
-      by OneBlue · Pull Request #40663 · microsoft/WSL · GitHub
+      Fix potential channel corruption after cancelled ReceiveMessageOrClosed() by OneBlue · Pull
+      Request #40663 · microsoft/WSL · GitHub
     url: 'https://github.com/microsoft/WSL/pull/40663'
     accessedAt: '2026-05-28'
-  - title: "Ubuntu Community Help Wiki"
+  - title: Ubuntu Community Help Wiki
     url: 'https://help.ubuntu.com/'
     accessedAt: '2026-06-02'
-
 dedupe:
-  titleHash: 4561ad1b4581c573e9722ea86581f0417e6413e11b94a1a5e76087d05fe63d95
-  solutionHash: ee0d1da9f5d9c6c5463f6824609876ad9d6ecf9f77f1d761c0ef6f9fe63c3ba1
-  sourceHash: d5b2658b8da0ab9656f786cf355c43cc8d2caf9d8571ac26bb8163338fa3ecd6
+  titleHash: 553b64b1b3281c8ecfe37b70a9df5f595760327a0a670f6b3107d9205d65f60f
+  solutionHash: 55fbc649212a43970492251e00f38cf44024d2315f2cc63c2c938e7098ef3cd7
+  sourceHash: 0fea8992d4e69a59f95a8e2de100e874e8d3c996969c3f53423d77be3c6009c7
 draft: false
 ---
 ### Введение

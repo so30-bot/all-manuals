@@ -3,46 +3,42 @@ title: Исправляем ошибку «Failed to start gdm.service» при 
 errorId: failed-start-gdm-service
 category: Linux
 tags:
-  - 'Ubuntu'
-  - 'gdm'
-  - 'загрузка'
-  - 'systemd'
-  - 'рабочий стол'
+  - Ubuntu
+  - gdm
+  - загрузка
+  - systemd
+  - рабочий стол
 description: >-
-  Пошаговое руководство по устранению ошибки, из-за которой Ubuntu не может
-  загрузить графический интерфейс (GDM), и вы видите сообщение «Failed to start
-  Gnome Display Manager».
+  Пошаговое руководство по устранению ошибки, из-за которой Ubuntu не может загрузить графический
+  интерфейс (GDM), и вы видите сообщение «Failed to start Gnome Display Manager».
 symptoms:
-  - 'Ошибка повторяется или компонент работает нестабильно'
+  - Ошибка повторяется или компонент работает нестабильно
 causes:
   - 'Неверная конфигурация, конфликт версий или повреждённые данные'
 steps:
   - title: Шаг 1. Проверьте место на диске и освободите его
     body: >-
-      Если диск заполнен, система не сможет корректно работать. Зайдите в
-      командную строку, нажав **Ctrl+Alt+F2**, войдите под своим логином и
-      паролем. Затем удалите ненужные большие файлы, например, из папки
-      `~/Downloads`. После этого попробуйте снова выполнить перезагрузку. Если
+      Если диск заполнен, система не сможет корректно работать. Зайдите в командную строку, нажав
+      **Ctrl+Alt+F2**, войдите под своим логином и паролем. Затем удалите ненужные большие файлы,
+      например, из папки `~/Downloads`. После этого попробуйте снова выполнить перезагрузку. Если
       свободного места станет достаточно, ошибка может исчезнуть.
     command: du -sh ~/Downloads/*
     image: null
   - title: Шаг 2. Переустановите пакет рабочего стола Ubuntu
     body: >-
-      В командной строке (после входа через Ctrl+Alt+F2) выполните переустановку
-      базового пакета рабочего стола. Это восстановит необходимые файлы для
-      запуска GDM. После успешного выполнения команды попробуйте запустить
-      графический интерфейс командой `startx`. Если он запустится, перезагрузите
-      компьютер — при следующей загрузке графическая оболочка должна работать
+      В командной строке (после входа через Ctrl+Alt+F2) выполните переустановку базового пакета
+      рабочего стола. Это восстановит необходимые файлы для запуска GDM. После успешного выполнения
+      команды попробуйте запустить графический интерфейс командой `startx`. Если он запустится,
+      перезагрузите компьютер — при следующей загрузке графическая оболочка должна работать
       нормально.
     command: sudo apt install --reinstall ubuntu-desktop
     image: null
   - title: 'Шаг 3. Восстановите пакет ubuntu-session, если удалилсяfuse'
     body: >-
-      Ошибка часто возникает после установки пакета `fuse` (например, для работы
-      AppImage). Он может удалить пакет `ubuntu-session`. Чтобы это исправить,
-      удалите `fuse` и заново установите `ubuntu-session`. При необходимости
-      вместо удалённого `fuse` поставьте современную версию `fuse3`. После этого
-      перезагрузите систему.
+      Ошибка часто возникает после установки пакета `fuse` (например, для работы AppImage). Он может
+      удалить пакет `ubuntu-session`. Чтобы это исправить, удалите `fuse` и заново установите
+      `ubuntu-session`. При необходимости вместо удалённого `fuse` поставьте современную версию
+      `fuse3`. После этого перезагрузите систему.
     command: |-
       sudo apt remove fuse
       sudo apt install ubuntu-session
@@ -50,11 +46,10 @@ steps:
     image: null
   - title: Дополнительно. Очистите большие логи в /var/log
     body: >-
-      Если предыдущие шаги не помогли, проверьте папку с логами. Большие файлы
-      вроде `syslog.1` или `messages.1` могут занимать гигабайты и мешать
-      загрузке. Зайдите в `/var/log` и очистите содержимое самых тяжёлых файлов
-      (не удаляйте их, а просто обнуляйте). Это безопасно и не повредит работу
-      системы.
+      Если предыдущие шаги не помогли, проверьте папку с логами. Большие файлы вроде `syslog.1` или
+      `messages.1` могут занимать гигабайты и мешать загрузке. Зайдите в `/var/log` и очистите
+      содержимое самых тяжёлых файлов (не удаляйте их, а просто обнуляйте). Это безопасно и не
+      повредит работу системы.
     command: |-
       cd /var/log
       ls -lhS
@@ -65,25 +60,22 @@ readingTime: 3
 popularityScore: 50
 sources:
   - title: >-
-      24.04 - Can't boot Ubuntu - I get a failed to start gdm.service - [FAILED]
-      Failed to start Gnome Display Manager error - Ask Ubuntu
+      24.04 - Can't boot Ubuntu - I get a failed to start gdm.service - [FAILED] Failed to start
+      Gnome Display Manager error - Ask Ubuntu
     url: >-
       https://askubuntu.com/questions/1540679/cant-boot-ubuntu-i-get-a-failed-to-start-gdm-service-failed-failed-to-sta
     accessedAt: '2026-05-31'
-  - title: >-
-      Ubuntu fails to boot due to GNOME display manager error - Unix & Linux
-      Stack Exchange
+  - title: Ubuntu fails to boot due to GNOME display manager error - Unix & Linux Stack Exchange
     url: >-
       https://unix.stackexchange.com/questions/737169/ubuntu-fails-to-boot-due-to-gnome-display-manager-error
     accessedAt: '2026-05-31'
-  - title: "Ubuntu Community Help Wiki"
+  - title: Ubuntu Community Help Wiki
     url: 'https://help.ubuntu.com/'
     accessedAt: '2026-06-02'
-
 dedupe:
-  titleHash: 8618bb4e8fe55561c3c0df0774dfd1b847872cfd1759d0b9aacc779f3d98befb
-  solutionHash: a72860b34a77fa1489d1fddc83d5574182fa7dbab054b53fa75fd7d027f8791a
-  sourceHash: 0634d209480e4329923a35ec8f4ee5713e18eec5dac6faa09709a9014cb33952
+  titleHash: cece365f4020ad2f8f0eb206f5d11c431d73d4b346e68f96eb03c49bfab5d861
+  solutionHash: 0271a0947fa5888d73555802d96d9960d7d2be4dbb1c9c63ab17320d7685b64d
+  sourceHash: 0febbed981d1222f007190364257a85b296650aa272d0940b8c267250494b0d6
 draft: false
 ---
 Ошибка «Failed to start gdm.service» возникает, когда Ubuntu не может запустить графический интерфейс (GDM). Чаще всего это происходит из-за нехватки места на системном диске или из-за случайного удаления ключевого пакета `ubuntu-session` при установке другой программы.

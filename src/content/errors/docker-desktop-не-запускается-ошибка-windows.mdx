@@ -1,65 +1,99 @@
 ---
 title: 'Docker Desktop не запускается в Windows: исправление ошибок WSL'
-category: 'Разработка'
+category: Docker и контейнеры
 tags:
-  - 'Docker'
-  - 'WSL'
-  - 'Windows'
-  - 'виртуализация'
-  - 'контейнеры'
+  - Docker
+  - WSL
+  - Windows
+  - виртуализация
+  - контейнеры
 description: >-
-  Пошаговое руководство по исправлению ошибок Docker Desktop в Windows: проблемы с WSL2, виртуализацией, дистрибутивами, движком и настройками системы.
+  Пошаговое руководство по исправлению ошибок Docker Desktop в Windows: проблемы с WSL2,
+  виртуализацией, дистрибутивами, движком и настройками системы.
 symptoms:
-  - 'Docker Desktop показывает ошибку при запуске'
-  - 'Ошибка «deploying WSL2 distributions» или «The network name cannot be found»'
-  - 'Docker зависает на «Starting the Docker Engine..»'
-  - 'Ошибка «WSL2 is not supported with your current machine configuration»'
+  - Docker Desktop показывает ошибку при запуске
+  - Ошибка «deploying WSL2 distributions» или «The network name cannot be found»
+  - Docker зависает на «Starting the Docker Engine..»
+  - Ошибка «WSL2 is not supported with your current machine configuration»
   - 'Контейнеры не запускаются, Docker не реагирует'
 causes:
-  - 'Виртуализация отключена в BIOS'
-  - 'Hyper-V или WSL2 не установлены или повреждены'
-  - 'Конфликт версий Docker Desktop и WSL'
-  - 'Повреждённый дистрибутив docker-desktop'
-  - 'Антивирус блокирует компоненты Docker'
-  - 'Недостаточно прав для запуска'
+  - Виртуализация отключена в BIOS
+  - Hyper-V или WSL2 не установлены или повреждены
+  - Конфликт версий Docker Desktop и WSL
+  - Повреждённый дистрибутив docker-desktop
+  - Антивирус блокирует компоненты Docker
+  - Недостаточно прав для запуска
 steps:
   - title: Проверьте виртуализацию в BIOS
     body: >-
-      Docker Desktop требует включённую виртуализацию (Intel VT-x или AMD-V). Перезагрузите компьютер и войдите в BIOS (обычно Del, F2 или F10 при загрузке). Найдите раздел CPU или Advanced и убедитесь, что виртуализация включена. Если вы не видите эту опцию, возможно, она уже включена. Проверить в Windows: откройте Диспетчер задач (Ctrl+Shift+Esc) → вкладка «Производительность» → CPU → «Виртуализация» должна быть «Включена». Также убедитесь, что Virtualization-based Security включена в реестре: HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceGuard → EnableVirtualizationBasedSecurity = 1.
+      Docker Desktop требует включённую виртуализацию (Intel VT-x или AMD-V). Перезагрузите
+      компьютер и войдите в BIOS (обычно Del, F2 или F10 при загрузке). Найдите раздел CPU или
+      Advanced и убедитесь, что виртуализация включена. Если вы не видите эту опцию, возможно, она
+      уже включена. Проверить в Windows: откройте Диспетчер задач (Ctrl+Shift+Esc) → вкладка
+      «Производительность» → CPU → «Виртуализация» должна быть «Включена». Также убедитесь, что
+      Virtualization-based Security включена в реестре:
+      HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\DeviceGuard →
+      EnableVirtualizationBasedSecurity = 1.
     command: null
     image: null
   - title: Установите WSL2 и Hyper-V
     body: >-
-      Откройте PowerShell от администратора и выполните: wsl --install. Это установит WSL2 и Ubuntu по умолчанию. Если WSL уже установлен, обновите его: wsl --update. Для включения Hyper-V выполните: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -All -NoRestart. После установки перезагрузите компьютер. Если WSL2 требует компонент «Virtual Machine Platform», установите его: dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart.
+      Откройте PowerShell от администратора и выполните: wsl --install. Это установит WSL2 и Ubuntu
+      по умолчанию. Если WSL уже установлен, обновите его: wsl --update. Для включения Hyper-V
+      выполните: Enable-WindowsOptionalFeature -Online -FeatureName Microsoft-Hyper-V-All -All
+      -NoRestart. После установки перезагрузите компьютер. Если WSL2 требует компонент «Virtual
+      Machine Platform», установите его: dism.exe /online /enable-feature
+      /featurename:VirtualMachinePlatform /all /norestart.
     command: |-
       wsl --install
       wsl --update
     image: null
   - title: Удалите и пересоздайте дистрибутив docker-desktop
     body: >-
-      Остановите Docker Desktop полностью (правой кнопкой по иконке в трее → Quit Docker Desktop). Откройте командную строку от администратора и выполните: wsl --unregister docker-desktop. Это удалит дистрибутив Docker (данные контейнеров не удалятся). Запустите Docker Desktop снова — он автоматически создаст новый дистрибутив. Если ошибка сохраняется, также выполните: wsl --shutdown для полной остановки WSL перед перезапуском Docker.
+      Остановите Docker Desktop полностью (правой кнопкой по иконке в трее → Quit Docker Desktop).
+      Откройте командную строку от администратора и выполните: wsl --unregister docker-desktop. Это
+      удалит дистрибутив Docker (данные контейнеров не удалятся). Запустите Docker Desktop снова —
+      он автоматически создаст новый дистрибутив. Если ошибка сохраняется, также выполните: wsl
+      --shutdown для полной остановки WSL перед перезапуском Docker.
     command: |-
       wsl --unregister docker-desktop
       wsl --shutdown
     image: null
   - title: Обновите или откатите Docker Desktop
     body: >-
-      Некоторые версии Docker Desktop содержат ошибки совместимости с WSL. Проверьте последнюю стабильную версию на сайте Docker. Если у вас последняя версия и она не работает, попробуйте откатить на предыдущую стабильную: удалите текущую версию и установите более раннюю (например, 4.32.0 вместо 4.33.1). Также обновите WSL: wsl --update --pre-release для получения последней предварительной версии с исправлениями.
+      Некоторые версии Docker Desktop содержат ошибки совместимости с WSL. Проверьте последнюю
+      стабильную версию на сайте Docker. Если у вас последняя версия и она не работает, попробуйте
+      откатить на предыдущую стабильную: удалите текущую версию и установите более раннюю (например,
+      4.32.0 вместо 4.33.1). Также обновите WSL: wsl --update --pre-release для получения последней
+      предварительной версии с исправлениями.
     command: null
     image: null
   - title: Проверьте права доступа
     body: >-
-      Docker Desktop требует права администратора для работы с WSL и Hyper-V. Запускайте Docker от имени администратора: правой кнопкой по ярлыку Docker Desktop → «Запуск от имени администратора». Если Docker должен запускаться автоматически при входе, настройте через Планировщик заданий: создайте задачу с триггером «При входе в систему» и действием «Запустить программу» с параметром «Запуск от имени администратора». Также проверьте, что антивирус не блокирует компоненты Docker — добавьте исключения для Docker Desktop и WSL.
+      Docker Desktop требует права администратора для работы с WSL и Hyper-V. Запускайте Docker от
+      имени администратора: правой кнопкой по ярлыку Docker Desktop → «Запуск от имени
+      администратора». Если Docker должен запускаться автоматически при входе, настройте через
+      Планировщик заданий: создайте задачу с триггером «При входе в систему» и действием «Запустить
+      программу» с параметром «Запуск от имени администратора». Также проверьте, что антивирус не
+      блокирует компоненты Docker — добавьте исключения для Docker Desktop и WSL.
     command: null
     image: null
   - title: Сбросьте сетевые настройки Docker
     body: >-
-      Откройте PowerShell от администратора и выполните: netsh winsock reset. Затем перезагрузите компьютер. Если Docker использует VPN или прокси, временно отключите их. Проверьте настройки DNS: переключитесь на DNS Google (8.8.8.8) в настройках сети. Если Docker не может подключиться к реестру образов, попробуйте использовать зеркало (mirror) в настройках Docker Engine: добавьте "registry-mirrors": ["https://mirror.gcr.io"] в файл конфигурации.
+      Откройте PowerShell от администратора и выполните: netsh winsock reset. Затем перезагрузите
+      компьютер. Если Docker использует VPN или прокси, временно отключите их. Проверьте настройки
+      DNS: переключитесь на DNS Google (8.8.8.8) в настройках сети. Если Docker не может
+      подключиться к реестру образов, попробуйте использовать зеркало (mirror) в настройках Docker
+      Engine: добавьте "registry-mirrors": ["https://mirror.gcr.io"] в файл конфигурации.
     command: null
     image: null
   - title: Переустановите Docker Desktop
     body: >-
-      Если ничего не помогло, выполните полную переустановку. Удалите Docker Desktop через Параметры → Приложения. Удалите остаточные папки: %LOCALAPPDATA%\Docker, %APPDATA%\Docker, %ProgramData%\DockerDesktop. Перезагрузите компьютер. Скачайте последнюю версию Docker Desktop с официального сайта и установите. При установке убедитесь, что включена опция «Use WSL 2 based engine». После установки запустите Docker и дождитесь инициализации.
+      Если ничего не помогло, выполните полную переустановку. Удалите Docker Desktop через Параметры
+      → Приложения. Удалите остаточные папки: %LOCALAPPDATA%\Docker, %APPDATA%\Docker,
+      %ProgramData%\DockerDesktop. Перезагрузите компьютер. Скачайте последнюю версию Docker Desktop
+      с официального сайта и установите. При установке убедитесь, что включена опция «Use WSL 2
+      based engine». После установки запустите Docker и дождитесь инициализации.
     command: null
     image: null
 updatedAt: '2026-06-02'
@@ -67,22 +101,22 @@ publishedAt: '2026-06-02'
 readingTime: 6
 popularityScore: 78
 sources:
-  - title: 'Docker Desktop for Windows Having Problems When Trying to Start Up'
+  - title: Docker Desktop for Windows Having Problems When Trying to Start Up
     url: 'https://github.com/docker/for-win/issues/14250'
     accessedAt: '2026-06-02'
-  - title: 'Docker Desktop unexpected error on startup'
+  - title: Docker Desktop unexpected error on startup
     url: 'https://github.com/docker/for-win/issues/14294'
     accessedAt: '2026-06-02'
-  - title: 'Docker Engine not starting'
+  - title: Docker Engine not starting
     url: 'https://github.com/docker/for-win/issues/14207'
     accessedAt: '2026-06-02'
-  - title: 'Docker Desktop - Unexpected WSL error'
+  - title: Docker Desktop - Unexpected WSL error
     url: 'https://github.com/docker/for-win/issues/14030'
     accessedAt: '2026-06-02'
 dedupe:
-  titleHash: a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4
-  solutionHash: b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5
-  sourceHash: c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6
+  titleHash: cd2ccc127c35c0d5f1d29503d8f4dfe0c251e6422bc95320c791b1d080623543
+  solutionHash: 26fd1474735039f7e7d801ceda31a86c62d5907630dd0584a52a747d38e5c91e
+  sourceHash: 4734542669cece53c28562dba292679cb433d7509af282954eb82d9641de0929
 draft: false
 ---
 Docker Desktop в Windows зависит от WSL2 (Windows Subsystem for Linux 2) и виртуализации. Если один из компонентов не работает, Docker не запустится. Чаще всего проблема решается пересозданием дистрибутива WSL или обновлением компонентов.

@@ -1,62 +1,89 @@
 ---
 title: 'Docker контейнер падает: исправление crash loop'
-category: 'DevOps'
+category: DevOps и облака
 tags:
-  - 'Docker'
-  - 'контейнеры'
-  - 'crash'
-  - 'exit code'
-  - 'DevOps'
+  - Docker
+  - контейнеры
+  - crash
+  - exit code
+  - DevOps
 description: >-
-  Пошаговое руководство по устранению проблем с Docker контейнерами: анализ exit code, OOM kill, логирование, восстановление после crash loop.
+  Пошаговое руководство по устранению проблем с Docker контейнерами: анализ exit code, OOM kill,
+  логирование, восстановление после crash loop.
 symptoms:
-  - 'Контейнер постоянно перезапускается (crash loop)'
-  - 'Docker контейнер завершается с exit code 1'
-  - 'Контейнер падает сразу после запуска'
-  - 'Ошибка OOMKilled при нехватке памяти'
+  - Контейнер постоянно перезапускается (crash loop)
+  - Docker контейнер завершается с exit code 1
+  - Контейнер падает сразу после запуска
+  - Ошибка OOMKilled при нехватке памяти
   - 'Контейнер работает, но health check не проходит'
-  - 'Контейнер завершается с exit code 137'
+  - Контейнер завершается с exit code 137
 causes:
-  - 'Недостаточно памяти выделено контейнеру (OOM kill)'
-  - 'Ошибка в коде приложения (unhandled exception)'
-  - 'Отсутствует конфигурационный файл или переменная окружения'
+  - Недостаточно памяти выделено контейнеру (OOM kill)
+  - Ошибка в коде приложения (unhandled exception)
+  - Отсутствует конфигурационный файл или переменная окружения
   - 'Недоступна зависимость (база данных, API, DNS)'
-  - 'Неправильный entrypoint или cmd в Dockerfile'
-  - 'Истекло время ожидания health check'
+  - Неправильный entrypoint или cmd в Dockerfile
+  - Истекло время ожидания health check
 steps:
   - title: Определите exit code контейнера
     body: >-
-      Exit code — главный диагностический сигнал. Выполните: docker inspect --format '{{.State.ExitCode}} OOMKilled={{.State.OOMKilled}}' container_name. Код 137 означает SIGKILL (часто OOM kill), 139 — SIGSEGV (segfault), 143 — SIGTERM (graceful stop), 1 — общая ошибка приложения, 126/127 — проблема с командой или правами. Если exit code 137 и OOMKilled=true — контейнеру не хватает памяти.
-    command: docker inspect --format '{{.State.ExitCode}} OOMKilled={{.State.OOMKilled}}' container_name
+      Exit code — главный диагностический сигнал. Выполните: docker inspect --format
+      '{{.State.ExitCode}} OOMKilled={{.State.OOMKilled}}' container_name. Код 137 означает SIGKILL
+      (часто OOM kill), 139 — SIGSEGV (segfault), 143 — SIGTERM (graceful stop), 1 — общая ошибка
+      приложения, 126/127 — проблема с командой или правами. Если exit code 137 и OOMKilled=true —
+      контейнеру не хватает памяти.
+    command: 'docker inspect --format ''{{.State.ExitCode}} OOMKilled={{.State.OOMKilled}}'' container_name'
     image: null
   - title: Проверьте логи контейнера
     body: >-
-      Логи содержат информацию о причине падения. Выполните: docker logs --tail 100 container_name. Ищите stack traces, ошибки подключения, сообщения о нехватке памяти. Если контейнер перезапускается слишком быстро и логи перезаписываются — приостановите перезапуск: docker update --restart=no container_name. Затем запустите вручную и изучите логи.
+      Логи содержат информацию о причине падения. Выполните: docker logs --tail 100 container_name.
+      Ищите stack traces, ошибки подключения, сообщения о нехватке памяти. Если контейнер
+      перезапускается слишком быстро и логи перезаписываются — приостановите перезапуск: docker
+      update --restart=no container_name. Затем запустите вручную и изучите логи.
     command: docker logs --tail 100 container_name
     image: null
   - title: Проверьте потребление ресурсов
     body: >-
-      Мониторьте использование памяти и CPU: docker stats --no-stream --format "table {{.Name}}\t{{.MemUsage}}\t{{.MemPerc}}" container_name. Если память на пределе лимита — увеличьте его: docker update --memory=2g container_name. Для проверки OOM событий в ядре: dmesg | grep -i "oom\|killed process". Проверьте disk space: df -h /var/lib/docker/.
+      Мониторьте использование памяти и CPU: docker stats --no-stream --format "table
+      {{.Name}}\t{{.MemUsage}}\t{{.MemPerc}}" container_name. Если память на пределе лимита —
+      увеличьте его: docker update --memory=2g container_name. Для проверки OOM событий в ядре:
+      dmesg | grep -i "oom\|killed process". Проверьте disk space: df -h /var/lib/docker/.
     command: docker stats --no-stream
     image: null
   - title: Проверьте конфигурацию entrypoint и cmd
     body: >-
-      Inspect entrypoint: docker inspect --format 'Entrypoint={{.Config.Entrypoint}} Cmd={{.Config.Cmd}}' container_name. Если entrypoint — shell script с set -e, любая ошибка приведёт к немедленному выходу. Проверьте скрипт: docker run --rm -it --entrypoint sh image_name. Запустите команды по одной, чтобы найти проблемную. Для long-running сервиса используйте exec в последней строке entrypoint.
-    command: docker inspect --format 'Entrypoint={{.Config.Entrypoint}} Cmd={{.Config.Cmd}}' container_name
+      Inspect entrypoint: docker inspect --format 'Entrypoint={{.Config.Entrypoint}}
+      Cmd={{.Config.Cmd}}' container_name. Если entrypoint — shell script с set -e, любая ошибка
+      приведёт к немедленному выходу. Проверьте скрипт: docker run --rm -it --entrypoint sh
+      image_name. Запустите команды по одной, чтобы найти проблемную. Для long-running сервиса
+      используйте exec в последней строке entrypoint.
+    command: 'docker inspect --format ''Entrypoint={{.Config.Entrypoint}} Cmd={{.Config.Cmd}}'' container_name'
     image: null
   - title: Проверьте зависимости и сеть
     body: >-
-      Если логи показывают connection refused или DNS errors — проверьте доступность зависимостей изнутри контейнера: docker exec -it container_name ping db_host. Проверьте DNS: docker exec -it container_name nslookup api.service. Убедитесь, что все required services запущены. Используйте docker-compose depends_on или init containers для правильного порядка запуска.
+      Если логи показывают connection refused или DNS errors — проверьте доступность зависимостей
+      изнутри контейнера: docker exec -it container_name ping db_host. Проверьте DNS: docker exec
+      -it container_name nslookup api.service. Убедитесь, что все required services запущены.
+      Используйте docker-compose depends_on или init containers для правильного порядка запуска.
     command: docker exec -it container_name ping db_host
     image: null
   - title: Увеличьте лимит памяти или исправьте утечку
     body: >-
-      Если контейнер падает из-за OOM kill — временно увеличьте лимит: docker update --memory=4g --memory-swap=4g container_name. Для JVM приложений установите heap на 75% от лимита контейнера. Если память растёт со временем — это утечка. Используйте docker stats для мониторинга. Для long-running контейнеров настройте лог ротацию: --log-opt max-size=10m --log-opt max-file=3.
+      Если контейнер падает из-за OOM kill — временно увеличьте лимит: docker update --memory=4g
+      --memory-swap=4g container_name. Для JVM приложений установите heap на 75% от лимита
+      контейнера. Если память растёт со временем — это утечка. Используйте docker stats для
+      мониторинга. Для long-running контейнеров настройте лог ротацию: --log-opt max-size=10m
+      --log-opt max-file=3.
     command: docker update --memory=4g container_name
     image: null
   - title: Восстановите после crash loop
     body: >-
-      Если контейнер в бесконечном crash loop — остановите перезапуск для анализа: docker update --restart=no container_name. Проверьте количество перезапусков: docker inspect --format '{{.RestartCount}}' container_name. Исправьте корневую причину (код, конфигурация, зависимости). Затем восстановите политику: docker update --restart=unless-stopped container_name. Для docker-compose используйте пересоздание: docker-compose up -d --force-recreate.
+      Если контейнер в бесконечном crash loop — остановите перезапуск для анализа: docker update
+      --restart=no container_name. Проверьте количество перезапусков: docker inspect --format
+      '{{.RestartCount}}' container_name. Исправьте корневую причину (код, конфигурация,
+      зависимости). Затем восстановите политику: docker update --restart=unless-stopped
+      container_name. Для docker-compose используйте пересоздание: docker-compose up -d
+      --force-recreate.
     command: docker update --restart=no container_name
     image: null
 updatedAt: '2026-06-02'
@@ -64,22 +91,23 @@ publishedAt: '2026-06-02'
 readingTime: 9
 popularityScore: 86
 sources:
-  - title: "Docker container keeps restarting: causes, checks, and fixes"
+  - title: 'Docker container keeps restarting: causes, checks, and fixes'
     url: 'https://www.netdata.cloud/guides/docker/docker-container-keeps-restarting/'
     accessedAt: '2026-06-02'
-  - title: "Docker exit code 1: application errors and how to find them"
+  - title: 'Docker exit code 1: application errors and how to find them'
     url: 'https://www.netdata.cloud/guides/docker/docker-exit-code-1/'
     accessedAt: '2026-06-02'
-  - title: "How to Interpret All Docker Container Exit Codes"
-    url: 'https://oneuptime.com/blog/post/2026-02-08-how-to-interpret-all-docker-container-exit-codes/view'
+  - title: How to Interpret All Docker Container Exit Codes
+    url: >-
+      https://oneuptime.com/blog/post/2026-02-08-how-to-interpret-all-docker-container-exit-codes/view
     accessedAt: '2026-06-02'
-  - title: "Debugging and Troubleshooting Docker"
+  - title: Debugging and Troubleshooting Docker
     url: 'https://opslog.dev/blog/debugging-and-troubleshooting-docker'
     accessedAt: '2026-06-02'
 dedupe:
-  titleHash: d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1
-  solutionHash: e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2
-  sourceHash: f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3
+  titleHash: f969cac2d660425454e59df279b2b57d2d198c8b3c84803e152ab29374bf205f
+  solutionHash: 85a4b907b956f697297133178c7f7f3a2eb8c03d41ca03e3c6d791e3cbaa47c3
+  sourceHash: 4db7a6265404d371dc75ba2b3be90de9c1ceb9d1961d16e3b1b0a297fbad056c
 draft: false
 ---
 Контейнер в crash loop — это не самовосстановление, а проблема, требующая вмешательства. Docker restart policy маскирует корневую причину: OOM kill, segfault, ошибка конфигурации или недоступная зависимость. Ключ к решению — анализ exit code и логов.

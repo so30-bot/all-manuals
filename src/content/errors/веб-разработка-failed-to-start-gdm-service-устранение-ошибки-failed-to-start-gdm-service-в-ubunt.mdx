@@ -3,45 +3,44 @@ title: Устранение ошибки "Failed to start gdm.service" в Ubuntu
 errorId: failed-to-start-gdm-service
 category: Веб-разработка
 tags:
-  - 'ubuntu'
-  - 'gdm.service'
-  - 'boot error'
-  - 'linux'
-  - 'systemd'
+  - ubuntu
+  - gdm.service
+  - boot error
+  - linux
+  - systemd
 description: >-
-  Инструкция по устранению ошибки "Failed to start gdm.service" (Не удалось
-  запустить службу GDM), которая может препятствовать загрузке Ubuntu.
+  Инструкция по устранению ошибки "Failed to start gdm.service" (Не удалось запустить службу GDM),
+  которая может препятствовать загрузке Ubuntu.
 symptoms:
-  - 'Система Ubuntu не загружается. При загрузке появляется сообщение об ошибке "failed to start gdm.service - [FAILED] Failed to start Gnome Display Manager error.'
-  - 'Экран остается черным после появления сообщения об ошибке.'
+  - >-
+    Система Ubuntu не загружается. При загрузке появляется сообщение об ошибке "failed to start
+    gdm.service - [FAILED] Failed to start Gnome Display Manager error.
+  - Экран остается черным после появления сообщения об ошибке.
 causes:
   - 'Недостаточно места на диске, что привело к сбою установки обновлений.'
-  - 'Проблемы с установкой пакетов или обновлений.'
+  - Проблемы с установкой пакетов или обновлений.
   - 'Конфликты, вызванные установкой стороннего ПО (например, AppImage с fuse2).'
-  - 'Некорректные пути или форматирование в файлах конфигурации systemd (реже).'
+  - Некорректные пути или форматирование в файлах конфигурации systemd (реже).
 steps:
   - title: Освободите место на диске и переустановите пакет рабочего стола
     body: >-
-      Часто ошибка возникает из-за нехватки места на диске. Перейдите в консоль
-      восстановления, удалите ненужные файлы (например, из папки "Downloads"), а
-      затем переустановите пакет рабочего стола Ubuntu.
+      Часто ошибка возникает из-за нехватки места на диске. Перейдите в консоль восстановления,
+      удалите ненужные файлы (например, из папки "Downloads"), а затем переустановите пакет рабочего
+      стола Ubuntu.
     command: sudo apt install --reinstall ubuntu-desktop
     image: null
   - title: Перезапустите службу GDM и систему
     body: >-
-      После выполнения предыдущего шага попробуйте запустить службу вручную.
-      Если это не поможет, перезагрузите компьютер.
+      После выполнения предыдущего шага попробуйте запустить службу вручную. Если это не поможет,
+      перезагрузите компьютер.
     command: startx && reboot
     image: null
-  - title: >-
-      Проверьте права доступа и конфигурацию служб systemd (для продвинутых
-      пользователей)
+  - title: Проверьте права доступа и конфигурацию служб systemd (для продвинутых пользователей)
     body: >-
-      Если предыдущие шаги не помогли, возможно, проблема связана с правами
-      доступа к файлам или некорректной конфигурацией служб systemd. Убедитесь,
-      что все пути в файлах `.service` указаны абсолютно, и проверьте права
-      доступа к исполняемым файлам. Также может потребоваться включить "linger"
-      для пользователя, если служба запускается от его имени.
+      Если предыдущие шаги не помогли, возможно, проблема связана с правами доступа к файлам или
+      некорректной конфигурацией служб systemd. Убедитесь, что все пути в файлах `.service` указаны
+      абсолютно, и проверьте права доступа к исполняемым файлам. Также может потребоваться включить
+      "linger" для пользователя, если служба запускается от его имени.
     command: sudo loginctl enable-linger <имя_пользователя>
     image: null
 updatedAt: '2026-05-30'
@@ -50,27 +49,24 @@ readingTime: 4
 popularityScore: 63
 sources:
   - title: >-
-      24.04 - Can't boot Ubuntu - I get a failed to start gdm.service - [FAILED]
-      Failed to start Gnome Display Manager error - Ask Ubuntu
+      24.04 - Can't boot Ubuntu - I get a failed to start gdm.service - [FAILED] Failed to start
+      Gnome Display Manager error - Ask Ubuntu
     url: >-
       https://askubuntu.com/questions/1540679/cant-boot-ubuntu-i-get-a-failed-to-start-gdm-service-failed-failed-to-sta
     accessedAt: '2026-05-30'
   - title: >-
-      ubuntu - systemd error "failed to start service: unit service is not
-      loaded properly: exec format error" - Stack Overflow
+      ubuntu - systemd error "failed to start service: unit service is not loaded properly: exec
+      format error" - Stack Overflow
     url: >-
       https://stackoverflow.com/questions/51858065/systemd-error-failed-to-start-service-unit-service-is-not-loaded-properly-exe
     accessedAt: '2026-05-30'
-  - title: >-
-      ubuntu - systemd - service fails to start on server boot - Unix & Linux
-      Stack Exchange
-    url: >-
-      https://unix.stackexchange.com/questions/781764/systemd-service-fails-to-start-on-server-boot
+  - title: ubuntu - systemd - service fails to start on server boot - Unix & Linux Stack Exchange
+    url: 'https://unix.stackexchange.com/questions/781764/systemd-service-fails-to-start-on-server-boot'
     accessedAt: '2026-05-30'
 dedupe:
-  titleHash: 8b4ddd48e451d8fc6de9697497f615914a04f40a90452698546d2cda40e11160
-  solutionHash: babda75c33e329baf0d811b54d90429ebfcf3aaadb43c9774118c7dc6be78947
-  sourceHash: 092ba93e739fa80752e20acc08b664722ff90904b81be063103376ccca8c86c8
+  titleHash: 921a0fad1646f98ca28933c8847483baec30cb5e6c4e72b27f5662a7faa1aea3
+  solutionHash: 486a3439c567b78910c5a3e7d45cd319eb7cb6166a6738e1e622cccab2e987b8
+  sourceHash: 0febbed981d1222f007190364257a85b296650aa272d0940b8c267250494b0d6
 draft: false
 ---
 Ошибка "Failed to start gdm.service" (Не удалось запустить службу GDM) в Ubuntu обычно означает, что менеджер входа GNOME Display Manager (GDM) не может запуститься, что приводит к невозможности загрузки графического интерфейса. Это может произойти по нескольким причинам, чаще всего из-за нехватки места на диске во время установки обновлений или из-за проблем с самими пакетами рабочего стола.

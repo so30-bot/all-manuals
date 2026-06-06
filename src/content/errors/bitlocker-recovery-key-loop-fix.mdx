@@ -1,100 +1,146 @@
 ---
 title: 'BitLocker постоянно просит recovery key: причины и решение'
-category: 'Безопасность'
+category: Безопасность
 tags:
-  - 'BitLocker'
-  - 'Windows'
-  - 'TPM'
-  - 'Recovery Key'
-  - 'шифрование'
+  - BitLocker
+  - Windows
+  - TPM
+  - Recovery Key
+  - шифрование
 description: >-
-  Почему BitLocker каждый запуск просит ключ восстановления и как исправить цикл recovery key после обновления BIOS, TPM, Secure Boot, изменения загрузки или ремонта Windows.
+  Почему BitLocker каждый запуск просит ключ восстановления и как исправить цикл recovery key после
+  обновления BIOS, TPM, Secure Boot, изменения загрузки или ремонта Windows.
 symptoms:
-  - 'Windows при каждой загрузке просит BitLocker recovery key'
+  - Windows при каждой загрузке просит BitLocker recovery key
   - 'После ввода ключа система загружается, но запрос возвращается снова'
-  - 'Проблема появилась после обновления BIOS или UEFI'
-  - 'Запрос recovery key появился после изменения Secure Boot или TPM'
+  - Проблема появилась после обновления BIOS или UEFI
+  - Запрос recovery key появился после изменения Secure Boot или TPM
   - 'BitLocker считает, что изменилась цепочка загрузки'
 causes:
   - 'Изменились параметры TPM, Secure Boot или UEFI'
-  - 'BIOS обновился без предварительной приостановки BitLocker'
-  - 'Изменился порядок загрузки или подключены новые устройства'
-  - 'Повреждена привязка защитников BitLocker к TPM'
-  - 'Windows обнаруживает изменение загрузочного окружения'
+  - BIOS обновился без предварительной приостановки BitLocker
+  - Изменился порядок загрузки или подключены новые устройства
+  - Повреждена привязка защитников BitLocker к TPM
+  - Windows обнаруживает изменение загрузочного окружения
 steps:
-  - title: 'Сохраните recovery key перед изменениями'
+  - title: Сохраните recovery key перед изменениями
     body: >-
-      Перед любыми действиями убедитесь, что recovery key сохранен в учетной записи Microsoft, Azure AD, распечатан или записан. Не продолжайте диагностику, если ключа нет: при ошибке TPM или BIOS можно потерять доступ к данным.
+      Перед любыми действиями убедитесь, что recovery key сохранен в учетной записи Microsoft, Azure
+      AD, распечатан или записан. Не продолжайте диагностику, если ключа нет: при ошибке TPM или
+      BIOS можно потерять доступ к данным.
     command: 'manage-bde -protectors -get C:'
     image: null
-  - title: 'Проверьте состояние BitLocker'
+  - title: Проверьте состояние BitLocker
     body: >-
-      Команда status покажет, включена ли защита, какой процент зашифрован и не находится ли диск в suspended состоянии. Если защита включена, но recovery key запрашивается каждый раз, проблема обычно в TPM-защитнике или загрузочной конфигурации.
+      Команда status покажет, включена ли защита, какой процент зашифрован и не находится ли диск в
+      suspended состоянии. Если защита включена, но recovery key запрашивается каждый раз, проблема
+      обычно в TPM-защитнике или загрузочной конфигурации.
     command: 'manage-bde -status C:'
     image: null
-  - title: 'Приостановите и возобновите защиту'
+  - title: Приостановите и возобновите защиту
     body: >-
-      Самый безопасный способ после изменений BIOS — один раз приостановить BitLocker, перезагрузиться и снова включить защиту. Windows заново запишет ожидаемое состояние загрузки. Этот метод часто исправляет цикл recovery key без расшифровки диска.
+      Самый безопасный способ после изменений BIOS — один раз приостановить BitLocker,
+      перезагрузиться и снова включить защиту. Windows заново запишет ожидаемое состояние загрузки.
+      Этот метод часто исправляет цикл recovery key без расшифровки диска.
     command: |-
       manage-bde -protectors -disable C: -RebootCount 1
       shutdown /r /t 0
     image: null
-  - title: 'Проверьте TPM и Secure Boot'
+  - title: Проверьте TPM и Secure Boot
     body: >-
-      Войдите в BIOS/UEFI и убедитесь, что TPM включен, не очищен и Secure Boot находится в ожидаемом режиме. Не нажимайте Clear TPM без необходимости. Очистка TPM может потребовать recovery key и повлиять на другие функции безопасности.
-    command: 'tpm.msc'
+      Войдите в BIOS/UEFI и убедитесь, что TPM включен, не очищен и Secure Boot находится в
+      ожидаемом режиме. Не нажимайте Clear TPM без необходимости. Очистка TPM может потребовать
+      recovery key и повлиять на другие функции безопасности.
+    command: tpm.msc
     image: null
-  - title: 'Верните порядок загрузки'
+  - title: Верните порядок загрузки
     body: >-
-      BitLocker реагирует на изменения цепочки загрузки. Если после ремонта, установки Linux, подключения USB-диска или изменения Boot Order запрос стал постоянным, верните Windows Boot Manager первым устройством загрузки и отключите лишние внешние накопители.
-    command: 'bcdedit /enum firmware'
+      BitLocker реагирует на изменения цепочки загрузки. Если после ремонта, установки Linux,
+      подключения USB-диска или изменения Boot Order запрос стал постоянным, верните Windows Boot
+      Manager первым устройством загрузки и отключите лишние внешние накопители.
+    command: bcdedit /enum firmware
     image: null
-  - title: 'Пересоздайте TPM-защитник'
+  - title: Пересоздайте TPM-защитник
     body: >-
-      Если простая приостановка не помогла, можно удалить и заново добавить TPM-защитник. Делайте это только при наличии recovery key. После пересоздания перезагрузите компьютер и проверьте, исчез ли повторный запрос ключа.
+      Если простая приостановка не помогла, можно удалить и заново добавить TPM-защитник. Делайте
+      это только при наличии recovery key. После пересоздания перезагрузите компьютер и проверьте,
+      исчез ли повторный запрос ключа.
     command: |-
       manage-bde -protectors -delete C: -type TPM
       manage-bde -protectors -add C: -tpm
     image: null
-  - title: 'Проверьте политики организации'
+  - title: Проверьте политики организации
     body: >-
-      На рабочих ноутбуках BitLocker может управляться Intune, Group Policy или доменом. Если запрос появился после корпоративного обновления BIOS, проверьте устройство в Intune или обратитесь к администратору. Самостоятельное изменение TPM может нарушить политику компании.
-    command: 'gpresult /h bitlocker-policy.html'
+      На рабочих ноутбуках BitLocker может управляться Intune, Group Policy или доменом. Если запрос
+      появился после корпоративного обновления BIOS, проверьте устройство в Intune или обратитесь к
+      администратору. Самостоятельное изменение TPM может нарушить политику компании.
+    command: gpresult /h bitlocker-policy.html
     image: null
 updatedAt: '2026-06-04'
 publishedAt: '2026-06-04'
 readingTime: 9
 popularityScore: 86
 sources:
-  - title: 'Microsoft Learn - BitLocker recovery guide'
-    url: 'https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/recovery-guide-plan'
+  - title: Microsoft Learn - BitLocker recovery guide
+    url: >-
+      https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/recovery-guide-plan
     accessedAt: '2026-06-04'
-  - title: 'Microsoft Learn - BitLocker basic deployment'
-    url: 'https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/basic-deployment'
+  - title: Microsoft Learn - BitLocker basic deployment
+    url: >-
+      https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/basic-deployment
     accessedAt: '2026-06-04'
-  - title: 'Microsoft Learn - manage-bde command-line reference'
+  - title: Microsoft Learn - manage-bde command-line reference
     url: 'https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/manage-bde'
     accessedAt: '2026-06-04'
-  - title: 'Microsoft Support - Find your BitLocker recovery key'
-    url: 'https://support.microsoft.com/windows/find-your-bitlocker-recovery-key-6b71ad27-0b89-ea08-f143-056f5ab347d6'
+  - title: Microsoft Support - Find your BitLocker recovery key
+    url: >-
+      https://support.microsoft.com/windows/find-your-bitlocker-recovery-key-6b71ad27-0b89-ea08-f143-056f5ab347d6
     accessedAt: '2026-06-04'
 dedupe:
-  titleHash: '4444444444444444444444444444444444444444444444444444444444444441'
-  solutionHash: '4444444444444444444444444444444444444444444444444444444444444442'
-  sourceHash: '4444444444444444444444444444444444444444444444444444444444444443'
+  titleHash: 13e159ba2892ac37243100f4e185dfc9650a8b9155156f4aaef1a4fe4247561c
+  solutionHash: cab73ef87ce0ee9214c1555e6dae299392a112a7475c530bad9e33e592e356dc
+  sourceHash: f4c7e773e990eae6e98498f12a5b67a8bf90d4b4881f073dbebe748dd20ad8a0
 draft: false
 ---
 BitLocker запрашивает recovery key, когда считает, что загрузочная среда изменилась и автоматическая разблокировка через TPM больше небезопасна. Это может быть нормальной реакцией после обновления BIOS, изменения Secure Boot, сброса TPM или подключения другого загрузочного устройства.
 
-Если ключ спрашивается один раз после обновления, это не обязательно проблема. Но если запрос появляется при каждой загрузке, Windows не может сохранить новое доверенное состояние. В таком случае помогает приостановка защиты, перезагрузка и повторное включение BitLocker.
+Если ключ спрашивается один раз после обновления, это не обязательно проблема. Но если запрос появляется при каждой загрузке, Windows не может сохранить новое доверенное состояние. В таком случае помогает приостановка защиты, перезагрузка и повторное включение BitLocker: TPM заново привязывается к текущей цепочке загрузки.
 
-Главное правило: сначала убедитесь, что recovery key доступен. Любые операции с TPM, BIOS и защитниками BitLocker опасны, если ключ потерян. На рабочих устройствах дополнительно проверьте политики организации.
+Главное правило: сначала убедитесь, что recovery key доступен. Любые операции с TPM, BIOS и защитниками BitLocker опасны, если ключ потерян. На рабочих устройствах дополнительно проверьте политики организации: ключ может храниться в Entra ID, Intune, Active Directory или у администратора.
 
-Не расшифровывайте диск полностью без необходимости. В большинстве случаев цикл recovery key исправляется пересинхронизацией TPM-защитника, а не отключением шифрования.
+Не расшифровывайте диск полностью без необходимости. В большинстве случаев цикл recovery key исправляется пересинхронизацией TPM-защитника, а не отключением шифрования. Полная расшифровка занимает время, увеличивает риск при сбое питания и не устраняет причину, если проблема в Boot Order или Secure Boot.
+
+## Почему запрос повторяется
+
+BitLocker сравнивает текущее состояние загрузки с тем, которое было доверенным ранее. В проверку могут входить TPM, Secure Boot, UEFI, порядок загрузки, загрузчик Windows, BCD и некоторые параметры прошивки. Если после ввода recovery key Windows загружается, но новое состояние не сохраняется, следующий запуск снова попадает в recovery.
+
+Такое часто происходит после обновления BIOS без предварительной команды suspend, после замены материнской платы, включения или отключения CSM/Legacy Boot, изменения режима SATA/NVMe, подключения загрузочного USB-диска или установки второй ОС. Иногда достаточно вернуть Windows Boot Manager первым в списке загрузки.
+
+## Безопасный порядок действий
+
+Сначала получите и проверьте recovery key. Затем выполните `manage-bde -status C:` и посмотрите, включена ли защита и какой protector используется. Если диск защищен TPM, попробуйте временно приостановить защиту на одну перезагрузку и дать Windows сохранить новое состояние.
+
+Если это не помогло, проверьте BIOS: TPM должен быть включен, Secure Boot должен быть в ожидаемом режиме, а Windows Boot Manager должен стоять первым. Не очищайте TPM как первый шаг. Clear TPM может быть нужен в редких случаях, но без recovery key и понимания последствий он легко превращает ремонт в потерю доступа.
+
+## Для корпоративных устройств
+
+На ноутбуках организации BitLocker часто управляется политиками. Администратор может требовать PIN, запрещать некоторые изменения TPM или автоматически сохранять recovery key в Entra ID. Если вы самостоятельно удалите и добавите TPM protector, устройство может выйти из соответствия политике или снова получить настройки при следующей синхронизации.
+
+Перед изменениями сохраните отчет `gpresult`, проверьте Intune Company Portal и уточните, не было ли централизованного обновления BIOS. Для администратора полезны точное время появления запроса, ID recovery key на синем экране и результат `manage-bde -protectors -get C:`.
 
 ## Быстрая диагностика
 
 - Проблема появилась после BIOS: приостановите и возобновите BitLocker.
 - Меняли Boot Order: верните Windows Boot Manager первым.
 - Включали или выключали Secure Boot: проверьте режим UEFI.
-- Ноутбук корпоративный: проверьте Intune или Group Policy.
+- Подключали USB-диск или вторую ОС: уберите внешний загрузочный носитель.
+- Ноутбук корпоративный: проверьте Intune, Entra ID или Group Policy.
+- Recovery key недоступен: не меняйте TPM и BIOS, пока ключ не найден.
+
+## Что сохранить перед ремонтом
+
+- Сам recovery key и ID ключа, который показан на экране восстановления.
+- Вывод `manage-bde -status C:`.
+- Список защитников из `manage-bde -protectors -get C:`.
+- Текущий порядок загрузки в BIOS/UEFI.
+- Информацию о последнем обновлении BIOS или изменении Secure Boot.

@@ -1,64 +1,83 @@
 ---
 title: 'DISM 0x800f081f: исходные файлы не найдены в Windows'
-category: 'Windows'
+category: Windows
 tags:
-  - 'Windows'
-  - 'DISM'
+  - Windows
+  - DISM
   - '0x800f081f'
-  - 'SFC'
-  - 'Windows Update'
+  - SFC
+  - Windows Update
 description: >-
-  Как исправить ошибку DISM 0x800f081f Source files could not be found: проверка компонентов Windows, локальный ISO, install.wim, SFC и восстановление обновлений.
+  Как исправить ошибку DISM 0x800f081f Source files could not be found: проверка компонентов
+  Windows, локальный ISO, install.wim, SFC и восстановление обновлений.
 symptoms:
-  - 'DISM /RestoreHealth завершается ошибкой 0x800f081f'
-  - 'Появляется сообщение Source files could not be found'
-  - 'sfc /scannow не может восстановить часть файлов'
-  - 'Windows Update не устанавливает накопительные обновления'
-  - 'Компоненты Windows не включаются через Optional Features'
+  - DISM /RestoreHealth завершается ошибкой 0x800f081f
+  - Появляется сообщение Source files could not be found
+  - sfc /scannow не может восстановить часть файлов
+  - Windows Update не устанавливает накопительные обновления
+  - Компоненты Windows не включаются через Optional Features
 causes:
-  - 'Повреждено хранилище компонентов WinSxS'
-  - 'DISM не может скачать файлы восстановления из Windows Update'
+  - Повреждено хранилище компонентов WinSxS
+  - DISM не может скачать файлы восстановления из Windows Update
   - 'Используется ISO другой редакции, языка или сборки Windows'
-  - 'В групповой политике указан неверный путь к источнику компонентов'
+  - В групповой политике указан неверный путь к источнику компонентов
   - 'Антивирус, прокси или WSUS блокирует доступ к Microsoft Update'
 steps:
-  - title: 'Проверьте состояние образа Windows'
+  - title: Проверьте состояние образа Windows
     body: >-
-      Сначала определите, видит ли DISM повреждение хранилища компонентов. Команда CheckHealth работает быстро и показывает, помечен ли образ как поврежденный. ScanHealth идет дольше, но выполняет глубокую проверку. Если ScanHealth сообщает о восстановимом повреждении, переходите к RestoreHealth.
+      Сначала определите, видит ли DISM повреждение хранилища компонентов. Команда CheckHealth
+      работает быстро и показывает, помечен ли образ как поврежденный. ScanHealth идет дольше, но
+      выполняет глубокую проверку. Если ScanHealth сообщает о восстановимом повреждении, переходите
+      к RestoreHealth.
     command: |-
       DISM /Online /Cleanup-Image /CheckHealth
       DISM /Online /Cleanup-Image /ScanHealth
     image: null
-  - title: 'Запустите стандартное восстановление через Windows Update'
+  - title: Запустите стандартное восстановление через Windows Update
     body: >-
-      Если интернет и Windows Update доступны, сначала используйте обычный RestoreHealth без локального источника. DISM попытается получить недостающие файлы из Microsoft Update. Не закрывайте окно до завершения: на некоторых системах прогресс долго стоит на одном проценте, но процесс продолжается.
-    command: 'DISM /Online /Cleanup-Image /RestoreHealth'
+      Если интернет и Windows Update доступны, сначала используйте обычный RestoreHealth без
+      локального источника. DISM попытается получить недостающие файлы из Microsoft Update. Не
+      закрывайте окно до завершения: на некоторых системах прогресс долго стоит на одном проценте,
+      но процесс продолжается.
+    command: DISM /Online /Cleanup-Image /RestoreHealth
     image: null
-  - title: 'Подберите ISO той же версии Windows'
+  - title: Подберите ISO той же версии Windows
     body: >-
-      Ошибка 0x800f081f часто появляется, когда локальный источник не совпадает с установленной системой. ISO должен соответствовать редакции, языку и номеру сборки Windows. Проверьте сборку командой winver или DISM /Online /Get-CurrentEdition, затем скачайте официальный ISO через Microsoft Media Creation Tool или страницу загрузки Windows.
-    command: 'DISM /Online /Get-CurrentEdition'
+      Ошибка 0x800f081f часто появляется, когда локальный источник не совпадает с установленной
+      системой. ISO должен соответствовать редакции, языку и номеру сборки Windows. Проверьте сборку
+      командой winver или DISM /Online /Get-CurrentEdition, затем скачайте официальный ISO через
+      Microsoft Media Creation Tool или страницу загрузки Windows.
+    command: DISM /Online /Get-CurrentEdition
     image: null
-  - title: 'Определите индекс install.wim или install.esd'
+  - title: Определите индекс install.wim или install.esd
     body: >-
-      Смонтируйте ISO двойным кликом и проверьте букву диска. В папке sources обычно находится install.wim или install.esd. У каждого файла есть индексы редакций Windows. Нужно выбрать индекс, который совпадает с установленной редакцией, например Pro или Home.
+      Смонтируйте ISO двойным кликом и проверьте букву диска. В папке sources обычно находится
+      install.wim или install.esd. У каждого файла есть индексы редакций Windows. Нужно выбрать
+      индекс, который совпадает с установленной редакцией, например Pro или Home.
     command: |-
       DISM /Get-WimInfo /WimFile:D:\sources\install.wim
       DISM /Get-WimInfo /WimFile:D:\sources\install.esd
     image: null
-  - title: 'Запустите DISM с локальным источником'
+  - title: Запустите DISM с локальным источником
     body: >-
-      Используйте найденный индекс и правильный путь к WIM или ESD. Параметр LimitAccess запрещает DISM обращаться к Windows Update и заставляет использовать локальный источник. Если файл называется install.esd, укажите ESD вместо WIM. После успешного завершения обязательно выполните SFC.
+      Используйте найденный индекс и правильный путь к WIM или ESD. Параметр LimitAccess запрещает
+      DISM обращаться к Windows Update и заставляет использовать локальный источник. Если файл
+      называется install.esd, укажите ESD вместо WIM. После успешного завершения обязательно
+      выполните SFC.
     command: 'DISM /Online /Cleanup-Image /RestoreHealth /Source:wim:D:\sources\install.wim:6 /LimitAccess'
     image: null
-  - title: 'Проверьте системные файлы через SFC'
+  - title: Проверьте системные файлы через SFC
     body: >-
-      DISM восстанавливает компонентное хранилище, а SFC использует его для исправления системных файлов. Поэтому SFC запускают после DISM, а не вместо него. Если SFC сообщает, что восстановил файлы, перезагрузите компьютер и повторите команду еще раз для контроля.
-    command: 'sfc /scannow'
+      DISM восстанавливает компонентное хранилище, а SFC использует его для исправления системных
+      файлов. Поэтому SFC запускают после DISM, а не вместо него. Если SFC сообщает, что восстановил
+      файлы, перезагрузите компьютер и повторите команду еще раз для контроля.
+    command: sfc /scannow
     image: null
   - title: 'Сбросьте Windows Update, если ошибка возвращается'
     body: >-
-      Если DISM по-прежнему ищет файлы в неправильном месте, проверьте WSUS, прокси и политики источника компонентов. На домашнем ПК часто помогает сброс кэша Windows Update. После сброса перезагрузите систему и снова выполните RestoreHealth.
+      Если DISM по-прежнему ищет файлы в неправильном месте, проверьте WSUS, прокси и политики
+      источника компонентов. На домашнем ПК часто помогает сброс кэша Windows Update. После сброса
+      перезагрузите систему и снова выполните RestoreHealth.
     command: |-
       net stop wuauserv
       net stop bits
@@ -71,36 +90,63 @@ publishedAt: '2026-06-04'
 readingTime: 10
 popularityScore: 91
 sources:
-  - title: 'Microsoft Learn - Repair a Windows image'
+  - title: Microsoft Learn - Repair a Windows image
     url: 'https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/repair-a-windows-image'
     accessedAt: '2026-06-04'
-  - title: 'Microsoft Learn - DISM operating system uninstall command-line options'
-    url: 'https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/dism-operating-system-uninstall-command-line-options'
+  - title: Microsoft Learn - DISM operating system uninstall command-line options
+    url: >-
+      https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/dism-operating-system-uninstall-command-line-options
     accessedAt: '2026-06-04'
-  - title: 'Microsoft Support - Use System File Checker'
-    url: 'https://support.microsoft.com/windows/use-the-system-file-checker-tool-to-repair-missing-or-corrupted-system-files-79aa86cb-ca52-166a-92a3-966e85d4094e'
+  - title: Microsoft Support - Use System File Checker
+    url: >-
+      https://support.microsoft.com/windows/use-the-system-file-checker-tool-to-repair-missing-or-corrupted-system-files-79aa86cb-ca52-166a-92a3-966e85d4094e
     accessedAt: '2026-06-04'
-  - title: 'Microsoft Learn - Configure a Windows repair source'
-    url: 'https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/configure-a-windows-repair-source'
+  - title: Microsoft Learn - Configure a Windows repair source
+    url: >-
+      https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/configure-a-windows-repair-source
     accessedAt: '2026-06-04'
 dedupe:
-  titleHash: '1111111111111111111111111111111111111111111111111111111111111111'
-  solutionHash: '1111111111111111111111111111111111111111111111111111111111111112'
-  sourceHash: '1111111111111111111111111111111111111111111111111111111111111113'
+  titleHash: 4a71ca880df5369fbd991e17ef231ccf39da4bc35d61ca1776379b1182f67b11
+  solutionHash: 5de7a96c9ec190ba339096b2d0a5bad694ef7c8de1d34334ad18c6c726393299
+  sourceHash: edf72435fe49b1e3fe248b93e16551625ab99546e52f89f61ef7e4ce37423236
 draft: false
 ---
-Ошибка DISM 0x800f081f означает, что Windows знает, какие компоненты повреждены, но не может найти подходящие файлы для восстановления. Частая ошибка пользователей — скачивать любой ISO Windows и сразу подставлять его в Source. Такой источник не подойдет, если отличается язык, редакция или номер сборки.
+Ошибка DISM 0x800f081f означает, что Windows знает, какие компоненты повреждены, но не может найти подходящие файлы для восстановления. В журнале это часто выглядит как `Source files could not be found`: DISM готов чинить компонентное хранилище, но источник восстановления не совпадает с установленной системой или недоступен.
 
-Правильный порядок такой: сначала проверить образ, затем попробовать обычный RestoreHealth, потом подобрать официальный ISO той же версии и указать точный индекс install.wim или install.esd. После успешного DISM нужно запускать SFC, потому что именно SFC чинит конкретные системные файлы.
+Частая ошибка пользователей — скачивать любой ISO Windows и сразу подставлять его в `/Source`. Такой источник не подойдет, если отличается язык, редакция, канал обновлений или номер сборки. Особенно это заметно на системах после крупных feature update, где ISO старее установленной Windows.
 
-Если компьютер находится в домене или использует WSUS, проверьте политики восстановления компонентов. Организация может запретить скачивание файлов из Microsoft Update, и тогда DISM будет постоянно завершаться 0x800f081f без локального источника.
+Правильный порядок такой: сначала проверить образ, затем попробовать обычный `RestoreHealth`, потом подобрать официальный ISO той же версии и указать точный индекс `install.wim` или `install.esd`. После успешного DISM нужно запускать SFC, потому что именно SFC чинит конкретные системные файлы, используя уже восстановленное хранилище компонентов.
 
-Не удаляйте папку WinSxS вручную. Она является хранилищем компонентов Windows, и ручная чистка почти всегда ухудшает ситуацию. Используйте только DISM, Windows Update и официальный ISO.
+Если компьютер находится в домене или использует WSUS, проверьте политики восстановления компонентов. Организация может запретить скачивание файлов из Microsoft Update, и тогда DISM будет постоянно завершаться 0x800f081f без локального источника. На домашних ПК похожий эффект дают прокси, VPN, поврежденный кэш Windows Update или блокировка Microsoft Update в настройках сети.
+
+Не удаляйте папку WinSxS вручную. Она является хранилищем компонентов Windows, и ручная чистка почти всегда ухудшает ситуацию. Используйте только DISM, Windows Update, официальный ISO и штатные команды очистки компонентов.
+
+## Как выбрать правильный источник
+
+Сначала определите текущую редакцию и сборку Windows. Для редакции подходит `DISM /Online /Get-CurrentEdition`, для номера сборки — `winver`. Затем скачайте ISO той же версии Windows с официального сайта Microsoft или через Media Creation Tool. Если установлен Windows 11 Pro на русском языке, источник от Windows 11 Home или ISO другого языка может не подойти.
+
+После монтирования ISO проверьте, какой файл лежит в папке `sources`: `install.wim` или `install.esd`. Оба варианта допустимы, но в команде нужно явно указать правильный тип источника: `wim:` для WIM и `esd:` для ESD. Индекс внутри файла должен соответствовать установленной редакции.
+
+## Что смотреть в логах
+
+Если команда снова падает, откройте `C:\Windows\Logs\DISM\dism.log` и найдите строки рядом с 0x800f081f. В них обычно видно, какой источник использовался, какой package не найден и пытался ли DISM обращаться к Windows Update. Для SFC полезен файл `C:\Windows\Logs\CBS\CBS.log`, но читать его лучше после завершения DISM.
+
+Когда DISM сообщает, что источник не найден, не повторяйте одну и ту же команду много раз. Меняйте только один параметр: сначала проверьте индекс, затем путь, затем соответствие ISO, затем доступ к Microsoft Update. Так проще понять, какое изменение реально решило проблему.
 
 ## Контрольный чек-лист
 
-- ISO совпадает с установленной сборкой Windows.
-- Выбран правильный индекс install.wim или install.esd.
-- RestoreHealth завершился без ошибки.
-- После DISM выполнен sfc /scannow.
+- ISO совпадает с установленной сборкой, редакцией и языком Windows.
+- Выбран правильный индекс `install.wim` или `install.esd`.
+- В команде указан правильный тип источника: `wim:` или `esd:`.
+- `RestoreHealth` завершился без ошибки 0x800f081f.
+- После DISM выполнен `sfc /scannow`.
 - Windows Update снова устанавливает обновления.
+- В логах DISM нет повторяющихся ошибок source not found.
+
+## Когда лучше остановиться
+
+- DISM просит источник от другой редакции Windows: сначала подберите корректный ISO.
+- Компьютер управляется доменом или WSUS: проверьте политики, прежде чем менять source.
+- В логах есть ошибки диска: сначала проверьте накопитель, затем повторяйте восстановление.
+- Нет резервной копии важных данных: сделайте ее перед сбросом Windows Update или repair install.
+- DISM снова просит source после успешного SFC: сравните номера сборок ISO и установленной системы.

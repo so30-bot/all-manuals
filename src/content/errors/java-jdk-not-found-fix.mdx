@@ -1,57 +1,80 @@
 ---
 title: 'Java/JDK не найдена: настройка JAVA_HOME'
-category: 'Разработка'
+category: Программирование
 tags:
-  - 'Java'
-  - 'JDK'
-  - 'JAVA_HOME'
-  - 'разработка'
-  - 'настройка'
+  - Java
+  - JDK
+  - JAVA_HOME
+  - разработка
+  - настройка
 description: >-
-  Пошаговое руководство по настройке JAVA_HOME в Windows и Linux: установка JDK, настройка переменных окружения, исправление ошибок несовместимости.
+  Пошаговое руководство по настройке JAVA_HOME в Windows и Linux: установка JDK, настройка
+  переменных окружения, исправление ошибок несовместимости.
 symptoms:
-  - 'Ошибка JAVA_HOME is not set'
-  - 'Ошибка JAVA_HOME is set to an invalid directory'
-  - 'Команда java не найдена'
-  - 'javac не распознаётся как команда'
-  - 'Maven/Gradle не могут найти Java'
-  - 'JAVA_HOME points to a JRE not a JDK'
+  - Ошибка JAVA_HOME is not set
+  - Ошибка JAVA_HOME is set to an invalid directory
+  - Команда java не найдена
+  - javac не распознаётся как команда
+  - Maven/Gradle не могут найти Java
+  - JAVA_HOME points to a JRE not a JDK
 causes:
-  - 'Переменная JAVA_HOME не задана'
-  - 'JAVA_HOME указывает на неправильную директорию'
-  - 'JAVA_HOME указывает на bin поддиректорию'
-  - 'Установлен JRE вместо JDK'
-  - 'Старая версия Java в PATH приоритетный'
-  - 'Опечатка в имени переменной'
+  - Переменная JAVA_HOME не задана
+  - JAVA_HOME указывает на неправильную директорию
+  - JAVA_HOME указывает на bin поддиректорию
+  - Установлен JRE вместо JDK
+  - Старая версия Java в PATH приоритетный
+  - Опечатка в имени переменной
 steps:
   - title: Проверьте текущую установку Java
     body: >-
-      Откройте командную строку и выполните: java -version. Если команда не найдена — Java не установлена или не добавлена в PATH. Если Java найдена, проверьте: where java (Windows) или which java (Linux). Это покажет, какая версия используется. Убедитесь, что установлена JDK, а не только JRE: javac -version. Если javac не найден — установите JDK с adoptium.net или oracle.com.
+      Откройте командную строку и выполните: java -version. Если команда не найдена — Java не
+      установлена или не добавлена в PATH. Если Java найдена, проверьте: where java (Windows) или
+      which java (Linux). Это покажет, какая версия используется. Убедитесь, что установлена JDK, а
+      не только JRE: javac -version. Если javac не найден — установите JDK с adoptium.net или
+      oracle.com.
     command: java -version
     image: null
   - title: Установите JDK (если не установлен)
     body: >-
-      Скачайте JDK с adoptium.net (рекомендуется) или oracle.com. Выберите версию для вашей ОС. Запустите установщик. На Windows: по умолчанию установится в C:\Program Files\Java\jdk-XX. На Ubuntu/Debian: sudo apt install openjdk-17-jdk. На CentOS/RHEL: sudo yum install java-17-openjdk-devel. После установки проверьте: java -version и javac -version.
+      Скачайте JDK с adoptium.net (рекомендуется) или oracle.com. Выберите версию для вашей ОС.
+      Запустите установщик. На Windows: по умолчанию установится в C:\Program Files\Java\jdk-XX. На
+      Ubuntu/Debian: sudo apt install openjdk-17-jdk. На CentOS/RHEL: sudo yum install
+      java-17-openjdk-devel. После установки проверьте: java -version и javac -version.
     command: sudo apt install openjdk-17-jdk
     image: null
   - title: Настройте JAVA_HOME в Windows
     body: >-
-      Нажмите Win+R, введите sysdm.cpl, нажмите Enter. Перейдите на вкладку Дополнительно. Нажмите Переменные среды. В разделе Системные переменные нажмите Создать. Имя: JAVA_HOME, Значение: путь к корню JDK (например, C:\Program Files\Java\jdk-17). НЕ указывайте \bin. Затем найдите Path, нажмите Изменить. Добавьте: %JAVA_HOME%\bin. Нажмите ОК везде и откройте новое окно командной строки.
+      Нажмите Win+R, введите sysdm.cpl, нажмите Enter. Перейдите на вкладку Дополнительно. Нажмите
+      Переменные среды. В разделе Системные переменные нажмите Создать. Имя: JAVA_HOME, Значение:
+      путь к корню JDK (например, C:\Program Files\Java\jdk-17). НЕ указывайте \bin. Затем найдите
+      Path, нажмите Изменить. Добавьте: %JAVA_HOME%\bin. Нажмите ОК везде и откройте новое окно
+      командной строки.
     command: null
     image: null
   - title: Настройте JAVA_HOME в Linux
     body: >-
-      Откройте ~/.bashrc (или ~/.zshrc). Добавьте в конец: export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64. Добавьте: export PATH="$JAVA_HOME/bin:$PATH". Сохраните файл и выполните: source ~/.bashrc. Проверьте: echo $JAVA_HOME. Для системной настройки создайте файл /etc/profile.d/java-home.sh с теми же командами. Также используйте: sudo update-alternatives --config java для выбора версии.
+      Откройте ~/.bashrc (или ~/.zshrc). Добавьте в конец: export
+      JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64. Добавьте: export PATH="$JAVA_HOME/bin:$PATH".
+      Сохраните файл и выполните: source ~/.bashrc. Проверьте: echo $JAVA_HOME. Для системной
+      настройки создайте файл /etc/profile.d/java-home.sh с теми же командами. Также используйте:
+      sudo update-alternatives --config java для выбора версии.
     command: echo $JAVA_HOME
     image: null
   - title: Исправьте ошибку JAVA_HOME points to bin
     body: >-
-      Частая ошибка — указание JAVA_HOME на поддиректорию bin. JAVA_HOME должен указывать на КОРНЕВУЮ директорию JDK. Например: ПРАВИЛЬНО: C:\Program Files\Java\jdk-17, НЕПРАВИЛЬНО: C:\Program Files\Java\jdk-17\bin. Исправьте значение переменной JAVA_HOME, чтобы оно указывало на корень JDK. Также убедитесь, что в Path указана %JAVA_HOME%\bin, а не просто путь к bin.
+      Частая ошибка — указание JAVA_HOME на поддиректорию bin. JAVA_HOME должен указывать на
+      КОРНЕВУЮ директорию JDK. Например: ПРАВИЛЬНО: C:\Program Files\Java\jdk-17, НЕПРАВИЛЬНО:
+      C:\Program Files\Java\jdk-17\bin. Исправьте значение переменной JAVA_HOME, чтобы оно указывало
+      на корень JDK. Также убедитесь, что в Path указана %JAVA_HOME%\bin, а не просто путь к bin.
     command: null
     image: null
   - title: Проверьте конфликт версий
     body: >-
-      Если на компьютере установлено несколько версий Java — PATH может указывать на старую. Проверьте: where java (Windows) или which -a java (Linux). Если есть несколько путей — убедитесь, что %JAVA_HOME%\bin стоит в Path раньше других Java путей. Удалите старые пути из Path. Используйте update-alternatives (Linux) или переименование папки (Windows) для управления версиями.
+      Если на компьютере установлено несколько версий Java — PATH может указывать на старую.
+      Проверьте: where java (Windows) или which -a java (Linux). Если есть несколько путей —
+      убедитесь, что %JAVA_HOME%\bin стоит в Path раньше других Java путей. Удалите старые пути из
+      Path. Используйте update-alternatives (Linux) или переименование папки (Windows) для
+      управления версиями.
     command: where java
     image: null
 updatedAt: '2026-06-02'
@@ -59,22 +82,24 @@ publishedAt: '2026-06-02'
 readingTime: 8
 popularityScore: 82
 sources:
-  - title: "Fix JAVA_HOME errors Invalid directory Not set or defined"
-    url: 'https://www.theserverside.com/blog/Coffee-Talk-Java-News-Stories-and-Opinions/How-to-fix-common-JAVA_HOME-errors-quickly'
+  - title: Fix JAVA_HOME errors Invalid directory Not set or defined
+    url: >-
+      https://www.theserverside.com/blog/Coffee-Talk-Java-News-Stories-and-Opinions/How-to-fix-common-JAVA_HOME-errors-quickly
     accessedAt: '2026-06-02'
-  - title: "Install JDK and Set JAVA_HOME on Windows macOS and Linux"
-    url: 'https://www.cleverence.com/articles/oracle-documentation/installing-the-jdk-software-and-setting-java-home-5827/'
+  - title: Install JDK and Set JAVA_HOME on Windows macOS and Linux
+    url: >-
+      https://www.cleverence.com/articles/oracle-documentation/installing-the-jdk-software-and-setting-java-home-5827/
     accessedAt: '2026-06-02'
-  - title: "How to Set Java Environment Path in Ubuntu"
+  - title: How to Set Java Environment Path in Ubuntu
     url: 'https://linuxcapable.com/how-to-set-java-environment-path-in-ubuntu/'
     accessedAt: '2026-06-02'
-  - title: "Installation of the JDK on Linux Platforms"
+  - title: Installation of the JDK on Linux Platforms
     url: 'https://docs.oracle.com/en/java/javase/21/install/installation-jdk-linux-platforms.html'
     accessedAt: '2026-06-02'
 dedupe:
-  titleHash: b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7
-  solutionHash: c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8
-  sourceHash: d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9
+  titleHash: c591245a62f79d557cde0efc07aa24ffb21c392a8c94563b627ca4532e75444d
+  solutionHash: 322d6214681da6ccdd8dfab6525e48fc983f84295a660bef5bcdd1263cd27ac1
+  sourceHash: 271b97f6829f1ad2b53c4ceb0d690f933a01355a184a0942b35508a68a13143c
 draft: false
 ---
 JAVA_HOME — переменная окружения, необходимая для работы Maven, Gradle, Tomcat и других Java инструментов. Она должна указывать на корневую директорию JDK, а не на bin поддиректорию. Без неё многие инструменты не могут найти компилятор и рантайм.

@@ -1,60 +1,83 @@
 ---
-title: "ModuleNotFoundError: No module named — как исправить в Python"
-category: "Разработка"
+title: 'ModuleNotFoundError: No module named — как исправить в Python'
+category: Программирование
 tags:
-  - 'Python'
-  - 'pip'
-  - 'модуль'
-  - 'ImportError'
-  - 'virtualenv'
+  - Python
+  - pip
+  - модуль
+  - ImportError
+  - virtualenv
 description: >-
-  Пошаговое руководство по устранению ошибки ModuleNotFoundError: No module named в Python: установка пакетов, виртуальные окружения, pip и версии Python.
+  Пошаговое руководство по устранению ошибки ModuleNotFoundError: No module named в Python:
+  установка пакетов, виртуальные окружения, pip и версии Python.
 symptoms:
   - 'ModuleNotFoundError: No module named requests'
   - 'ImportError: No module named'
   - 'pip install не помогает, ошибка повторяется'
   - 'Модуль установлен, но Python его не видит'
-  - 'Разные версии Python используют разные пакеты'
+  - Разные версии Python используют разные пакеты
 causes:
-  - 'Пакет не установлен в текущем окружении Python'
-  - 'Используется неправильная версия Python (2 vs 3)'
-  - 'Виртуальное окружение не активировано'
+  - Пакет не установлен в текущем окружении Python
+  - Используется неправильная версия Python (2 vs 3)
+  - Виртуальное окружение не активировано
   - 'Пакет установлен глобально, но скрипт запущен в venv'
   - 'Конфликт имён: файл называется так же как модуль'
 steps:
   - title: Проверьте версию Python и pip
     body: >-
-      Убедитесь, что pip привязан к нужной версии Python. Выполните python --version и pip --version. Если установлено несколько версий Python, используйте python3 и pip3. Вывод покажет путь к интерпретатору — убедитесь, что это тот Python, в который вы хотите установить пакет. Частая ошибка: pip устанавливает в Python 3.10, а скрипт запускается через Python 3.11.
+      Убедитесь, что pip привязан к нужной версии Python. Выполните python --version и pip
+      --version. Если установлено несколько версий Python, используйте python3 и pip3. Вывод покажет
+      путь к интерпретатору — убедитесь, что это тот Python, в который вы хотите установить пакет.
+      Частая ошибка: pip устанавливает в Python 3.10, а скрипт запускается через Python 3.11.
     command: python --version && pip --version
     image: null
   - title: Установите пакет через pip
     body: >-
-      Выполните pip install имя-пакета для установки. Если пакет уже установлен, pip выведет Requirement already satisfied. Попробуйте pip install --upgrade имя-пакета для обновления. Для установки конкретной версии: pip install имя-пакета==2.1.0. Если pip не найден, используйте python -m pip install имя-пакета — это гарантирует использование pip из нужного Python.
+      Выполните pip install имя-пакета для установки. Если пакет уже установлен, pip выведет
+      Requirement already satisfied. Попробуйте pip install --upgrade имя-пакета для обновления. Для
+      установки конкретной версии: pip install имя-пакета==2.1.0. Если pip не найден, используйте
+      python -m pip install имя-пакета — это гарантирует использование pip из нужного Python.
     command: pip install requests
     image: null
   - title: Активируйте виртуальное окружение
     body: >-
-      Если вы работаете в виртуальном окружении, убедитесь, что оно активировано. На Linux/macOS: source venv/bin/activate. На Windows: venv\Scripts\activate. После активации в начале строки появится (venv). Пакеты, установленные без активации venv, будут недоступны внутри окружения. Создайте venv если его нет: python -m venv venv.
+      Если вы работаете в виртуальном окружении, убедитесь, что оно активировано. На Linux/macOS:
+      source venv/bin/activate. На Windows: venv\Scripts\activate. После активации в начале строки
+      появится (venv). Пакеты, установленные без активации venv, будут недоступны внутри окружения.
+      Создайте venv если его нет: python -m venv venv.
     command: source venv/bin/activate
     image: null
   - title: Проверьте sys.path
     body: >-
-      Выполните python -c "import sys; print(sys.path)" для просмотра путей поиска модулей. Убедитесь, что директория с пакетом присутствует в списке. Если пакет установлен в site-packages другой версии Python, добавьте путь в PYTHONPATH: export PYTHONPATH=/path/to/packages. Также проверьте pip show имя-пакета — он покажет Location установки.
+      Выполните python -c "import sys; print(sys.path)" для просмотра путей поиска модулей.
+      Убедитесь, что директория с пакетом присутствует в списке. Если пакет установлен в
+      site-packages другой версии Python, добавьте путь в PYTHONPATH: export
+      PYTHONPATH=/path/to/packages. Также проверьте pip show имя-пакета — он покажет Location
+      установки.
     command: python -c "import sys; print(sys.path)"
     image: null
   - title: Устраните конфликт имён
     body: >-
-      Если ваш файл называется так же как устанавливаемый модуль (например, requests.py), Python будет импортировать ваш файл вместо пакета. Переименуйте файл:mv requests.py my_requests.py. Проверьте наличие файлов с такими именами в директории: ls *.py. Также удалите файлы __pycache__ и .pyc, если они есть — кешированные модули могут конфликтовать.
+      Если ваш файл называется так же как устанавливаемый модуль (например, requests.py), Python
+      будет импортировать ваш файл вместо пакета. Переименуйте файл:mv requests.py my_requests.py.
+      Проверьте наличие файлов с такими именами в директории: ls *.py. Также удалите файлы
+      __pycache__ и .pyc, если они есть — кешированные модули могут конфликтовать.
     command: ls *.py
     image: null
   - title: Переустановите пакет с нуля
     body: >-
-      Если стандартная установка не помогает, удалите пакет полностью: pip uninstall имя-пакета -y. Затем очистите кеш: pip cache purge. Установите заново: pip install имя-пакета. Если пакет установлен из GitHub: pip install git+https://github.com/user/repo.git. Для development-установки: pip install -e . (из директории с setup.py).
+      Если стандартная установка не помогает, удалите пакет полностью: pip uninstall имя-пакета -y.
+      Затем очистите кеш: pip cache purge. Установите заново: pip install имя-пакета. Если пакет
+      установлен из GitHub: pip install git+https://github.com/user/repo.git. Для
+      development-установки: pip install -e . (из директории с setup.py).
     command: pip uninstall requests -y && pip cache purge && pip install requests
     image: null
   - title: Проверьте requirements.txt
     body: >-
-      Если проект использует requirements.txt, установите все зависимости: pip install -r requirements.txt. Убедитесь, что в файле нет опечаток и версий, несовместимых с вашей версией Python. Для автоматической проверки совместимости: pip check. Еслиrequirements.txt содержит --index-url или --extra-index-url, убедитесь, что эти репозитории доступны.
+      Если проект использует requirements.txt, установите все зависимости: pip install -r
+      requirements.txt. Убедитесь, что в файле нет опечаток и версий, несовместимых с вашей версией
+      Python. Для автоматической проверки совместимости: pip check. Еслиrequirements.txt содержит
+      --index-url или --extra-index-url, убедитесь, что эти репозитории доступны.
     command: pip install -r requirements.txt
     image: null
 updatedAt: '2026-06-02'
@@ -62,22 +85,22 @@ publishedAt: '2026-06-02'
 readingTime: 7
 popularityScore: 88
 sources:
-  - title: "Python ModuleNotFoundError No module named"
+  - title: Python ModuleNotFoundError No module named
     url: 'https://stackoverflow.com/questions/17339548/python-modulenotfounderror-no-module-named'
     accessedAt: '2026-06-02'
-  - title: "How to fix ModuleNotFoundError in Python"
+  - title: How to fix ModuleNotFoundError in Python
     url: 'https://www.freecodecamp.org/news/module-not-found-error-in-python/'
     accessedAt: '2026-06-02'
-  - title: "Python venv module not found"
+  - title: Python venv module not found
     url: 'https://stackoverflow.com/questions/65419406/python-venv-module-not-found'
     accessedAt: '2026-06-02'
-  - title: "pip install not working ModuleNotFoundError"
+  - title: pip install not working ModuleNotFoundError
     url: 'https://stackoverflow.com/questions/52627670/pip-install-not-working-module-not-found-error'
     accessedAt: '2026-06-02'
 dedupe:
-  titleHash: a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2
-  solutionHash: b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3
-  sourceHash: c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4
+  titleHash: 6d28f002962a2d6d4987e5cdc352824baf4a3fb685323cb49fa7b06dae09a6bd
+  solutionHash: f247c73613bb2f1c87fa2d20e963980ad4f16a5b01440f6e691753c41821db75
+  sourceHash: 43bb5a9b9c4eb008f88f1f1f043c8c250e94ba7a6ede6df9de1209473a08b08c
 draft: false
 ---
 Ошибка ModuleNotFoundError — одна из самых частых в Python. Она означает, что интерпретатор не может найти указанный модуль при импорте. Причин несколько: пакет не установлен, установлен в другое окружение, конфликт имён файлов или неправильная версия Python.

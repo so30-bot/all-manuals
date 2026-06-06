@@ -3,47 +3,44 @@ title: Устранение ошибок Homebrew в Debian-подобных с�
 errorId: brew-debian-compatibility-error
 category: Linux
 tags:
-  - 'Debian'
-  - 'Homebrew'
-  - 'Linux'
-  - 'Ошибки'
-  - 'Настройка среды'
+  - Debian
+  - Homebrew
+  - Linux
+  - Ошибки
+  - Настройка среды
 description: >-
-  Пошаговое руководство по исправлению проблем с Homebrew (brew) в дистрибутивах
-  на базе Debian. Инструкция охватывает диагностику среды, проверку путей и
-  устранение конфликтов библиотек.
+  Пошаговое руководство по исправлению проблем с Homebrew (brew) в дистрибутивах на базе Debian.
+  Инструкция охватывает диагностику среды, проверку путей и устранение конфликтов библиотек.
 symptoms:
-  - 'Команда brew не найдена'
-  - 'Ошибки при установке пакетов через brew'
-  - 'Конфликты библиотек libstdc++'
-  - 'Ошибки выполнения скриптов сборки внутри окружения'
+  - Команда brew не найдена
+  - Ошибки при установке пакетов через brew
+  - Конфликты библиотек libstdc++
+  - Ошибки выполнения скриптов сборки внутри окружения
 causes:
-  - 'Отсутствие необходимых инструментов сборки в системе'
-  - 'Некорректные переменные окружения (PATH)'
-  - 'Конфликты версий системных библиотек и библиотек Homebrew'
-  - 'Отсутствие прав на запись в директории префикса'
+  - Отсутствие необходимых инструментов сборки в системе
+  - Некорректные переменные окружения (PATH)
+  - Конфликты версий системных библиотек и библиотек Homebrew
+  - Отсутствие прав на запись в директории префикса
 steps:
   - title: Проверка зависимостей сборки
     body: >-
-      Перед использованием Homebrew убедитесь, что в системе установлены все
-      необходимые инструменты для компиляции. В Debian это делается через
-      стандартный менеджер пакетов apt.
+      Перед использованием Homebrew убедитесь, что в системе установлены все необходимые инструменты
+      для компиляции. В Debian это делается через стандартный менеджер пакетов apt.
     command: sudo apt update && sudo apt install build-essential procps curl file git
     image: null
   - title: Настройка переменных окружения
     body: >-
-      Homebrew требует правильной настройки PATH, чтобы система видела
-      исполняемые файлы. Добавьте пути к Homebrew в ваш профиль (например,
-      .bashrc или .zshrc).
+      Homebrew требует правильной настройки PATH, чтобы система видела исполняемые файлы. Добавьте
+      пути к Homebrew в ваш профиль (например, .bashrc или .zshrc).
     command: >-
-      echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bashrc
-      && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+      echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' >> ~/.bashrc && eval
+      "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     image: null
   - title: Устранение конфликтов библиотек
     body: >-
-      Если возникают ошибки 'GLIBCXX_X.X.XX not found', необходимо убедиться,
-      что Homebrew использует свои библиотеки, а не системные. Попробуйте
-      принудительно переустановить ключевые зависимости.
+      Если возникают ошибки 'GLIBCXX_X.X.XX not found', необходимо убедиться, что Homebrew
+      использует свои библиотеки, а не системные. Попробуйте принудительно переустановить ключевые
+      зависимости.
     command: brew doctor && brew install gcc
     image: null
 updatedAt: '2026-05-30'
@@ -55,17 +52,17 @@ sources:
     url: 'https://en.wikipedia.org/wiki/Linux_kernel'
     accessedAt: '2026-05-30'
   - title: >-
-      wiki: enrich Troubleshooting / cmake / Specifics / Packaging-Guide (drafts
-      inline) · Issue #13098 · pkgxdev/pantry · GitHub
+      wiki: enrich Troubleshooting / cmake / Specifics / Packaging-Guide (drafts inline) · Issue
+      #13098 · pkgxdev/pantry · GitHub
     url: 'https://github.com/pkgxdev/pantry/issues/13098'
     accessedAt: '2026-05-30'
-  - title: 'Debian Administrator Handbook'
+  - title: Debian Administrator Handbook
     url: 'https://www.debian.org/doc/manuals/debian-handbook/'
     accessedAt: '2026-06-04'
 dedupe:
-  titleHash: 79b51329c6094d8dfa45d35389cd504c1623a08431f8ed8f1af7cbb7ec6e2ec4
-  solutionHash: 078fec6455c2254bf68ab754c46d2cb699f75b15efd0569ea706a3e5c3a0e288
-  sourceHash: 63f4a749c1c91dbcad42d630ccd3f3dab873634c7ec538798006c2baa38c7b45
+  titleHash: ed248179414c2e284f831d4f9bfc991cd4d6a7c4093ca7301f58207fdca4efcc
+  solutionHash: aa5522b7325f6b64783effd0c5258e3bd3b33239a32d8c171ca52da0460133ee
+  sourceHash: fe2ffa7dbfa93af50e2b89540c5a1b0f9fa59d0244f28d4478b63454817a248f
 draft: false
 ---
 Homebrew (известный как Linuxbrew в Linux-средах) — это мощный менеджер пакетов, но его установка в Debian может вызывать конфликты из-за различий в системных путях и версиях библиотек. Основная причина большинства ошибок — неверная настройка окружения или отсутствие необходимых инструментов компиляции, таких как GCC или Make. Следуя приведенным выше шагам, вы сможете изолировать среду Homebrew от системных файлов Debian, что предотвратит большинство ошибок при сборке и установке пакетов.

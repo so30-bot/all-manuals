@@ -3,50 +3,47 @@ title: 'Исправление ошибки запуска Manjaro: пробле
 errorId: manjaro-boot-env-error
 category: Linux
 tags:
-  - 'Manjaro'
-  - 'Linux'
-  - 'загрузка'
-  - 'VS Code'
-  - '.NET'
+  - Manjaro
+  - Linux
+  - загрузка
+  - VS Code
+  - .NET
 description: >-
-  Руководство по устранению проблем с загрузкой системы Manjaro и исправлению
-  ошибок окружения при работе с приложениями.
+  Руководство по устранению проблем с загрузкой системы Manjaro и исправлению ошибок окружения при
+  работе с приложениями.
 symptoms:
-  - 'Ошибка загрузки графического интерфейса'
-  - 'Сообщение ''loading FAILED'' при старте'
-  - 'Ошибка ''No installed .NET SDK was found'' в VS Code при запуске через меню'
+  - Ошибка загрузки графического интерфейса
+  - Сообщение 'loading FAILED' при старте
+  - Ошибка 'No installed .NET SDK was found' в VS Code при запуске через меню
 causes:
-  - 'Конфликт сервисов загрузки (например, Plymouth и графических утилит)'' Некорректная настройка переменных окружения (PATH) для графических приложений'
+  - >-
+    Конфликт сервисов загрузки (например, Plymouth и графических утилит)' Некорректная настройка
+    переменных окружения (PATH) для графических приложений
 steps:
   - title: Исправление конфликта графической загрузки
     body: >-
-      Если при загрузке системы вы видите 'loading FAILED', это часто связано с
-      конфликтом доступа к фреймбуферу (/dev/fb0) между Plymouth и другими
-      процессами. Убедитесь, что сервисы вывода графики запускаются в правильном
-      порядке. Отредактируйте параметры запуска, чтобы не принуждать
-      использование конкретного устройства, и используйте команду fbi
-      --noverbose -a.
+      Если при загрузке системы вы видите 'loading FAILED', это часто связано с конфликтом доступа к
+      фреймбуферу (/dev/fb0) между Plymouth и другими процессами. Убедитесь, что сервисы вывода
+      графики запускаются в правильном порядке. Отредактируйте параметры запуска, чтобы не
+      принуждать использование конкретного устройства, и используйте команду fbi --noverbose -a.
     command: fbi --noverbose -a
     image: null
   - title: Настройка переменных окружения для VS Code
     body: >-
-      При запуске VS Code через ярлык в меню, переменные окружения (.profile)
-      могут не подгружаться так же, как в терминале. Чтобы исправить ошибку
-      поиска .NET SDK, необходимо явно указать пути в настройках VS Code.
-      Перейдите в настройки (Settings) и добавьте параметры для
+      При запуске VS Code через ярлык в меню, переменные окружения (.profile) могут не подгружаться
+      так же, как в терминале. Чтобы исправить ошибку поиска .NET SDK, необходимо явно указать пути
+      в настройках VS Code. Перейдите в настройки (Settings) и добавьте параметры для
       dotnetAcquisitionExtension.
     command: >-
-      "dotnetAcquisitionExtension.existingDotnetPath": [ { "extensionId":
-      "ms-dotnettools.csharp", "path": "/usr/share/dotnet/dotnet" }, {
-      "extensionId": "ms-dotnettools.csdevkit", "path":
+      "dotnetAcquisitionExtension.existingDotnetPath": [ { "extensionId": "ms-dotnettools.csharp",
+      "path": "/usr/share/dotnet/dotnet" }, { "extensionId": "ms-dotnettools.csdevkit", "path":
       "/usr/share/dotnet/sdk/8.0.204" } ]
     image: null
   - title: Синхронизация конфигурации профиля
     body: >-
-      Если переменные окружения не подхватываются автоматически, убедитесь, что
-      ваши настройки пути (PATH) прописаны как в .bashrc, так и в .profile.
-      Графический интерфейс Manjaro при запуске приложений из меню часто
-      опирается именно на .profile.
+      Если переменные окружения не подхватываются автоматически, убедитесь, что ваши настройки пути
+      (PATH) прописаны как в .bashrc, так и в .profile. Графический интерфейс Manjaro при запуске
+      приложений из меню часто опирается именно на .profile.
     command: source ~/.profile
     image: null
 updatedAt: '2026-05-30'
@@ -55,23 +52,23 @@ readingTime: 2
 popularityScore: 46
 sources:
   - title: >-
-      fix(backroot8): reliable framebuffer boot emblem loading by lasangainc ·
-      Pull Request #43 · lasangainc/os-backroot · GitHub
+      fix(backroot8): reliable framebuffer boot emblem loading by lasangainc · Pull Request #43 ·
+      lasangainc/os-backroot · GitHub
     url: 'https://github.com/lasangainc/os-backroot/pull/43'
     accessedAt: '2026-05-30'
   - title: >-
-      manjaro - No installed .NET SDK was found on the computer - Vscode (C# dev
-      kit) - Stack Overflow
+      manjaro - No installed .NET SDK was found on the computer - Vscode (C# dev kit) - Stack
+      Overflow
     url: >-
       https://stackoverflow.com/questions/78381689/no-installed-net-sdk-was-found-on-the-computer-vscode-c-dev-kit
     accessedAt: '2026-05-30'
-  - title: 'Manjaro Wiki - Pacman Overview'
+  - title: Manjaro Wiki - Pacman Overview
     url: 'https://wiki.manjaro.org/index.php/Pacman_Overview'
     accessedAt: '2026-06-04'
 dedupe:
-  titleHash: 8ea42f0fffa46f704c7ed13b494aac1abf38106e7bec7f30fab4b672e906299c
-  solutionHash: 2b9ab9caf71e84a362d5c43687fb99425412f304dd5848021fab2ac07fa1b55d
-  sourceHash: f831f791a5cc3e637c43ee79749767583ca95214887fd8b14736fa054385e9ca
+  titleHash: 0070396dc6d280e677133a78f33af4d66ffb5079c05d7dccb32d8248edd6fb1e
+  solutionHash: 5524ab4de9512edb2d912e1cbeb298a61fe66c40722a0a12f331291ed602ce14
+  sourceHash: 323a1d74e1eee0d3331541a6017006d4891509d54d6e323d73b514f1741a87de
 draft: false
 ---
 Проблемы с запуском Manjaro могут быть вызваны как конфликтами на уровне инициализации системы (systemd/initramfs), так и некорректным считыванием окружения графической оболочкой. Если вы столкнулись с ошибкой 'loading FAILED' при загрузке, скорее всего, процесс вывода изображения пытается получить доступ к занятому устройству /dev/fb0. Для решения этой проблемы рекомендуется настроить порядок запуска сервисов, чтобы они не конфликтовали с Plymouth. В случае с ошибками приложений, таких как VS Code, проблема обычно кроется в том, что графическая сессия не видит пути к SDK, которые доступны в терминале. Добавление путей вручную в настройки расширения или приведение конфигурационных файлов профиля к единому виду решает проблему.

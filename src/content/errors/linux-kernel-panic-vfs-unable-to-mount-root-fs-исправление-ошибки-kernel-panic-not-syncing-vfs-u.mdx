@@ -1,57 +1,59 @@
 ---
 title: >-
-  Исправление ошибки "Kernel Panic - not syncing: VFS: Unable to mount root fs
-  on unknown-block(0,0)" в Ubuntu
+  Исправление ошибки "Kernel Panic - not syncing: VFS: Unable to mount root fs on
+  unknown-block(0,0)" в Ubuntu
 errorId: kernel-panic-vfs-unable-to-mount-root-fs
 category: Linux
 tags:
-  - 'Ubuntu'
-  - 'kernel panic'
-  - 'VFS'
-  - 'initramfs'
-  - 'GRUB'
-  - 'boot error'
+  - Ubuntu
+  - kernel panic
+  - VFS
+  - initramfs
+  - GRUB
+  - boot error
 description: >-
-  Инструкция по устранению критической ошибки ядра Ubuntu, которая возникает
-  после обновления системы и препятствует ее загрузке. Ошибка "Kernel Panic -
-  not syncing: VFS: Unable to mount root fs on unknown-block(0,0)" обыч
+  Инструкция по устранению критической ошибки ядра Ubuntu, которая возникает после обновления
+  системы и препятствует ее загрузке. Ошибка "Kernel Panic - not syncing: VFS: Unable to mount root
+  fs on unknown-block(0,0)" обыч
 symptoms:
-  - 'Система Ubuntu не загружается после обновления. При загрузке появляется сообщение об ошибке: "Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)".'
+  - >-
+    Система Ubuntu не загружается после обновления. При загрузке появляется сообщение об ошибке:
+    "Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)".
 causes:
-  - 'Сбой в процессе обновления ядра или его компонентов. Проблемы с драйверами, например, NVIDIA, которые могут помешать корректной сборке initramfs.'
+  - >-
+    Сбой в процессе обновления ядра или его компонентов. Проблемы с драйверами, например, NVIDIA,
+    которые могут помешать корректной сборке initramfs.
 steps:
   - title: 1. Загрузка с предыдущей версии ядра через GRUB
     body: >-
-      При возникновении ошибки "Kernel Panic" перезагрузите компьютер. Во время
-      загрузки, когда появится меню GRUB (возможно, потребуется нажать клавишу
-      Shift или Esc), выберите "Advanced options for Ubuntu" (Расширенные
-      параметры Ubuntu). Затем выберите предыдущую, стабильно работавшую версию
-      ядра из списка и нажмите Enter для загрузки.
+      При возникновении ошибки "Kernel Panic" перезагрузите компьютер. Во время загрузки, когда
+      появится меню GRUB (возможно, потребуется нажать клавишу Shift или Esc), выберите "Advanced
+      options for Ubuntu" (Расширенные параметры Ubuntu). Затем выберите предыдущую, стабильно
+      работавшую версию ядра из списка и нажмите Enter для загрузки.
     command: null
     image: null
   - title: 2. Пересборка initramfs для нового ядра
     body: >-
-      После успешной загрузки в предыдущую версию ядра откройте терминал. Вам
-      нужно будет пересоздать initramfs для проблемного, нового ядра. Для этого
-      выполните команду, заменив `<версия_ядра>` на актуальный номер версии
-      ядра, которое вызывало ошибку (например, 6.14.0-24-generic). Номер версии
-      можно узнать, например, с помощью команды `uname -r`, если загрузиться с
-      рабочего ядра.
+      После успешной загрузки в предыдущую версию ядра откройте терминал. Вам нужно будет
+      пересоздать initramfs для проблемного, нового ядра. Для этого выполните команду, заменив
+      `<версия_ядра>` на актуальный номер версии ядра, которое вызывало ошибку (например,
+      6.14.0-24-generic). Номер версии можно узнать, например, с помощью команды `uname -r`, если
+      загрузиться с рабочего ядра.
     command: null
     image: null
   - title: 3. Обновление GRUB
     body: >-
-      После того как initramfs для нового ядра будет успешно пересобрана,
-      необходимо обновить загрузчик GRUB, чтобы он корректно увидел измененные
-      файлы. Выполните следующую команду в терминале:
+      После того как initramfs для нового ядра будет успешно пересобрана, необходимо обновить
+      загрузчик GRUB, чтобы он корректно увидел измененные файлы. Выполните следующую команду в
+      терминале:
     command: null
     image: null
   - title: 4. Перезагрузка и проверка
     body: >-
-      После выполнения всех предыдущих шагов перезагрузите систему командой
-      `sudo reboot`. Теперь Ubuntu должна загрузиться с новой версией ядра без
-      ошибки "Kernel Panic". Если проблема сохраняется, возможно, потребуется
-      переустановить драйверы (например, NVIDIA), если они были причиной сбоя.
+      После выполнения всех предыдущих шагов перезагрузите систему командой `sudo reboot`. Теперь
+      Ubuntu должна загрузиться с новой версией ядра без ошибки "Kernel Panic". Если проблема
+      сохраняется, возможно, потребуется переустановить драйверы (например, NVIDIA), если они были
+      причиной сбоя.
     command: null
     image: null
 updatedAt: '2026-05-30'
@@ -59,25 +61,23 @@ publishedAt: '2026-05-30'
 readingTime: 4
 popularityScore: 67
 sources:
-  - title: >-
-      boot - Getting a Kernel Panic on Ubuntu 24.04 with kernel version
+  - title: boot - Getting a Kernel Panic on Ubuntu 24.04 with kernel version
     url: >-
       https://askubuntu.com/questions/1553488/getting-a-kernel-panic-on-ubuntu-24-04-with-kernel-version-6-11-0-24-generic
     accessedAt: '2026-05-30'
   - title: >-
-      Fixing the "Kernel Panic - not syncing: VFS: Unable to mount root fs on
-      unknown-block(0,0)" Error After Upgrading Ubuntu - DEV Community
+      Fixing the "Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)"
+      Error After Upgrading Ubuntu - DEV Community
     url: >-
       https://dev.to/dm8ry/fixing-the-kernel-panic-not-syncing-vfs-unable-to-mount-root-fs-on-unknown-block00-error-3ado
     accessedAt: '2026-05-30'
   - title: boot - How to fix or remove a broken kernel (Ubuntu 20.04) - Ask Ubuntu
-    url: >-
-      https://askubuntu.com/questions/1253247/how-to-fix-or-remove-a-broken-kernel-ubuntu-20-04
+    url: 'https://askubuntu.com/questions/1253247/how-to-fix-or-remove-a-broken-kernel-ubuntu-20-04'
     accessedAt: '2026-05-30'
 dedupe:
-  titleHash: 9b7e1caa671412b7220b925cdd715dc29648dceb24129f0e41cc4139da87e3a2
-  solutionHash: 494bc74611d2c82b87e7189e051b9c24b6e3a0742a98a5ae8ee6a923fb4086b3
-  sourceHash: e44e8a111d82d35d0f510618b4de91f7b85baecc714cca727515a8baa3b3c855
+  titleHash: 9c8b52fb47099708aa83c9df5ed9d23685a55f08d4c6cb205d290d76e78ec679
+  solutionHash: 1c293188266b34cc137587b6982cc79cfc6149bf4686ca7c7ba75430f16d752f
+  sourceHash: 0b9180165dc1e44603eaa2360a0c1b88d23b8fb24eb1d2b2372a41c7f8213512
 draft: false
 ---
 Ошибка "Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)" является одной из самых неприятных проблем, с которыми можно столкнуться в Ubuntu. Чаще всего она возникает после обновления системы, когда новое ядро не может корректно смонтировать корневую файловую систему. Причина кроется в том, что для нового ядра не был создан или был создан некорректно файл начальной файловой системы RAM (initramfs), который необходим для загрузки операционной системы.

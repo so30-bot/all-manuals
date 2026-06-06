@@ -3,44 +3,42 @@ title: 'Как исправить ошибку npm ERR! EACCES: Отказано
 errorId: npm-EACCES
 category: Веб-разработка
 tags:
-  - 'npm'
-  - 'EACCES'
-  - 'permissions'
-  - 'доступ'
-  - 'ошибка'
-  - 'fix'
-  - 'node.js'
-  - 'linux'
+  - npm
+  - EACCES
+  - permissions
+  - доступ
+  - ошибка
+  - fix
+  - node.js
+  - linux
 description: >-
-  Ошибка `npm ERR! EACCES: permission denied` является одной из наиболее
-  распространенных проблем при работе с npm, особенно на Unix-подобных системах
-  (Linux, macOS) и иногда на Windows. Она указывает на то, что npm не име
+  Ошибка `npm ERR! EACCES: permission denied` является одной из наиболее распространенных проблем
+  при работе с npm, особенно на Unix-подобных системах (Linux, macOS) и иногда на Windows. Она
+  указывает на то, что npm не име
 symptoms:
-  - 'Ошибка повторяется или компонент работает нестабильно'
+  - Ошибка повторяется или компонент работает нестабильно
 causes:
   - 'Неверная конфигурация, конфликт версий или повреждённые данные'
 steps:
   - title: 'Временное решение: Запуск с повышенными привилегиями'
     body: >-
-      Самый быстрый способ обойти ошибку `EACCES` – это запустить команду npm с
-      правами суперпользователя (для Linux/macOS) или от имени администратора
-      (для Windows). Это временно предоставит npm необходимые права для
-      выполнения операции. Однако, это не рекомендуется для постоянного
-      использования, так как может привести к созданию файлов, принадлежащих
-      root, что вызовет будущие проблемы с разрешениями.
+      Самый быстрый способ обойти ошибку `EACCES` – это запустить команду npm с правами
+      суперпользователя (для Linux/macOS) или от имени администратора (для Windows). Это временно
+      предоставит npm необходимые права для выполнения операции. Однако, это не рекомендуется для
+      постоянного использования, так как может привести к созданию файлов, принадлежащих root, что
+      вызовет будущие проблемы с разрешениями.
     command: >-
       sudo npm install -g <имя-пакета> (для Linux/macOS)
 
 
-      Для Windows: Запустите командную строку или PowerShell от имени
-      администратора и выполните `npm install -g <имя-пакета>`.
+      Для Windows: Запустите командную строку или PowerShell от имени администратора и выполните
+      `npm install -g <имя-пакета>`.
     image: null
   - title: 'Рекомендуемое решение: Изменение владельца глобальной директории npm'
     body: >-
-      Наиболее правильный способ решения проблемы с `EACCES` для глобальных
-      пакетов — это изменить владельца директории, куда npm устанавливает
-      глобальные пакеты, на текущего пользователя. Это позволит вам
-      устанавливать пакеты без `sudo`.
+      Наиболее правильный способ решения проблемы с `EACCES` для глобальных пакетов — это изменить
+      владельца директории, куда npm устанавливает глобальные пакеты, на текущего пользователя. Это
+      позволит вам устанавливать пакеты без `sudo`.
 
 
       1.  **Определите путь к глобальной директории npm:**
@@ -49,69 +47,54 @@ steps:
       2.  **Измените владельца этой директории:**
           *   **Для Linux/macOS:** Используйте команду `chown` для изменения владельца директории и всех её поддиректорий на текущего пользователя.
           *   **Для Windows:** Проверьте и измените права доступа к папке, обычно это `C:\Users\<ВашПользователь>\AppData\Roaming\npm` или `C:\Program Files\nodejs\npm` и `C:\Program Files\nodejs\npm_modules`. Убедитесь, что у вашей учетной записи есть полные права на эти папки. Это можно сделать через свойства папки -> вкладка 'Безопасность'.
-    command: >-
+    command: |-
       npm config get prefix
-
-      sudo chown -R $(whoami) $(npm config get
-      prefix)/{lib/node_modules,bin,share}
+      sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
     image: null
-  - title: >-
-      Альтернативное решение: Настройка пользовательской директории для
-      глобальных пакетов
+  - title: 'Альтернативное решение: Настройка пользовательской директории для глобальных пакетов'
     body: >-
-      Если изменение прав доступа к системным директориям вызывает сложности или
-      нежелательно, можно настроить npm так, чтобы он устанавливал глобальные
-      пакеты в директорию, полностью принадлежащую текущему пользователю. Это
-      полностью обходит проблемы с системными разрешениями.
+      Если изменение прав доступа к системным директориям вызывает сложности или нежелательно, можно
+      настроить npm так, чтобы он устанавливал глобальные пакеты в директорию, полностью
+      принадлежащую текущему пользователю. Это полностью обходит проблемы с системными разрешениями.
 
 
-      1.  **Создайте новую директорию** для глобальных пакетов, например, в
-      вашей домашней папке:
+      1.  **Создайте новую директорию** для глобальных пакетов, например, в вашей домашней папке:
 
 
       2.  **Настройте npm** использовать эту директорию:
 
 
-      3.  **Добавьте эту директорию в переменную окружения `PATH`**, чтобы
-      система могла находить исполняемые файлы глобальных пакетов. Добавьте
-      следующую строку в ваш файл конфигурации оболочки (например, `.bashrc`,
-      `.zshrc`, `.profile`):
+      3.  **Добавьте эту директорию в переменную окружения `PATH`**, чтобы система могла находить
+      исполняемые файлы глобальных пакетов. Добавьте следующую строку в ваш файл конфигурации
+      оболочки (например, `.bashrc`, `.zshrc`, `.profile`):
 
 
-      4.  **Перезагрузите терминал** или выполните `source ~/.bashrc` (или
-      соответствующий файл), чтобы изменения вступили в силу.
+      4.  **Перезагрузите терминал** или выполните `source ~/.bashrc` (или соответствующий файл),
+      чтобы изменения вступили в силу.
     command: |-
       mkdir ~/.npm-global
       npm config set prefix '~/.npm-global'
       export PATH=~/.npm-global/bin:$PATH
     image: null
-  - title: >-
-      Комплексное решение: Использование менеджера версий Node.js (nvm, fnm,
-      Volta)
+  - title: 'Комплексное решение: Использование менеджера версий Node.js (nvm, fnm, Volta)'
     body: >-
-      Лучший способ избежать проблем с правами доступа в будущем — это
-      использовать менеджер версий Node.js, такой как `nvm` (Node Version
-      Manager), `fnm` (Fast Node Manager) или `Volta`. Эти инструменты
-      устанавливают Node.js и npm в директории, принадлежащие пользователю, что
-      исключает необходимость в `sudo` для большинства операций и позволяет
-      легко переключаться между разными версиями Node.js.
+      Лучший способ избежать проблем с правами доступа в будущем — это использовать менеджер версий
+      Node.js, такой как `nvm` (Node Version Manager), `fnm` (Fast Node Manager) или `Volta`. Эти
+      инструменты устанавливают Node.js и npm в директории, принадлежащие пользователю, что
+      исключает необходимость в `sudo` для большинства операций и позволяет легко переключаться
+      между разными версиями Node.js.
 
 
-      1.  **Удалите существующую установку Node.js и npm** (если она была
-      установлена системно).
+      1.  **Удалите существующую установку Node.js и npm** (если она была установлена системно).
 
-      2.  **Установите выбранный менеджер версий** (например, `nvm`). Инструкции
-      по установке можно найти на официальных страницах проектов.
+      2.  **Установите выбранный менеджер версий** (например, `nvm`). Инструкции по установке можно
+      найти на официальных страницах проектов.
 
       3.  **Используйте менеджер версий для установки Node.js.**
-    command: >-
+    command: |-
       Пример для nvm (Linux/macOS):
-
-      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh |
-      bash
-
+      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
       nvm install node
-
       nvm use node
     image: null
 updatedAt: '2026-05-28'
@@ -120,35 +103,34 @@ readingTime: 8
 popularityScore: 99
 sources:
   - title: >-
-      chore(deps): bump the dependencies group across 1 directory with 7 updates
-      by dependabot[bot] · Pull Request #5 · tianzhenkun/recov-ai-web-react ·
-      GitHub
+      chore(deps): bump the dependencies group across 1 directory with 7 updates by dependabot[bot]
+      · Pull Request #5 · tianzhenkun/recov-ai-web-react · GitHub
     url: 'https://github.com/tianzhenkun/recov-ai-web-react/pull/5'
     accessedAt: '2026-05-28'
   - title: >-
-      Update npm dependencies (main) (patch) by renovate[bot] · Pull Request
-      #481 · conforma/conforma.github.io · GitHub
+      Update npm dependencies (main) (patch) by renovate[bot] · Pull Request #481 ·
+      conforma/conforma.github.io · GitHub
     url: 'https://github.com/conforma/conforma.github.io/pull/481'
     accessedAt: '2026-05-28'
   - title: >-
-      proposal(serve): Mode B feature-priority roadmap toward v0.16
-      production-ready · Issue #4175 · QwenLM/qwen-code · GitHub
+      proposal(serve): Mode B feature-priority roadmap toward v0.16 production-ready · Issue #4175 ·
+      QwenLM/qwen-code · GitHub
     url: 'https://github.com/QwenLM/qwen-code/issues/4175'
     accessedAt: '2026-05-28'
   - title: >-
-      chore(deps): bump the dependencies group across 1 directory with 7 updates
-      by dependabot[bot] · Pull Request #5 · jaxsh/snack-project-web · GitHub
+      chore(deps): bump the dependencies group across 1 directory with 7 updates by dependabot[bot]
+      · Pull Request #5 · jaxsh/snack-project-web · GitHub
     url: 'https://github.com/jaxsh/snack-project-web/pull/5'
     accessedAt: '2026-05-28'
   - title: >-
-      npm-ci-retry burns 3 attempts on deterministic compile errors · Issue
-      #9256 · daintreehq/daintree · GitHub
+      npm-ci-retry burns 3 attempts on deterministic compile errors · Issue #9256 ·
+      daintreehq/daintree · GitHub
     url: 'https://github.com/daintreehq/daintree/issues/9256'
     accessedAt: '2026-05-28'
 dedupe:
-  titleHash: 339e68114d17bca68896f04c0d49450930af40cb81039370e67053cb853297d7
-  solutionHash: 16f2ac02faca824afac5da64dd8e91156d6a2f80558f4c990bae63b7025ba3aa
-  sourceHash: fa946cdb5fc41340d4ac5258244b59703c48119ab313b0a94d19c3f00da86525
+  titleHash: ade24543954c6cdce3898f9c5e6c2cc5d7dc4355cc70079aaba054502dd24935
+  solutionHash: 01626cf7226eb456df38567157188f3381721247c87c5cd662873b096b320489
+  sourceHash: 5f7be5b3c367462d11fbbdc9a03b08916ff265dcc6c4e0e275fa4db2e1a095d0
 draft: false
 ---
 Ошибка `npm ERR! EACCES: permission denied` является одной из наиболее распространенных проблем при работе с npm, особенно на Unix-подобных системах (Linux, macOS) и иногда на Windows. Она указывает на то, что npm не имеет достаточных прав доступа для выполнения операции, такой как установка, обновление или удаление пакетов, а также для записи в определенные директории. Эта ошибка часто возникает, когда npm пытается записать данные в системные директории, к которым у текущего пользователя нет необходимых привилегий.

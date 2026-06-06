@@ -3,27 +3,28 @@ title: Как исправить ошибку Node.js MODULE_NOT_FOUND
 errorId: NODE_MODULE_NOT_FOUND
 category: Веб-разработка
 tags:
-  - 'Node.js'
-  - 'npm'
-  - 'MODULE_NOT_FOUND'
-  - 'зависимости'
-  - 'отладка'
-  - 'JavaScript'
-  - 'CI/CD'
+  - Node.js
+  - npm
+  - MODULE_NOT_FOUND
+  - зависимости
+  - отладка
+  - JavaScript
+  - CI/CD
 description: >-
-  Инструкция по устранению распространенной ошибки `MODULE_NOT_FOUND` в Node.js,
-  которая возникает, когда Node.js не может найти запрошенный модуль.
+  Инструкция по устранению распространенной ошибки `MODULE_NOT_FOUND` в Node.js, которая возникает,
+  когда Node.js не может найти запрошенный модуль.
 symptoms:
   - 'Код ошибки `code: ''''MODULE_NOT_FOUND''''`.'
-  - 'Приложение Node.js не запускается или завершается сбойно. Скрипты в CI/CD падают с ошибкой ''Cannot find module'' на шаге, который должен использовать локальные файлы.'
+  - >-
+    Приложение Node.js не запускается или завершается сбойно. Скрипты в CI/CD падают с ошибкой
+    'Cannot find module' на шаге, который должен использовать локальные файлы.
 causes:
   - 'Неверная конфигурация, конфликт версий или повреждённые данные'
 steps:
   - title: 'Шаг 1: Проверьте установку модуля'
     body: >-
-      Убедитесь, что все необходимые зависимости проекта установлены. Если
-      ошибка указывает на конкретный модуль, попробуйте установить его вручную.
-      Это самый распространенный сценарий.
+      Убедитесь, что все необходимые зависимости проекта установлены. Если ошибка указывает на
+      конкретный модуль, попробуйте установить его вручную. Это самый распространенный сценарий.
     command: |-
       npm install
       # Если ошибка указывает на конкретный модуль, например 'some-module':
@@ -31,10 +32,9 @@ steps:
     image: null
   - title: 'Шаг 2: Переустановка зависимостей и очистка кэша'
     body: >-
-      Поврежденная или неполная директория `node_modules` часто является
-      причиной этой ошибки. Удаление и повторная установка всех зависимостей, а
-      также очистка кэша npm/yarn, может решить проблему, устраняя любые
-      несоответствия или поврежденные файлы.
+      Поврежденная или неполная директория `node_modules` часто является причиной этой ошибки.
+      Удаление и повторная установка всех зависимостей, а также очистка кэша npm/yarn, может решить
+      проблему, устраняя любые несоответствия или поврежденные файлы.
     command: |-
       rm -rf node_modules
       npm cache clean --force
@@ -42,29 +42,23 @@ steps:
     image: null
   - title: 'Шаг 3: Проверка путей к модулям и конфигурации CI/CD'
     body: >-
-      Если ошибка возникает в среде CI/CD (например, GitHub Actions), убедитесь,
-      что скрипты, требующие файлов проекта, выполняются *после* шага
-      клонирования репозитория (`actions/checkout`). Как показано в SOURCE 3,
-      запуск скрипта до того, как файлы проекта будут доступны, приведет к
-      `MODULE_NOT_FOUND`. Также проверьте, что пути к модулям в вашем коде
+      Если ошибка возникает в среде CI/CD (например, GitHub Actions), убедитесь, что скрипты,
+      требующие файлов проекта, выполняются *после* шага клонирования репозитория
+      (`actions/checkout`). Как показано в SOURCE 3, запуск скрипта до того, как файлы проекта будут
+      доступны, приведет к `MODULE_NOT_FOUND`. Также проверьте, что пути к модулям в вашем коде
       корректны, особенно при использовании относительных путей.
-    command: >-
+    command: |-
       # Пример для GitHub Actions:
-
       # - uses: actions/checkout@v4  # Этот шаг должен быть первым
-
       # - run: npm install
-
-      # - run: node scripts/my-script.js # Скрипт запускается после checkout и
-      npm install
+      # - run: node scripts/my-script.js # Скрипт запускается после checkout и npm install
     image: null
   - title: 'Шаг 4: Обновление устаревших зависимостей'
     body: >-
-      Иногда ошибка `MODULE_NOT_FOUND` может быть вызвана внутренними проблемами
-      в устаревших версиях зависимостей, которые были исправлены в более новых
-      версиях. Обновление пакетов может помочь, как это было в случае с
-      Artillery (SOURCE 2), где обновление решило проблему `MODULE_NOT_FOUND`
-      для внутренних модулей.
+      Иногда ошибка `MODULE_NOT_FOUND` может быть вызвана внутренними проблемами в устаревших
+      версиях зависимостей, которые были исправлены в более новых версиях. Обновление пакетов может
+      помочь, как это было в случае с Artillery (SOURCE 2), где обновление решило проблему
+      `MODULE_NOT_FOUND` для внутренних модулей.
     command: |-
       npm update
       # Или для конкретного пакета:
@@ -72,11 +66,10 @@ steps:
     image: null
   - title: 'Шаг 5: Проверка `package.json` и переменной `NODE_PATH`'
     body: >-
-      Убедитесь, что все необходимые модули перечислены в секциях `dependencies`
-      или `devDependencies` файла `package.json`. Если модуль отсутствует,
-      Node.js не сможет его найти. В редких случаях, если вы используете
-      глобальные модули или нестандартные пути, проверьте переменную окружения
-      `NODE_PATH`, хотя это не рекомендуется для большинства проектов.
+      Убедитесь, что все необходимые модули перечислены в секциях `dependencies` или
+      `devDependencies` файла `package.json`. Если модуль отсутствует, Node.js не сможет его найти.
+      В редких случаях, если вы используете глобальные модули или нестандартные пути, проверьте
+      переменную окружения `NODE_PATH`, хотя это не рекомендуется для большинства проектов.
     command: |-
       cat package.json
       echo $NODE_PATH
@@ -86,37 +79,33 @@ publishedAt: '2026-05-28'
 readingTime: 3
 popularityScore: 99
 sources:
-  - title: >-
-      Update dependency mocha to v11 by renovate[bot] · Pull Request #202 ·
-      TryGhost/slimer · GitHub
+  - title: 'Update dependency mocha to v11 by renovate[bot] · Pull Request #202 · TryGhost/slimer · GitHub'
     url: 'https://github.com/TryGhost/slimer/pull/202'
     accessedAt: '2026-05-28'
   - title: >-
-      chore(deps)(deps-dev): bump the backend-dev group across 1 directory with
-      4 updates by dependabot[bot] · Pull Request #2005 ·
-      tobias363/Spillorama-system · GitHub
+      chore(deps)(deps-dev): bump the backend-dev group across 1 directory with 4 updates by
+      dependabot[bot] · Pull Request #2005 · tobias363/Spillorama-system · GitHub
     url: 'https://github.com/tobias363/Spillorama-system/pull/2005'
     accessedAt: '2026-05-28'
   - title: >-
-      bug: ci-smoke-skip.cjs Node port fails with MODULE_NOT_FOUND — Skip step
-      runs before actions/checkout (PR #434 regression) · Issue #439 ·
-      open-gsd/get-shit-done-redux · GitHub
+      bug: ci-smoke-skip.cjs Node port fails with MODULE_NOT_FOUND — Skip step runs before
+      actions/checkout (PR #434 regression) · Issue #439 · open-gsd/get-shit-done-redux · GitHub
     url: 'https://github.com/open-gsd/get-shit-done-redux/issues/439'
     accessedAt: '2026-05-28'
   - title: >-
-      chore(deps): update dependency mocha to v11 by renovate[bot] · Pull
-      Request #308 · lgaticaq/beerjs · GitHub
+      chore(deps): update dependency mocha to v11 by renovate[bot] · Pull Request #308 ·
+      lgaticaq/beerjs · GitHub
     url: 'https://github.com/lgaticaq/beerjs/pull/308'
     accessedAt: '2026-05-28'
   - title: >-
-      chore: update dependency mocha to v11 by renovate[bot] · Pull Request #135
-      · untool/eprom · GitHub
+      chore: update dependency mocha to v11 by renovate[bot] · Pull Request #135 · untool/eprom ·
+      GitHub
     url: 'https://github.com/untool/eprom/pull/135'
     accessedAt: '2026-05-28'
 dedupe:
-  titleHash: 12cb63517e954ba51a44c8e9b63c246466bff794d21c50d0b0a5c8f7979b6c9c
-  solutionHash: 8a6fcdc27c97607e31987563a3e230387a981f1f906e96c6e3d7caf6279e62c0
-  sourceHash: 0c9b736ce012544a2850b7289663186e59f015c5998fd0b85c794d2dab840933
+  titleHash: 94a5f857fc1b5a3dab17561d1e686b22ea384667f51ac6ffa8ac6eacdc2b140b
+  solutionHash: e80511f41cd79a457b67273434f36fd59c942240a76a11ee115f07b90d7d81d6
+  sourceHash: 4881ce28d55be87ee6cc62ef84dad10ea3bc970cb10fefce0b804e5924c11b6a
 draft: false
 ---
 Ошибка `MODULE_NOT_FOUND` является одной из наиболее распространенных проблем при работе с Node.js и npm. Она указывает на то, что среда выполнения Node.js не смогла найти запрошенный модуль по указанному пути. Это может произойти по нескольким причинам, от банального отсутствия установки пакета до более сложных проблем с путями или кэшем. Понимание корневой причины является ключом к быстрому устранению этой ошибки. В этой статье мы рассмотрим наиболее эффективные методы устранения этой проблемы, опираясь на распространенные сценарии и примеры из реальных проектов.

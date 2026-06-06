@@ -1,67 +1,93 @@
 ---
 title: 'Git merge conflict: как разрешить конфликт слияния'
-category: 'Разработка'
+category: Программирование
 tags:
-  - 'Git'
-  - 'merge'
-  - 'конфликт'
-  - 'контроль версий'
-  - 'GitHub'
-  - 'merge conflict'
+  - Git
+  - merge
+  - конфликт
+  - контроль версий
+  - GitHub
+  - merge conflict
 description: >-
-  Пошаговое руководство по разрешению конфликтов слияния Git: маркеры конфликтов, команды git status/merge/abort, ручное редактирование,VS Code и GitHub.
+  Пошаговое руководство по разрешению конфликтов слияния Git: маркеры конфликтов, команды git
+  status/merge/abort, ручное редактирование,VS Code и GitHub.
 symptoms:
   - 'Git сообщает CONFLICT (content): Merge conflict в файле'
   - 'В файле видны маркеры `<<<<<<<` , `=======` , `>>>>>>>`'
-  - 'Pull request не может быть слит из-за конфликтов'
-  - 'Ошибка Automatic merge failed; fix conflicts and then commit the result'
-  - 'git merge завершается ошибкой mid-merge'
-  - 'Файл показывает статус unmerged в git status'
+  - Pull request не может быть слит из-за конфликтов
+  - Ошибка Automatic merge failed; fix conflicts and then commit the result
+  - git merge завершается ошибкой mid-merge
+  - Файл показывает статус unmerged в git status
 causes:
-  - 'Два разработчика изменили одни и те же строки в разных ветках'
+  - Два разработчика изменили одни и те же строки в разных ветках
   - 'Один разработчик удалил файл, другой отредактировал его'
-  - 'Долгая работа без слияния с основной веткой (main/master)'
-  - 'Конфликт при cherry-pick коммитов между ветками'
-  - 'Конфликт при rebase на устаревшую ветку'
+  - Долгая работа без слияния с основной веткой (main/master)
+  - Конфликт при cherry-pick коммитов между ветками
+  - Конфликт при rebase на устаревшую ветку
 steps:
   - title: Проверьте статус конфликтов
     body: >-
-      Выполните git status для списка файлов с конфликтами. Git покажет секцию Unmerged paths с перечнем файлов, требующих разрешения. Каждый конфликтный файл будет помечен как both modified (оба ветки изменили) или deleted by us / deleted by them (одна ветка удалила). Это первый шаг — он покажет масштаб проблемы.
+      Выполните git status для списка файлов с конфликтами. Git покажет секцию Unmerged paths с
+      перечнем файлов, требующих разрешения. Каждый конфликтный файл будет помечен как both modified
+      (оба ветки изменили) или deleted by us / deleted by them (одна ветка удалила). Это первый шаг
+      — он покажет масштаб проблемы.
     command: git status
     image: null
   - title: Просмотрите diffs между ветками
     body: >-
-      Перед редактированием изучите, что именно изменилось. Выполните git diff для просмотра текущих изменений, или git diff HEAD для diffs с последним коммитом. Команда git log --merge -p покажет diffs для конфликтующих коммитов. Это поможет понять контекст изменений с обеих сторон.
+      Перед редактированием изучите, что именно изменилось. Выполните git diff для просмотра текущих
+      изменений, или git diff HEAD для diffs с последним коммитом. Команда git log --merge -p
+      покажет diffs для конфликтующих коммитов. Это поможет понять контекст изменений с обеих
+      сторон.
     command: git diff
     image: null
   - title: Откройте файл и найдите маркеры конфликтов
     body: >-
-      Откройте конфликтный файл в текстовом редакторе. Ищите строку `<<<<<<<` — это начало конфликта. Все между `<<<<<<< HEAD` и `=======` — это изменения из текущей ветки. Все между `=======` и `>>>>>>> branch-name` — из вливаемой ветки. В VS Code конфликты подсвечиваются цветом и имеют кнопки Accept Current Change / Accept Incoming Change / Accept Both Changes прямо в коде.
+      Откройте конфликтный файл в текстовом редакторе. Ищите строку `<<<<<<<` — это начало
+      конфликта. Все между `<<<<<<< HEAD` и `=======` — это изменения из текущей ветки. Все между
+      `=======` и `>>>>>>> branch-name` — из вливаемой ветки. В VS Code конфликты подсвечиваются
+      цветом и имеют кнопки Accept Current Change / Accept Incoming Change / Accept Both Changes
+      прямо в коде.
     command: null
     image: null
   - title: Разрешите конфликт вручную
     body: >-
-      Удалите маркеры `<<<<<<<` , `=======` , `>>>>>>>` и оставьте нужный код. Варианты: (1) оставить только свою версию (Accept Current), (2) оставить только чужую (Accept Incoming), (3) объединить обе версии вручную, (4) написать новое решение. Важно: не оставляйте маркеры в коде — это вызовет ошибки при компиляции или работе приложения. После редактирования сохраните файл.
+      Удалите маркеры `<<<<<<<` , `=======` , `>>>>>>>` и оставьте нужный код. Варианты: (1)
+      оставить только свою версию (Accept Current), (2) оставить только чужую (Accept Incoming), (3)
+      объединить обе версии вручную, (4) написать новое решение. Важно: не оставляйте маркеры в коде
+      — это вызовет ошибки при компиляции или работе приложения. После редактирования сохраните
+      файл.
     command: null
     image: null
   - title: Добавьте разрешённые файлы в индекс
     body: >-
-      После редактирования каждого конфликтного файла добавьте его в staging area командой git add. Это сообщит Git, что конфликт разрешён для данного файла. Можно добавить все файлы разом: git add . — но лучше проверить каждый файл отдельно, чтобы не пропустить неразрешённые конфликты.
+      После редактирования каждого конфликтного файла добавьте его в staging area командой git add.
+      Это сообщит Git, что конфликт разрешён для данного файла. Можно добавить все файлы разом: git
+      add . — но лучше проверить каждый файл отдельно, чтобы не пропустить неразрешённые конфликты.
     command: git add .
     image: null
   - title: Завершите слияние коммитом
     body: >-
-      Выполните git commit для завершения слияния. Git автоматически создаст merge commit с сообщением по умолчанию (Merge branch 'branch-name' into main). Можно написать своё сообщение: git commit -m "Resolve merge conflict: merged feature-auth into main". После этого ветка будет в слияном состоянии без конфликтов.
+      Выполните git commit для завершения слияния. Git автоматически создаст merge commit с
+      сообщением по умолчанию (Merge branch 'branch-name' into main). Можно написать своё сообщение:
+      git commit -m "Resolve merge conflict: merged feature-auth into main". После этого ветка будет
+      в слияном состоянии без конфликтов.
     command: git commit -m "Resolve merge conflict"
     image: null
   - title: Используйте git merge --abort для отмены
     body: >-
-      Если конфликт слишком сложный или вы хотите начать заново, отмените слияние: git merge --abort. Это вернёт репозиторий в состояние до начала merge. Альтернатива: git reset --merge для сброса только staging area. После отмены можно обновить ветку (git pull origin main) и попробовать merge снова.
+      Если конфликт слишком сложный или вы хотите начать заново, отмените слияние: git merge
+      --abort. Это вернёт репозиторий в состояние до начала merge. Альтернатива: git reset --merge
+      для сброса только staging area. После отмены можно обновить ветку (git pull origin main) и
+      попробовать merge снова.
     command: git merge --abort
     image: null
   - title: Разрешите конфликт удалённого файла
     body: >-
-      Если один разработчик удалил файл, а другой отредактировал, Git не может разрешить автоматически. Решение: (1) чтобы сохранить файл — git add <имя-файла>, (2) чтобы удалить — git rm <имя-файла>. После этого сделайте commit. Чтобы проверить, какой файл был удалён в какой ветке, выполните git log --diff-filter=D --summary.
+      Если один разработчик удалил файл, а другой отредактировал, Git не может разрешить
+      автоматически. Решение: (1) чтобы сохранить файл — git add <имя-файла>, (2) чтобы удалить —
+      git rm <имя-файла>. После этого сделайте commit. Чтобы проверить, какой файл был удалён в
+      какой ветке, выполните git log --diff-filter=D --summary.
     command: git rm filename.txt
     image: null
 updatedAt: '2026-06-02'
@@ -69,25 +95,25 @@ publishedAt: '2026-06-02'
 readingTime: 8
 popularityScore: 87
 sources:
-  - title: "Resolving a merge conflict using the command line"
+  - title: Resolving a merge conflict using the command line
     url: 'https://docs.github.com/articles/resolving-a-merge-conflict-using-the-command-line'
     accessedAt: '2026-06-02'
-  - title: "How to Resolve Merge Conflicts in Git?"
+  - title: How to Resolve Merge Conflicts in Git?
     url: 'https://www.atlassian.com/git/tutorials/using-branches/merge-conflicts'
     accessedAt: '2026-06-02'
-  - title: "Resolve merge conflicts in VS Code"
+  - title: Resolve merge conflicts in VS Code
     url: 'https://github.com/microsoft/vscode-docs/blob/main/docs/sourcecontrol/merge-conflicts.md'
     accessedAt: '2026-06-02'
-  - title: "Resolving a merge conflict on GitHub"
+  - title: Resolving a merge conflict on GitHub
     url: 'https://docs.github.com/articles/resolving-a-merge-conflict-on-github/'
     accessedAt: '2026-06-02'
-  - title: "Git - git-merge Documentation"
+  - title: Git - git-merge Documentation
     url: 'https://git-scm.com/docs/git-merge'
     accessedAt: '2026-06-02'
 dedupe:
-  titleHash: d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9
-  solutionHash: e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0
-  sourceHash: f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1
+  titleHash: 6a3bdd93c31152c9806e1f75e78adf58298a96004b4a4b9c18793c5b166febee
+  solutionHash: 63ee9424b8aa9e4ead4bad213d2669f9bcdbbc517bc9ab449ac5e96b1fa1205f
+  sourceHash: c2b92a4f3321dfab10773f1094d167af3ccbc46c2c9b7539930a6f5b407027b3
 draft: false
 ---
 Конфликт слияния (merge conflict) возникает, когда Git не может автоматически объединить изменения из двух веток. Это происходит, когда два разработчика изменили одни и те же строки файла или один удалил файл, а другой его отредактировал. Конфликт — это не ошибка, а штатная ситуация, требующая ручного разрешения.

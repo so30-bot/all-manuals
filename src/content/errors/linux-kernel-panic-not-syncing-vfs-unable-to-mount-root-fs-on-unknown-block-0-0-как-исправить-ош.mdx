@@ -3,41 +3,38 @@ title: Исправление ошибки Kernel Panic при загрузке 
 errorId: 'Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)'
 category: Linux
 tags:
-  - 'Ubuntu'
-  - 'ядро Linux'
-  - 'паника ядра'
-  - 'initramfs'
-  - 'обновление системы'
-  - 'GRUB'
-  - 'NVIDIA'
+  - Ubuntu
+  - ядро Linux
+  - паника ядра
+  - initramfs
+  - обновление системы
+  - GRUB
+  - NVIDIA
 description: >-
-  Решение проблемы, при которой Ubuntu не загружается с ошибкой «Kernel Panic:
-  unable to mount root fs», возникающей после обновления или установки нового
-  ядра.
+  Решение проблемы, при которой Ubuntu не загружается с ошибкой «Kernel Panic: unable to mount root
+  fs», возникающей после обновления или установки нового ядра.
 symptoms:
   - 'Система не загружается, на экране появляется сообщение Kernel Panic.'
   - 'Ошибка: ''''VFS: Unable to mount root fs on unknown-block(0,0)''''.'
-  - 'Проблема возникла после обновления пакетов или ядра Ubuntu.'
+  - Проблема возникла после обновления пакетов или ядра Ubuntu.
   - 'В меню GRUB есть несколько версий ядра, но основная не запускается.'
 causes:
-  - 'Несовместимость нового ядра с текущими драйверами или конфигурацией системы.'
+  - Несовместимость нового ядра с текущими драйверами или конфигурацией системы.
 steps:
   - title: Загрузитесь в старую рабочую версию ядра через меню GRUB
     body: >-
-      При запуске компьютера, когда появляется экран загрузки GRUB (может
-      потребоваться зажать клавишу Shift или Esc), выберите пункт
-      «Дополнительные параметры Ubuntu» (Advanced options for Ubuntu). В списке
-      найдите любую предыдущую, стабильную версию ядра (например,
-      6.8.0-xx-generic, если новое 6.14.0). Загрузитесь с ней. Это позволит вам
-      зайти в рабочую систему для проведения ремонта.
+      При запуске компьютера, когда появляется экран загрузки GRUB (может потребоваться зажать
+      клавишу Shift или Esc), выберите пункт «Дополнительные параметры Ubuntu» (Advanced options for
+      Ubuntu). В списке найдите любую предыдущую, стабильную версию ядра (например,
+      6.8.0-xx-generic, если новое 6.14.0). Загрузитесь с ней. Это позволит вам зайти в рабочую
+      систему для проведения ремонта.
     command: null
     image: null
   - title: Пересоберите initramfs для проблемной версии ядра и обновите загрузчик
     body: >-
-      Откройте терминал. Сначала уточните точную версию нового, нестартующего
-      ядра командой 'uname -r' (если вы не знаете её точно, она также
-      отображается в меню GRUB). Затем выполните две команды, подставив свою
-      версию вместо &lt;version&gt;:
+      Откройте терминал. Сначала уточните точную версию нового, нестартующего ядра командой 'uname
+      -r' (если вы не знаете её точно, она также отображается в меню GRUB). Затем выполните две
+      команды, подставив свою версию вместо &lt;version&gt;:
 
 
       1. Команда для пересборки initramfs:
@@ -50,21 +47,20 @@ steps:
       sudo update-grub
 
 
-      После этого перезагрузите компьютер. Система должна нормально загрузиться
-      на новом ядре.
+      После этого перезагрузите компьютер. Система должна нормально загрузиться на новом ядре.
     command: |-
       sudo update-initramfs -u -k <version>
       sudo update-grub
     image: null
   - title: При необходимости переустановите драйверы NVIDIA
     body: >-
-      Если после исправления загрузки вы обнаружите, что графический интерфейс
-      не работает (частая проблема с драйверами NVIDIA), или если ошибка была
-      вызвана именно сбоем их сборки, потребуется их переустановка.
+      Если после исправления загрузки вы обнаружите, что графический интерфейс не работает (частая
+      проблема с драйверами NVIDIA), или если ошибка была вызвана именно сбоем их сборки,
+      потребуется их переустановка.
 
 
-      Попробуйте сначала переустановить стандартные драйверы из репозиториев
-      Ubuntu через «Приложения» -> «Дополнительные драйверы».
+      Попробуйте сначала переустановить стандартные драйверы из репозиториев Ubuntu через
+      «Приложения» -> «Дополнительные драйверы».
 
       Если это не помогло, используйте терминал:
 
@@ -73,9 +69,8 @@ steps:
       sudo ubuntu-drivers install
 
 
-      После переустановки снова выполните шаг 2 (пересборку initramfs и
-      обновление GRUB), так как это может снова удалить проблемное ядро, но
-      стабилизирует систему.
+      После переустановки снова выполните шаг 2 (пересборку initramfs и обновление GRUB), так как
+      это может снова удалить проблемное ядро, но стабилизирует систему.
     command: sudo ubuntu-drivers install
     image: null
 updatedAt: '2026-05-31'
@@ -83,25 +78,23 @@ publishedAt: '2026-05-31'
 readingTime: 3
 popularityScore: 46
 sources:
-  - title: >-
-      boot - Getting a Kernel Panic on Ubuntu 24.04 with kernel version
+  - title: boot - Getting a Kernel Panic on Ubuntu 24.04 with kernel version
     url: >-
       https://askubuntu.com/questions/1553488/getting-a-kernel-panic-on-ubuntu-24-04-with-kernel-version-6-11-0-24-generic
     accessedAt: '2026-05-31'
   - title: >-
-      Fixing the "Kernel Panic - not syncing: VFS: Unable to mount root fs on
-      unknown-block(0,0)" Error After Upgrading Ubuntu - DEV Community
+      Fixing the "Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)"
+      Error After Upgrading Ubuntu - DEV Community
     url: >-
       https://dev.to/dm8ry/fixing-the-kernel-panic-not-syncing-vfs-unable-to-mount-root-fs-on-unknown-block00-error-3ado
     accessedAt: '2026-05-31'
-  - title: "Ubuntu Community Help Wiki"
+  - title: Ubuntu Community Help Wiki
     url: 'https://help.ubuntu.com/'
     accessedAt: '2026-06-02'
-
 dedupe:
-  titleHash: 43ba49d3b4f130059437b2054a03f09c4a20bfb368bd10dafba11fb91bc3d05b
-  solutionHash: f5d4848c2614dc83c3a233f2ce159616e313502f442201be61c209a488dc8aab
-  sourceHash: bdf55ceb8a75bf73f97b6e80cd30afdde1b2014c11bd8ff5d6d0a485078788bf
+  titleHash: 30dbcea95807676cc8ff90d7de6f737af8f89eaf3403c435b64a64d92b0cbecc
+  solutionHash: 2b4dbe3bef2e62bc18a64ebcca53e4c2c952964d07298e75d39e8628f460e9ea
+  sourceHash: 0b9180165dc1e44603eaa2360a0c1b88d23b8fb24eb1d2b2372a41c7f8213512
 draft: false
 ---
 Ошибка Kernel Panic с сообщением «unable to mount root fs» чаще всего возникает после обновления ядра Ubuntu. Ядро не может найти и подключить главный раздел диска, потому что для него не был создан или повреждён специальный файл initramfs.

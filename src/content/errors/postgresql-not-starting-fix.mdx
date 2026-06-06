@@ -1,56 +1,77 @@
 ---
 title: 'PostgreSQL не запускается: исправление ошибок в Ubuntu/Debian'
-category: 'Базы данных'
+category: Базы данных
 tags:
-  - 'PostgreSQL'
-  - 'Linux'
-  - 'Ubuntu'
-  - 'база данных'
-  - 'сервер'
+  - PostgreSQL
+  - Linux
+  - Ubuntu
+  - база данных
+  - сервер
 description: >-
-  Подробное руководство по устранению проблем с запуском PostgreSQL в Ubuntu/Debian: проверка службы, журналов, прав доступа, конфигурации и восстановление кластеров.
+  Подробное руководство по устранению проблем с запуском PostgreSQL в Ubuntu/Debian: проверка
+  службы, журналов, прав доступа, конфигурации и восстановление кластеров.
 symptoms:
-  - 'Команда psql выдаёт ошибку could not connect to server'
-  - 'Служба PostgreSQL не запускается или запускается и сразу останавливается'
+  - Команда psql выдаёт ошибку could not connect to server
+  - Служба PostgreSQL не запускается или запускается и сразу останавливается
   - 'Ошибка FATAL: could not open file при запуске'
-  - 'Кластер PostgreSQL в статусе down или manual'
-  - 'Ошибка No such file or directory при подключении'
+  - Кластер PostgreSQL в статусе down или manual
+  - Ошибка No such file or directory при подключении
 causes:
-  - 'Служба PostgreSQL не запущена или остановлена'
-  - 'Повреждённые файлы данных кластера'
-  - 'Неправильные права доступа к директориям'
-  - 'Конфликт версий PostgreSQL'
-  - 'Недостаточно места на диске'
-  - 'Ошибки в конфигурационных файлах'
+  - Служба PostgreSQL не запущена или остановлена
+  - Повреждённые файлы данных кластера
+  - Неправильные права доступа к директориям
+  - Конфликт версий PostgreSQL
+  - Недостаточно места на диске
+  - Ошибки в конфигурационных файлах
 steps:
   - title: Проверьте статус службы PostgreSQL
     body: >-
-      Выполните команду systemctl status postgresql для проверки статуса. Если служба active (exited), это означает, что PostgreSQL запустил пустышку, а реальный кластер не стартовал. Проверьте список кластеров: pg_lsclusters. Если кластер в статусе down или manual, запустите его вручную: sudo systemctl start postgresql@14-main. Если служба не запускается, проверьте журнал: journalctl -u postgresql -xe.
+      Выполните команду systemctl status postgresql для проверки статуса. Если служба active
+      (exited), это означает, что PostgreSQL запустил пустышку, а реальный кластер не стартовал.
+      Проверьте список кластеров: pg_lsclusters. Если кластер в статусе down или manual, запустите
+      его вручную: sudo systemctl start postgresql@14-main. Если служба не запускается, проверьте
+      журнал: journalctl -u postgresql -xe.
     command: systemctl status postgresql
     image: null
   - title: Проверьте журналы ошибок
     body: >-
-      Журнал PostgreSQL содержит подробную информацию об ошибках. Расположение: /var/log/postgresql/postgresql-14-main.log. Откройте его: sudo nano /var/log/postgresql/postgresql-14-main.log. Ищите строки с FATAL или ERROR. Типичные ошибки: data directory has wrong ownership, could not open file, insufficient disk space. Если журнал пустой, запустите PostgreSQL вручную с отладкой: postgres -d 3 -D /var/lib/postgresql/14/main.
+      Журнал PostgreSQL содержит подробную информацию об ошибках. Расположение:
+      /var/log/postgresql/postgresql-14-main.log. Откройте его: sudo nano
+      /var/log/postgresql/postgresql-14-main.log. Ищите строки с FATAL или ERROR. Типичные ошибки:
+      data directory has wrong ownership, could not open file, insufficient disk space. Если журнал
+      пустой, запустите PostgreSQL вручную с отладкой: postgres -d 3 -D /var/lib/postgresql/14/main.
     command: null
     image: null
   - title: Проверьте права доступа к директориям
     body: >-
-      PostgreSQL требует определённые права доступа к директориям данных и логов. Выполните: sudo chmod 700 -R /var/lib/postgresql/14/main. Также проверьте, что пользователь postgres является владельцем: sudo chown -R postgres:postgres /var/lib/postgresql/14/main. Если вы изменили права на /var/log, восстановите их: sudo chown -R root:root /var/log/*.
+      PostgreSQL требует определённые права доступа к директориям данных и логов. Выполните: sudo
+      chmod 700 -R /var/lib/postgresql/14/main. Также проверьте, что пользователь postgres является
+      владельцем: sudo chown -R postgres:postgres /var/lib/postgresql/14/main. Если вы изменили
+      права на /var/log, восстановите их: sudo chown -R root:root /var/log/*.
     command: sudo chmod 700 -R /var/lib/postgresql/14/main
     image: null
   - title: Пересоздайте кластер PostgreSQL
     body: >-
-      Если кластер повреждён, его можно пересоздать. Сначала удалите старый кластер: sudo pg_dropcluster 14 main. Затем создайте новый: sudo pg_createcluster 14 main --start. Запустите службу: sudo systemctl start postgresql. Если нужно сохранить данные, сделайте бэкап перед удалением: pg_dumpall > backup.sql.
+      Если кластер повреждён, его можно пересоздать. Сначала удалите старый кластер: sudo
+      pg_dropcluster 14 main. Затем создайте новый: sudo pg_createcluster 14 main --start. Запустите
+      службу: sudo systemctl start postgresql. Если нужно сохранить данные, сделайте бэкап перед
+      удалением: pg_dumpall > backup.sql.
     command: sudo pg_createcluster 14 main --start
     image: null
   - title: Проверьте конфигурацию PostgreSQL
     body: >-
-      Откройте главный конфигурационный файл: sudo nano /etc/postgresql/14/main/postgresql.conf. Проверьте параметр listen_addresses - он должен быть установлен в all для прослушивания всех интерфейсов или localhost для локальных подключений. Проверьте порт (по умолчанию 5432). Также проверьте pg_hba.conf - файл управления доступом.
+      Откройте главный конфигурационный файл: sudo nano /etc/postgresql/14/main/postgresql.conf.
+      Проверьте параметр listen_addresses - он должен быть установлен в all для прослушивания всех
+      интерфейсов или localhost для локальных подключений. Проверьте порт (по умолчанию 5432). Также
+      проверьте pg_hba.conf - файл управления доступом.
     command: null
     image: null
   - title: Включите автоматический запуск
     body: >-
-      Если PostgreSQL не запускается при загрузке системы, убедитесь, что служба включена: sudo systemctl enable postgresql. Если проблема в systemd-generator, выполните: sudo systemctl daemon-reload для перезапуска генератора. Проверьте файл /etc/postgresql/14/main/start.conf - слово auto должно быть в строке для автозапуска.
+      Если PostgreSQL не запускается при загрузке системы, убедитесь, что служба включена: sudo
+      systemctl enable postgresql. Если проблема в systemd-generator, выполните: sudo systemctl
+      daemon-reload для перезапуска генератора. Проверьте файл /etc/postgresql/14/main/start.conf -
+      слово auto должно быть в строке для автозапуска.
     command: sudo systemctl enable postgresql
     image: null
 updatedAt: '2026-06-02'
@@ -58,22 +79,25 @@ publishedAt: '2026-06-02'
 readingTime: 7
 popularityScore: 83
 sources:
-  - title: "Postgresql server doesn't start"
+  - title: Postgresql server doesn't start
     url: 'https://askubuntu.com/questions/830346/postgresql-server-doesnt-start'
     accessedAt: '2026-06-02'
-  - title: 'PostgreSQL 14 server not running locally on Ubuntu 22.04'
-    url: 'https://dba.stackexchange.com/questions/316681/postgresql-14-server-not-running-locally-on-ubuntu-22-04'
+  - title: PostgreSQL 14 server not running locally on Ubuntu 22.04
+    url: >-
+      https://dba.stackexchange.com/questions/316681/postgresql-14-server-not-running-locally-on-ubuntu-22-04
     accessedAt: '2026-06-02'
-  - title: 'Failed to start PostgreSQL Cluster 10-main when booting'
-    url: 'https://stackoverflow.com/questions/60306594/failed-to-start-postgresql-cluster-10-main-when-booting'
+  - title: Failed to start PostgreSQL Cluster 10-main when booting
+    url: >-
+      https://stackoverflow.com/questions/60306594/failed-to-start-postgresql-cluster-10-main-when-booting
     accessedAt: '2026-06-02'
   - title: 'postgres server fails to start, produces no log'
-    url: 'https://serverfault.com/questions/587239/postgres-server-fails-to-start-produces-no-log-how-to-to-troubleshoot'
+    url: >-
+      https://serverfault.com/questions/587239/postgres-server-fails-to-start-produces-no-log-how-to-to-troubleshoot
     accessedAt: '2026-06-02'
 dedupe:
-  titleHash: a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6
-  solutionHash: b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7
-  sourceHash: c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8
+  titleHash: c028335e61cbf241256c9bad6e5259a498ee725513743d6290bbd6434f4d53c2
+  solutionHash: 2ec3828a5f1564d75875d6e0392d652a3e5b990fe06608f604c747548154b0a6
+  sourceHash: 0f8a140dd073486819da8637a6210573ae89ef19680664b109e7700a47c1ccb6
 draft: false
 ---
 ## Что такое PostgreSQL и почему он может не запускаться

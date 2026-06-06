@@ -1,99 +1,145 @@
 ---
 title: 'VirtualBox VT-x/AMD-V недоступен: как включить виртуализацию'
-category: 'Разработка'
+category: Виртуализация
 tags:
-  - 'VirtualBox'
-  - 'VT-x'
-  - 'AMD-V'
-  - 'Hyper-V'
-  - 'виртуализация'
+  - VirtualBox
+  - VT-x
+  - AMD-V
+  - Hyper-V
+  - виртуализация
 description: >-
-  Как исправить ошибку VirtualBox VT-x is not available или AMD-V is disabled: BIOS, Hyper-V, Windows Hypervisor Platform, WSL2, Device Guard и настройки VM.
+  Как исправить ошибку VirtualBox VT-x is not available или AMD-V is disabled: BIOS, Hyper-V,
+  Windows Hypervisor Platform, WSL2, Device Guard и настройки VM.
 symptoms:
-  - 'VirtualBox показывает VT-x is not available'
-  - 'Ошибка AMD-V is disabled in the BIOS'
-  - 'Виртуальная машина не запускается после включения WSL2'
-  - 'VirtualBox работает медленно или показывает зеленую черепаху'
-  - 'После обновления Windows пропала аппаратная виртуализация'
+  - VirtualBox показывает VT-x is not available
+  - Ошибка AMD-V is disabled in the BIOS
+  - Виртуальная машина не запускается после включения WSL2
+  - VirtualBox работает медленно или показывает зеленую черепаху
+  - После обновления Windows пропала аппаратная виртуализация
 causes:
-  - 'Аппаратная виртуализация отключена в BIOS или UEFI'
-  - 'Hyper-V или Windows Hypervisor Platform заняли VT-x'
+  - Аппаратная виртуализация отключена в BIOS или UEFI
+  - Hyper-V или Windows Hypervisor Platform заняли VT-x
   - 'Включены VBS, Memory Integrity или Device Guard'
-  - 'Процессор не поддерживает нужный режим виртуализации'
-  - 'Настройки VirtualBox не соответствуют гостевой ОС'
+  - Процессор не поддерживает нужный режим виртуализации
+  - Настройки VirtualBox не соответствуют гостевой ОС
 steps:
-  - title: 'Проверьте поддержку виртуализации в Windows'
+  - title: Проверьте поддержку виртуализации в Windows
     body: >-
-      Откройте Диспетчер задач, вкладку Performance, CPU и проверьте строку Virtualization. Если указано Disabled, нужно включить Intel VT-x или AMD-V в BIOS. Если Enabled, но VirtualBox жалуется, вероятно, VT-x занят гипервизором Windows.
-    command: 'systeminfo'
+      Откройте Диспетчер задач, вкладку Performance, CPU и проверьте строку Virtualization. Если
+      указано Disabled, нужно включить Intel VT-x или AMD-V в BIOS. Если Enabled, но VirtualBox
+      жалуется, вероятно, VT-x занят гипервизором Windows.
+    command: systeminfo
     image: null
-  - title: 'Включите VT-x или AMD-V в BIOS'
+  - title: Включите VT-x или AMD-V в BIOS
     body: >-
-      Перезагрузите компьютер и войдите в BIOS/UEFI. Нужный параметр может называться Intel Virtualization Technology, VT-x, SVM Mode или AMD-V. После включения сохраните настройки и полностью выключите компьютер на несколько секунд, чтобы прошла переинициализация.
+      Перезагрузите компьютер и войдите в BIOS/UEFI. Нужный параметр может называться Intel
+      Virtualization Technology, VT-x, SVM Mode или AMD-V. После включения сохраните настройки и
+      полностью выключите компьютер на несколько секунд, чтобы прошла переинициализация.
     command: null
     image: null
-  - title: 'Отключите Hyper-V для классического режима VirtualBox'
+  - title: Отключите Hyper-V для классического режима VirtualBox
     body: >-
-      Hyper-V, WSL2, Windows Sandbox и Virtual Machine Platform могут использовать гипервизор Windows. Современный VirtualBox умеет работать поверх Hyper-V, но иногда это вызывает ошибки или сильное падение производительности. Для классического режима отключите компоненты и перезагрузитесь.
+      Hyper-V, WSL2, Windows Sandbox и Virtual Machine Platform могут использовать гипервизор
+      Windows. Современный VirtualBox умеет работать поверх Hyper-V, но иногда это вызывает ошибки
+      или сильное падение производительности. Для классического режима отключите компоненты и
+      перезагрузитесь.
     command: |-
       bcdedit /set hypervisorlaunchtype off
       dism /Online /Disable-Feature /FeatureName:Microsoft-Hyper-V-All
     image: null
-  - title: 'Отключите Windows Hypervisor Platform и Virtual Machine Platform'
+  - title: Отключите Windows Hypervisor Platform и Virtual Machine Platform
     body: >-
-      Если установлен WSL2 или эмуляторы Android, они могли включить дополнительные компоненты виртуализации. Откройте Windows Features и временно отключите Windows Hypervisor Platform и Virtual Machine Platform. После проверки VirtualBox можно вернуть компоненты обратно, если они нужны.
-    command: 'optionalfeatures.exe'
+      Если установлен WSL2 или эмуляторы Android, они могли включить дополнительные компоненты
+      виртуализации. Откройте Windows Features и временно отключите Windows Hypervisor Platform и
+      Virtual Machine Platform. После проверки VirtualBox можно вернуть компоненты обратно, если они
+      нужны.
+    command: optionalfeatures.exe
     image: null
-  - title: 'Проверьте Memory Integrity и VBS'
+  - title: Проверьте Memory Integrity и VBS
     body: >-
-      Core Isolation Memory Integrity и Virtualization-based Security также могут удерживать гипервизор. В Windows Security откройте Device Security, Core isolation и временно выключите Memory integrity. На корпоративных ПК этот параметр может управляться политикой.
-    command: 'msinfo32'
+      Core Isolation Memory Integrity и Virtualization-based Security также могут удерживать
+      гипервизор. В Windows Security откройте Device Security, Core isolation и временно выключите
+      Memory integrity. На корпоративных ПК этот параметр может управляться политикой.
+    command: msinfo32
     image: null
-  - title: 'Проверьте настройки виртуальной машины'
+  - title: Проверьте настройки виртуальной машины
     body: >-
-      В настройках VM включите подходящий тип ОС, PAE/NX при необходимости, достаточное количество CPU и отключите лишние ускорения, если гостевая ОС старая. Для 64-битных гостей аппаратная виртуализация обязательна: без VT-x или AMD-V они не запустятся.
+      В настройках VM включите подходящий тип ОС, PAE/NX при необходимости, достаточное количество
+      CPU и отключите лишние ускорения, если гостевая ОС старая. Для 64-битных гостей аппаратная
+      виртуализация обязательна: без VT-x или AMD-V они не запустятся.
     command: null
     image: null
   - title: 'Верните Hyper-V, если нужен WSL2 или Docker Desktop'
     body: >-
-      Если вам нужен WSL2, Docker Desktop или Windows Sandbox, полностью отключать Hyper-V может быть неудобно. В этом случае обновите VirtualBox до последней версии и используйте режим совместимости с Windows Hypervisor Platform, понимая возможную потерю производительности.
-    command: 'bcdedit /set hypervisorlaunchtype auto'
+      Если вам нужен WSL2, Docker Desktop или Windows Sandbox, полностью отключать Hyper-V может
+      быть неудобно. В этом случае обновите VirtualBox до последней версии и используйте режим
+      совместимости с Windows Hypervisor Platform, понимая возможную потерю производительности.
+    command: bcdedit /set hypervisorlaunchtype auto
     image: null
 updatedAt: '2026-06-04'
 publishedAt: '2026-06-04'
 readingTime: 9
 popularityScore: 87
 sources:
-  - title: 'VirtualBox Manual - Hardware vs software virtualization'
+  - title: VirtualBox Manual - Hardware vs software virtualization
     url: 'https://www.virtualbox.org/manual/ch10.html'
     accessedAt: '2026-06-04'
-  - title: 'VirtualBox Manual - System settings'
+  - title: VirtualBox Manual - System settings
     url: 'https://www.virtualbox.org/manual/ch03.html'
     accessedAt: '2026-06-04'
-  - title: 'Microsoft Learn - Hyper-V architecture'
-    url: 'https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/reference/hyper-v-architecture'
+  - title: Microsoft Learn - Hyper-V architecture
+    url: >-
+      https://learn.microsoft.com/en-us/virtualization/hyper-v-on-windows/reference/hyper-v-architecture
     accessedAt: '2026-06-04'
-  - title: 'Microsoft Learn - Enable virtualization on Windows'
-    url: 'https://support.microsoft.com/windows/enable-virtualization-on-windows-c5578302-6e43-4b4b-a449-8ced115f58e1'
+  - title: Microsoft Learn - Enable virtualization on Windows
+    url: >-
+      https://support.microsoft.com/windows/enable-virtualization-on-windows-c5578302-6e43-4b4b-a449-8ced115f58e1
     accessedAt: '2026-06-04'
 dedupe:
-  titleHash: '5555555555555555555555555555555555555555555555555555555555555551'
-  solutionHash: '5555555555555555555555555555555555555555555555555555555555555552'
-  sourceHash: '5555555555555555555555555555555555555555555555555555555555555553'
+  titleHash: ea451a7886ac6216cbb46c087e6077a9d9afd4e0e7279627b7c289bae0861b07
+  solutionHash: 54495e1be28b19f4f70da3f4e583ad1ce73d0fce608b92f2c163b78f7284a516
+  sourceHash: b6fb6e542d889bcbc6623e1b4e39dd6a3b6be695e63fbba90f8bd9a6365cfc78
 draft: false
 ---
-Ошибка VT-x or AMD-V is not available означает, что VirtualBox не получил доступ к аппаратной виртуализации процессора. Причина может быть простой: параметр отключен в BIOS. Но на Windows 10 и 11 чаще виноват Hyper-V или связанные компоненты, которые занимают гипервизор раньше VirtualBox.
+Ошибка `VT-x is not available` или `AMD-V is disabled` означает, что VirtualBox не получил доступ к аппаратной виртуализации процессора. Причина может быть простой: параметр отключен в BIOS. Но на Windows 10 и 11 чаще виноват Hyper-V или связанные компоненты, которые занимают гипервизор раньше VirtualBox.
 
-Не существует универсального правильного режима. Если вам нужен максимальный performance VirtualBox, часто лучше отключить Hyper-V. Если важнее WSL2, Docker Desktop или Windows Sandbox, оставьте Hyper-V включенным и используйте свежий VirtualBox, который умеет работать поверх Windows Hypervisor Platform.
+Не существует универсального правильного режима. Если вам нужен максимальный performance VirtualBox, часто лучше отключить Hyper-V и связанные функции. Если важнее WSL2, Docker Desktop, Windows Sandbox или Android Emulator, оставьте Hyper-V включенным и используйте свежий VirtualBox, который умеет работать поверх Windows Hypervisor Platform.
 
-Зеленая черепаха в VirtualBox обычно означает, что VM работает через Hyper-V backend, а не напрямую через VT-x. Это не всегда ошибка, но может снижать производительность и ломать старые гостевые ОС.
+Зеленая черепаха в VirtualBox обычно означает, что VM работает через Hyper-V backend, а не напрямую через VT-x. Это не всегда ошибка, но может снижать производительность и ломать старые гостевые ОС. Если VM запускается, но работает медленно, проверьте именно этот режим, а не только настройки CPU внутри виртуальной машины.
 
-После изменения BIOS, Hyper-V или Memory Integrity всегда перезагружайте компьютер. Без перезагрузки Windows продолжит использовать старый режим гипервизора.
+После изменения BIOS, Hyper-V или Memory Integrity всегда перезагружайте компьютер. Без перезагрузки Windows продолжит использовать старый режим гипервизора, и VirtualBox будет показывать ту же ошибку даже после правильной настройки.
+
+## Как понять, где проблема
+
+Откройте Task Manager, вкладку CPU, и посмотрите строку Virtualization. Если там Disabled, идите в BIOS/UEFI и включайте Intel Virtualization Technology, VT-x, SVM Mode или AMD-V. Если Enabled, но VirtualBox все равно ругается, аппаратная виртуализация включена, но ее удерживает другой гипервизор.
+
+Команда `systeminfo` помогает увидеть, включены ли требования Hyper-V. Если Windows сообщает, что гипервизор обнаружен, значит Hyper-V, Virtual Machine Platform, Windows Hypervisor Platform, Memory Integrity или Device Guard могут перехватывать VT-x. На корпоративных устройствах эти параметры иногда включены политикой безопасности.
+
+## Hyper-V, WSL2 и Docker Desktop
+
+WSL2 и Docker Desktop зависят от компонентов виртуализации Windows. Если полностью отключить Hyper-V ради VirtualBox, эти инструменты могут перестать запускаться. Поэтому перед отключением решите, что важнее: максимальная совместимость VirtualBox или параллельная работа WSL2/Docker.
+
+Если вам нужны оба сценария, сначала обновите VirtualBox до актуальной версии и попробуйте режим совместимости с Windows Hypervisor Platform. Если конкретная гостевая ОС работает нестабильно, временно отключите Hyper-V через `bcdedit /set hypervisorlaunchtype off`, перезагрузитесь и проверьте VM. Вернуть режим можно командой `bcdedit /set hypervisorlaunchtype auto`.
+
+## BIOS и настройки безопасности
+
+В BIOS параметр виртуализации может называться по-разному: Intel VT-x, Intel Virtualization Technology, AMD SVM, AMD-V или Secure Virtual Machine. На некоторых ноутбуках после обновления BIOS настройка сбрасывается. После включения сохраните изменения, полностью выключите компьютер на несколько секунд и только потом запускайте Windows.
+
+Memory Integrity и VBS находятся уже не в BIOS, а в Windows Security. Они повышают безопасность, но могут удерживать гипервизор. Если вы временно отключаете их для диагностики, зафиксируйте исходное состояние и включите обратно, если VirtualBox больше не нужен или если устройство корпоративное.
 
 ## Что проверить первым
 
-- В Task Manager Virtualization должно быть Enabled.
+- В Task Manager строка Virtualization показывает Enabled.
 - В BIOS включены Intel VT-x или AMD SVM.
-- Hyper-V отключен, если нужен классический VirtualBox.
-- Memory Integrity не удерживает VBS.
+- Hyper-V отключен, если нужен классический VirtualBox без прослойки Windows.
+- Memory Integrity и VBS не удерживают гипервизор.
 - VirtualBox обновлен до актуальной версии.
+- После каждой смены режима выполнена полная перезагрузка Windows.
+- Если нужен Docker Desktop или WSL2, выбран совместимый режим, а не полное отключение Hyper-V.
+
+## Типичные решения по сценариям
+
+- Нужен только VirtualBox: включите VT-x/AMD-V в BIOS и отключите Hyper-V/VBS.
+- Нужны WSL2 и Docker Desktop: оставьте Hyper-V и обновите VirtualBox.
+- Ошибка появилась после BIOS update: проверьте, не сбросился ли SVM или VT-x.
+- На рабочем ПК настройки заблокированы: проверьте политики безопасности перед отключением VBS.

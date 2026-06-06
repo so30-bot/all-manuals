@@ -1,55 +1,73 @@
 ---
-title: "npm ERR! EACCES: как исправить ошибку доступа при установке пакетов"
-category: "Разработка"
+title: 'npm ERR! EACCES: как исправить ошибку доступа при установке пакетов'
+category: Программирование
 tags:
-  - 'npm'
-  - 'Node.js'
-  - 'EACCES'
-  - 'permission denied'
-  - 'пакеты'
+  - npm
+  - Node.js
+  - EACCES
+  - permission denied
+  - пакеты
 description: >-
-  Пошаговое руководство по устранению ошибки npm ERR! EACCES permission denied при установке глобальных пакетов: права доступа, nvm, директория npm.
+  Пошаговое руководство по устранению ошибки npm ERR! EACCES permission denied при установке
+  глобальных пакетов: права доступа, nvm, директория npm.
 symptoms:
-  - 'npm ERR! code EACCES'
-  - 'npm ERR! syscall mkdir'
-  - 'permission denied при npm install -g'
-  - 'Cannot find module после установки'
-  - 'npm update не работает из-за прав доступа'
+  - npm ERR! code EACCES
+  - npm ERR! syscall mkdir
+  - permission denied при npm install -g
+  - Cannot find module после установки
+  - npm update не работает из-за прав доступа
 causes:
-  - 'Неправильные права доступа к директории npm'
-  - 'Использование sudo с npm (не рекомендуется)'
-  - 'Docker-образ запущен от root'
-  - 'Глобальная установка пакетов без прав'
-  - 'Конфликт версий npm'
+  - Неправильные права доступа к директории npm
+  - Использование sudo с npm (не рекомендуется)
+  - Docker-образ запущен от root
+  - Глобальная установка пакетов без прав
+  - Конфликт версий npm
 steps:
   - title: Определите директорию npm
     body: >-
-      Выполните npm config get prefix чтобы увидеть путь к глобальной директории. По умолчанию это /usr/local (Linux/macOS) или %AppData%\npm (Windows). Если путь указывает на /usr, это вызывает проблемы с правами. Неправильно: npm install -g пакет без прав root. Правильно: использовать nvm или изменитьpermissions.
+      Выполните npm config get prefix чтобы увидеть путь к глобальной директории. По умолчанию это
+      /usr/local (Linux/macOS) или %AppData%\npm (Windows). Если путь указывает на /usr, это
+      вызывает проблемы с правами. Неправильно: npm install -g пакет без прав root. Правильно:
+      использовать nvm или изменитьpermissions.
     command: npm config get prefix
     image: null
   - title: Измените права доступа (Linux/macOS)
     body: >-
-      Выполните sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share} для смены владельца директорийnpm. Это безопаснее, чем использовать sudo с npm. После этого глобальные установки будут работать без sudo. Если директория /usr/local, используйте: sudo chown -R $(whoami) /usr/local/lib/node_modules /usr/local/bin.
-    command: sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}
+      Выполните sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share} для
+      смены владельца директорийnpm. Это безопаснее, чем использовать sudo с npm. После этого
+      глобальные установки будут работать без sudo. Если директория /usr/local, используйте: sudo
+      chown -R $(whoami) /usr/local/lib/node_modules /usr/local/bin.
+    command: 'sudo chown -R $(whoami) $(npm config get prefix)/{lib/node_modules,bin,share}'
     image: null
   - title: Установите nvm и переключите версию
     body: >-
-      Лучшее решение — установить nvm (Node Version Manager).curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash. Затем: nvm install --lts и nvm use --lts. Nvm устанавливает Node.js в домашнюю директорию, полностью устраняя проблемы с правами. Все глобальные пакеты будут в ~/.nvm/.
+      Лучшее решение — установить nvm (Node Version Manager).curl -o-
+      https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash. Затем: nvm install
+      --lts и nvm use --lts. Nvm устанавливает Node.js в домашнюю директорию, полностью устраняя
+      проблемы с правами. Все глобальные пакеты будут в ~/.nvm/.
     command: nvm install --lts
     image: null
   - title: Настройтеpréfix для npm
     body: >-
-      Создайте директорию дляnpm пакетов: mkdir -p ~/.npm-global. Настройтеpréfix: npm config set prefix ~/.npm-global. Добавьте в PATH: export PATH=~/.npm-global/bin:$PATH. Добавьте строку в ~/.bashrc или ~/.zshrc для постоянства. Теперь npm install -g пакет будет работать без sudo.
+      Создайте директорию дляnpm пакетов: mkdir -p ~/.npm-global. Настройтеpréfix: npm config set
+      prefix ~/.npm-global. Добавьте в PATH: export PATH=~/.npm-global/bin:$PATH. Добавьте строку в
+      ~/.bashrc или ~/.zshrc для постоянства. Теперь npm install -g пакет будет работать без sudo.
     command: npm config set prefix ~/.npm-global
     image: null
   - title: Исправьте права в Docker
     body: >-
-      Если ошибка в Docker-контейнере, не запускайте npm от root. Используйте USER node в Dockerfile (предварительно создайте пользователя:RUN addgroup -S node && addgroup -S node). Или используйте --user $(id -u):$(id -g) при запуске контейнера. Проверьте текущего пользователя: whoami внутри контейнера.
+      Если ошибка в Docker-контейнере, не запускайте npm от root. Используйте USER node в Dockerfile
+      (предварительно создайте пользователя:RUN addgroup -S node && addgroup -S node). Или
+      используйте --user $(id -u):$(id -g) при запуске контейнера. Проверьте текущего пользователя:
+      whoami внутри контейнера.
     command: whoami
     image: null
   - title: Очистите кеш и переустановите
     body: >-
-      Если проблема сохраняется, очистите кеш npm: npm cache clean --force. Удалите node_modules: rm -rf node_modules. Установите заново: npm install. Проверьтеpackage-lock.json — он не должен содержать абсолютных путей. Для глобальных пакетов: npm ls -g --depth=0 покажет все установленные пакеты.
+      Если проблема сохраняется, очистите кеш npm: npm cache clean --force. Удалите node_modules: rm
+      -rf node_modules. Установите заново: npm install. Проверьтеpackage-lock.json — он не должен
+      содержать абсолютных путей. Для глобальных пакетов: npm ls -g --depth=0 покажет все
+      установленные пакеты.
     command: npm cache clean --force && rm -rf node_modules && npm install
     image: null
 updatedAt: '2026-06-02'
@@ -57,22 +75,22 @@ publishedAt: '2026-06-02'
 readingTime: 6
 popularityScore: 85
 sources:
-  - title: "Fixing npm permissions"
+  - title: Fixing npm permissions
     url: 'https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally'
     accessedAt: '2026-06-02'
-  - title: "npm EACCES error when installing packages globally"
+  - title: npm EACCES error when installing packages globally
     url: 'https://stackoverflow.com/questions/16151068/chown-npm-global'
     accessedAt: '2026-06-02'
-  - title: "Fix npm permission issues on macOS"
+  - title: Fix npm permission issues on macOS
     url: 'https://stackoverflow.com/questions/53511469/npm-eacces-permission-denied-error'
     accessedAt: '2026-06-02'
-  - title: "npm ERR code EACCES"
+  - title: npm ERR code EACCES
     url: 'https://stackoverflow.com/questions/44190626/npm-err-code-eacces'
     accessedAt: '2026-06-02'
 dedupe:
-  titleHash: a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3
-  solutionHash: b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4
-  sourceHash: c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5
+  titleHash: 121821ebaa2a72d6f2892d2c0d96952b8ff6ed258517c37203214d36f3682b40
+  solutionHash: de77a56159807ad7a7832c9730b37c752262c50a2905766400d0807d220174d4
+  sourceHash: d6ae304b44d67661e25d7a8626e93778aa9b0e0e47d7cd8cf071e3f417eeace8
 draft: false
 ---
 Ошибка EACCES (permission denied) возникает, когда npm не может записать файлы в системную директорию. Это типичная проблема Linux/macOS при установке глобальных пакетов без прав root. Решение — не использовать sudo с npm, а настроить nvm или изменить права доступа.
