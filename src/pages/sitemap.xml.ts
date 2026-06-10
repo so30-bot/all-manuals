@@ -4,19 +4,19 @@ import { getSiteUrl } from '@/utils/seo';
 
 export async function GET() {
   const site = getSiteUrl().replace(/\/$/, '');
-  const today = new Date().toISOString().slice(0, 10);
   const articles = (await getCollection('errors')).filter((article) => !article.data.draft);
+  const latestUpdatedAt = getLatestDate(articles.map((article) => article.data.updatedAt));
 
-  const staticPages = ['/', '/errors/', '/about/', '/search/', '/dmca/', '/privacy/', '/terms/'].map((path) => ({
+  const staticPages = ['/', '/errors/', '/updates/', '/about/', '/search/', '/dmca/', '/privacy/', '/terms/'].map((path) => ({
     loc: `${site}${path}`,
-    lastmod: today,
+    lastmod: latestUpdatedAt,
     priority: path === '/' ? '1.0' : '0.6',
     changefreq: path === '/' ? 'daily' : 'monthly'
   }));
 
   const categoryPages = categories.map((category) => ({
     loc: `${site}/categories/${category.slug}/`,
-    lastmod: today,
+    lastmod: latestUpdatedAt,
     priority: '0.7',
     changefreq: 'weekly'
   }));
@@ -53,4 +53,8 @@ function escapeXml(value: string): string {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+function getLatestDate(values: string[]): string {
+  return values.filter(Boolean).sort().at(-1) ?? new Date().toISOString().slice(0, 10);
 }

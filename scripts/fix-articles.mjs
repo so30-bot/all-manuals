@@ -153,15 +153,6 @@ function getTopicFromContent(content, filename) {
   return 'default';
 }
 
-function generateHash() {
-  const chars = '0123456789abcdef';
-  let hash = '';
-  for (let i = 0; i < 64; i++) {
-    hash += chars[Math.floor(Math.random() * 16)];
-  }
-  return hash;
-}
-
 function parseFrontmatter(content) {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
   if (!match) return null;
@@ -200,7 +191,7 @@ function addSourcesToFrontmatter(frontmatter, topic) {
   return frontmatter.replace(/sources:\n([\s\S]*?)(?=\ndedupe:)/, sourcesBlock + '\n');
 }
 
-function addBodyContent(content, title) {
+function addBodyContent(content) {
   const parts = content.split('---');
   if (parts.length < 3) return content;
   
@@ -208,10 +199,6 @@ function addBodyContent(content, title) {
   const existingBody = parts[2].trim();
   
   if (existingBody.length > 200) return content;
-  
-  // Extract title from frontmatter
-  const titleMatch = frontmatter.match(/title:\s*['"](.+?)['"]/);
-  const articleTitle = titleMatch ? titleMatch[1] : title;
   
   const genericBody = `\n\n### Что это за ошибка\n\nОшибка возникает по разным причинам. Следуйте инструкциям ниже для диагностики и устранения проблемы.\n\n### Проверьте журналы ошибок\n\nНачните с проверки системных журналов. ДляLinux: journalctl -xe или dmesg | tail -50. ДляWindows: Просмотр событий (eventvwr.msc). Журналы содержат конкретные коды ошибок и подсказки по решению.\n\n### Обновите систему\n\nУбедитесь, что ваша система обновлена до последней версии. НаLinux: sudo apt update && sudo apt upgrade (Debian/Ubuntu) или sudo dnf update (Fedora). НаWindows: Параметры > Обновление и безопасность > Windows Update. Обновления содержат исправления известных ошибок.\n\n### Проверьте ресурсы\n\nУбедитесь, что хватает места на диске: df -h (Linux) или Проводник > Этот компьютер (Windows). Проверьте оперативную память: free -h (Linux) или Диспетчер задач > Производительность (Windows). Нехватка ресурсов — частая причина сбоев.\n\n### Перезагрузите систему\n\nПерезагрузка решает множество проблем: сброс кеша, перезапуск служб, освобождение памяти. Выполните reboot (Linux) или Перезагрузка (Windows). Если проблема повторяется после перезагрузки, переходите к следующим шагам.\n\n### Ищите решение по коду ошибки\n\nСкопируйте код ошибки из журналов и поищите его на Stack Overflow, Super User или в документации. Укажите версию ОС и контекст для точных результатов. Часто решение уже описано в社区.`;
   
@@ -253,7 +240,7 @@ for (const file of files) {
   
   // Add body if too short
   if (bodyLength < 200) {
-    content = addBodyContent(content, file.replace('.mdx', ''));
+    content = addBodyContent(content);
     fixedBody++;
     modified = true;
   }

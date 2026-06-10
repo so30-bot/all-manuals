@@ -193,7 +193,7 @@ function issueList(type) {
   return commonIssues[type] || commonIssues.software;
 }
 
-function commandFor(slug, product, issue) {
+function commandFor(slug) {
   if (['windows', 'hardware', 'printers', 'audio-video', 'bios-uefi', 'storage'].includes(slug)) {
     return ['Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion', 'sfc /scannow'].join('\n');
   }
@@ -213,13 +213,12 @@ function sourceEntries(sources) {
   }));
 }
 
-function buildArticle({ slug, category, product, issue, index }) {
+function buildArticle({ slug, product, issue, index }) {
   const bp = blueprint[slug];
   const productRu = product.replace(/AC/g, 'кондиционер').replace(/TV/g, 'телевизор');
   const title = `${productRu}: ${issue.ru}`;
   const tags = [...new Set([...bp.tags, product.split(' ')[0], issue.ru.split(' ')[0]])].slice(0, 6);
-  const command = commandFor(slug, product, issue);
-  const fileBase = slugify(`${slug}-${product}-${issue.en}-${index}`);
+  const command = commandFor(slug);
   const description = `Пошаговое руководство: ${title}. Диагностика симптомов, причины, безопасные проверки, восстановление настроек и контроль результата без лишнего риска.`;
   const sources = sourceEntries(bp.sources);
   const solutionText = `${title} ${issue.symptom} ${issue.cause}`;

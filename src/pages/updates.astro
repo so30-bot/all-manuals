@@ -1,0 +1,36 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import ErrorCard from '@/components/ErrorCard.astro';
+
+const articles = (await getCollection('errors'))
+  .filter((article) => !article.data.draft)
+  .sort((a, b) => new Date(b.data.updatedAt).getTime() - new Date(a.data.updatedAt).getTime());
+
+const latestArticles = articles.slice(0, 120);
+---
+
+<BaseLayout
+  title="Новые и обновленные инструкции"
+  description="Свежие и недавно обновленные инструкции All Manuals для быстрого обхода поисковыми системами."
+  path="/updates/"
+>
+  <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <div class="flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600 dark:text-sky-400">Обновления</p>
+        <h1 class="mt-3 text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">Новые и обновленные инструкции</h1>
+        <p class="mt-4 max-w-3xl text-lg leading-8 text-slate-600 dark:text-slate-300">
+          Последние страницы, которые стоит проверить первыми после обновления базы.
+        </p>
+      </div>
+      <a class="focus-ring rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700" href="/feed.xml">
+        RSS
+      </a>
+    </div>
+
+    <div class="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+      {latestArticles.map((article) => <ErrorCard article={article} />)}
+    </div>
+  </section>
+</BaseLayout>

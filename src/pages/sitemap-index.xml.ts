@@ -1,13 +1,15 @@
+import { getCollection } from 'astro:content';
 import { getSiteUrl } from '@/utils/seo';
 
-export function GET() {
+export async function GET() {
   const site = getSiteUrl().replace(/\/$/, '');
-  const today = new Date().toISOString().slice(0, 10);
+  const articles = (await getCollection('errors')).filter((article) => !article.data.draft);
+  const lastmod = getLatestDate(articles.map((article) => article.data.updatedAt));
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>${site}/sitemap.xml</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${lastmod}</lastmod>
   </sitemap>
 </sitemapindex>`;
 
@@ -17,4 +19,8 @@ export function GET() {
       'cache-control': 'public, max-age=3600'
     }
   });
+}
+
+function getLatestDate(values: string[]): string {
+  return values.filter(Boolean).sort().at(-1) ?? new Date().toISOString().slice(0, 10);
 }

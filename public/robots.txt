@@ -4,3 +4,4 @@ Disallow: /*?*
 Allow: /search-index.json
 
 Sitemap: https://all-manuals.ru/sitemap.xml
+Sitemap: https://all-manuals.ru/sitemap-index.xml

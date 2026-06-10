@@ -2,6 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ErrorCard from '@/components/ErrorCard.astro';
+import RecentUpdates from '@/components/RecentUpdates.astro';
 import SearchBox from '@/components/SearchBox.astro';
 import categories from '@/data/categories.json';
 import popularSlugs from '@/data/popular.json';
@@ -18,7 +19,7 @@ const popularArticles = articles
 
 const latestArticles = [...articles]
   .sort((a, b) => new Date(b.data.updatedAt).getTime() - new Date(a.data.updatedAt).getTime())
-  .slice(0, 6);
+  .slice(0, 9);
 ---
 
 <BaseLayout>
@@ -57,10 +58,9 @@ const latestArticles = [...articles]
     </div>
   </section>
 
-  <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
-    <h2 class="text-2xl font-bold tracking-tight text-slate-950 dark:text-white">Последние обновления</h2>
-    <div class="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-      {latestArticles.map((article) => <ErrorCard article={article} />)}
-    </div>
-  </section>
+  <RecentUpdates
+    articles={latestArticles}
+    title="Последние обновления"
+    description="Свежие и недавно исправленные инструкции, которые ботам стоит увидеть первыми."
+  />
 </BaseLayout>

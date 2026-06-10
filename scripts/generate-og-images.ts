@@ -27,7 +27,6 @@ function wrapLines(text: string, maxChars: number): string[] {
 }
 
 function generateSvg(title: string, category: string): string {
-  const escapedTitle = escapeXml(title);
   const escapedCategory = escapeXml(category);
   const lines = wrapLines(title, 40);
   const lineHeight = 56;

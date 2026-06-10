@@ -8,8 +8,9 @@ tags:
   - package.json
   - ENOENT
 description: >-
-  Что делать, если npm показывает ошибку ENOENT и не находит package.json при запуске npm install
-  или npm run.
+  Что делать, если npm показывает ENOENT и не находит package.json при запуске npm install или npm
+  run: как проверить текущий каталог, найти корень проекта, восстановить файл и не запускать команды
+  в неверной папке.
 symptoms:
   - >-
     Команда npm install завершается сообщением enoent ENOENT: no such file or directory, open
@@ -75,7 +76,7 @@ steps:
       git status
       git log -- package.json
     image: null
-updatedAt: '2026-05-27'
+updatedAt: '2026-06-08'
 publishedAt: '2026-05-27'
 readingTime: 4
 popularityScore: 84
@@ -92,7 +93,7 @@ sources:
 dedupe:
   titleHash: 30851f6a16190b36a495a8630aa655cf6b59932a9a28f1e383e34d7b073927c4
   solutionHash: 122bdb0db30ef2a1ce11178e6f8b3b8250ff23bdebe1920aa7294a326ebee8fc
-  sourceHash: 8f266eaec9b5a3b589290422885479b8efb9d110b53d91a7a846fdb7e5e128ff
+  sourceHash: 83c7dcca3e399b47a2cae8cb378f18776995b5e886465b4bf98106bdd461592b
 draft: false
 ---
 Ошибка ENOENT означает, что npm пытается открыть файл, которого нет по указанному пути. В случае `package.json` почти всегда виноват не сам npm, а текущий каталог терминала: команда запущена выше, ниже или рядом с настоящим корнем проекта.

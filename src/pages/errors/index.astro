@@ -2,11 +2,13 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ErrorCard from '@/components/ErrorCard.astro';
+import RecentUpdates from '@/components/RecentUpdates.astro';
 import categories from '@/data/categories.json';
 
 const articles = (await getCollection('errors')).filter((article) => !article.data.draft).sort(
   (a, b) => new Date(b.data.updatedAt).getTime() - new Date(a.data.updatedAt).getTime()
 );
+const recentArticles = articles.slice(0, 9);
 ---
 
 <BaseLayout title="Все ошибки" description="Полный список всех ошибок с решениями на All Manuals." path="/errors/">
@@ -22,6 +24,16 @@ const articles = (await getCollection('errors')).filter((article) => !article.da
           <a href={`/errors/?category=${cat.slug}`} data-category={cat.slug} class="focus-ring cat-pill rounded-full border px-3 py-1.5 text-sm transition border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300 dark:hover:border-slate-700">{cat.name}</a>
         ))}
       </div>
+    </div>
+
+    <div class="-mx-4 mt-8 sm:-mx-6 lg:-mx-8">
+      <RecentUpdates
+        articles={recentArticles}
+        title="Недавно обновлено"
+        description="Короткий список свежих страниц для быстрого обхода перед полным каталогом."
+        ctaHref="/updates/"
+        ctaLabel="Открыть все обновления"
+      />
     </div>
 
     <div id="articles-grid" class="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">

@@ -1,0 +1,48 @@
+---
+import ErrorCard from '@/components/ErrorCard.astro';
+
+type Article = {
+  id: string;
+  data: {
+    title: string;
+    description: string;
+    category: string;
+    tags: string[];
+    updatedAt: string;
+    popularityScore: number;
+  };
+};
+
+type Props = {
+  articles: Article[];
+  title?: string;
+  description?: string;
+  ctaHref?: string;
+  ctaLabel?: string;
+};
+
+const {
+  articles,
+  title = 'Недавно обновлено',
+  description,
+  ctaHref = '/updates/',
+  ctaLabel = 'Все обновления',
+} = Astro.props;
+---
+
+<section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+  <div class="flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h2 class="text-2xl font-bold tracking-tight text-slate-950 dark:text-white">{title}</h2>
+      {description && <p class="mt-2 max-w-2xl text-sm leading-6 text-slate-600 dark:text-slate-400">{description}</p>}
+    </div>
+    {ctaHref && (
+      <a class="focus-ring rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-700" href={ctaHref}>
+        {ctaLabel}
+      </a>
+    )}
+  </div>
+  <div class="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+    {articles.map((article) => <ErrorCard article={article} />)}
+  </div>
+</section>
