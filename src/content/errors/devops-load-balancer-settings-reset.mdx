@@ -8,10 +8,8 @@ tags:
   - load
   - диагностика
 description: >-
-  load balancer сбрасывает настройки после перезапуска: как проверить симптомы, найти вероятную
-  причину и исправить без лишних действий. Материал сфокусирован на CI/CD, Kubernetes, NGINX,
-  systemd, деплой, healthcheck, лог сервиса и rollback, поэтому читатель видит именно проверки по
-  теме, а не общие советы.
+  load balancer: сбрасывает настройки после перезапуска: симптомы, причины и пошаговое исправление
+  без лишней воды. Проверки, безопасные действия и когда нужна поддержка.
 symptoms:
   - 'load balancer: выбранные параметры не сохраняются.'
   - Проблема повторяется после перезапуска или нового запуска рабочего цикла.
@@ -73,9 +71,9 @@ sources:
     url: 'https://docs.nginx.com/nginx/admin-guide/'
     accessedAt: '2026-06-11'
 dedupe:
-  titleHash: 68ded7b92d1473ec
-  solutionHash: 48d6a5ebdacfe796
-  sourceHash: a8a96d1a22e0b4be
+  titleHash: h2b5a3d53a506370d
+  solutionHash: h48d6a5ebdacfe796
+  sourceHash: ha8a96d1a22e0b4be
 draft: false
 ---
 ## Суть проблемы

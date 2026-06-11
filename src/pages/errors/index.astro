@@ -4,14 +4,33 @@ import BaseLayout from '@/layouts/BaseLayout.astro';
 import ErrorCard from '@/components/ErrorCard.astro';
 import RecentUpdates from '@/components/RecentUpdates.astro';
 import categories from '@/data/categories.json';
+import { buildBreadcrumbListSchema, buildCollectionPageSchema } from '@/utils/schema';
 
 const articles = (await getCollection('errors')).filter((article) => !article.data.draft).sort(
   (a, b) => new Date(b.data.updatedAt).getTime() - new Date(a.data.updatedAt).getTime()
 );
 const recentArticles = articles.slice(0, 9);
+const pageTitle = 'Все ошибки';
+const pageDescription = 'Полный каталог All Manuals: ошибки Windows, техники, программ, сети и баз данных. Пошаговые решения, проверки и действия без лишней воды.';
+const jsonLd = [
+  buildCollectionPageSchema({
+    name: pageTitle,
+    description: pageDescription,
+    path: '/errors/',
+    items: articles.slice(0, 100).map((article) => ({
+      name: article.data.title,
+      path: `/errors/${article.id}/`,
+      description: article.data.description
+    }))
+  }),
+  buildBreadcrumbListSchema([
+    { name: 'Главная', path: '/' },
+    { name: pageTitle, path: '/errors/' }
+  ])
+];
 ---
 
-<BaseLayout title="Все ошибки" description="Полный список всех ошибок с решениями на All Manuals." path="/errors/">
+<BaseLayout title={pageTitle} description={pageDescription} path="/errors/" jsonLd={jsonLd}>
   <section class="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
     <div class="flex flex-wrap items-end justify-between gap-4">
       <div>

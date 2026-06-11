@@ -494,10 +494,30 @@ function sentence(value) {
   return value.endsWith('.') ? value : `${value}.`;
 }
 
+function shortenText(value, maxLength) {
+  const clean = value.replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLength) return clean;
+  return `${clean.slice(0, maxLength - 3).replace(/\s+\S*$/, '')}...`;
+}
+
+function buildDescription(title, categoryName) {
+  const topic = shortenText(title.replace(/[.!?:;\-\s]+$/, ''), 64);
+  const base = joinDescriptionLead(topic, 'симптомы, причины и пошаговое исправление без лишней воды. Проверки, безопасные действия и когда нужна поддержка.');
+  if (base.length > 170) {
+    return joinDescriptionLead(shortenText(title.replace(/[.!?:;\-\s]+$/, ''), 55), 'симптомы, причины и пошаговое исправление. Безопасные проверки, действия и когда нужна поддержка.');
+  }
+  if (base.length >= 135) return base;
+  return joinDescriptionLead(topic, `симптомы, причины и пошаговое исправление без лишней воды. Проверки, безопасные действия и поддержка по теме ${shortenText(categoryName, 32)}.`);
+}
+
+function joinDescriptionLead(topic, rest) {
+  return `${topic}${topic.endsWith('...') ? ' ' : ': '}${rest}`;
+}
+
 function buildArticle({ categoryName, categorySlug, profile, topicName, problem, serial }) {
   const [, problemTitle, problemSymptom, problemCause] = problem;
   const title = `${topicName}: ${problemTitle}`;
-  const description = `${topicName} ${problemTitle}: как проверить симптомы, найти вероятную причину и исправить без лишних действий. Материал сфокусирован на ${profile.focus}, поэтому читатель видит именно проверки по теме, а не общие советы.`;
+  const description = buildDescription(title, categoryName);
   const symptoms = [
     `${topicName}: ${problemSymptom}.`,
     `Проблема повторяется после перезапуска или нового запуска рабочего цикла.`,
@@ -597,9 +617,9 @@ ${title} обычно выглядит как один повторяемый с
       popularityScore: 40 + (popularitySeed % 55),
       sources,
       dedupe: {
-        titleHash: hash(titleHashInput),
-        solutionHash: hash(solutionHashInput),
-        sourceHash: hash(sourceHashInput),
+        titleHash: `h${hash(titleHashInput)}`,
+        solutionHash: `h${hash(solutionHashInput)}`,
+        sourceHash: `h${hash(sourceHashInput)}`,
       },
       draft: false,
     },

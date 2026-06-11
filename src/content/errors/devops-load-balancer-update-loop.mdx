@@ -8,10 +8,8 @@ tags:
   - load
   - диагностика
 description: >-
-  load balancer застревает в цикле обновления: как проверить симптомы, найти вероятную причину и
-  исправить без лишних действий. Материал сфокусирован на CI/CD, Kubernetes, NGINX, systemd, деплой,
-  healthcheck, лог сервиса и rollback, поэтому читатель видит именно проверки по теме, а не общие
-  советы.
+  load balancer: застревает в цикле обновления: симптомы, причины и пошаговое исправление без лишней
+  воды. Проверки, безопасные действия и когда нужна поддержка.
 symptoms:
   - 'load balancer: обновление скачивается повторно и не доходит до результата.'
   - Проблема повторяется после перезапуска или нового запуска рабочего цикла.
@@ -73,9 +71,9 @@ sources:
     url: 'https://docs.nginx.com/nginx/admin-guide/'
     accessedAt: '2026-06-11'
 dedupe:
-  titleHash: 3bddecdc6095b274
-  solutionHash: 23d2e34335cdd732
-  sourceHash: a8a96d1a22e0b4be
+  titleHash: hd61bb73d740eaabc
+  solutionHash: h23d2e34335cdd732
+  sourceHash: ha8a96d1a22e0b4be
 draft: false
 ---
 ## Суть проблемы

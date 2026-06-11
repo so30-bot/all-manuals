@@ -1,4 +1,5 @@
 import { absoluteUrl, SITE_NAME } from './seo';
+import { categoryToSlug } from './slug';
 
 type ArticleData = {
   title: string;
@@ -14,6 +15,85 @@ type ArticleData = {
     image?: { src: string; alt: string } | null;
   }>;
 };
+
+type ListSchemaItem = {
+  name: string;
+  path: string;
+  description?: string;
+};
+
+type CollectionPageSchemaInput = {
+  name: string;
+  description: string;
+  path: string;
+  items?: ListSchemaItem[];
+};
+
+export function buildOrganizationSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE_NAME,
+    url: absoluteUrl('/')
+  };
+}
+
+export function buildWebSiteSchema() {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE_NAME,
+    url: absoluteUrl('/'),
+    inLanguage: 'ru-RU',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: `${absoluteUrl('/search/')}?q={search_term_string}`,
+      'query-input': 'required name=search_term_string'
+    }
+  };
+}
+
+export function buildCollectionPageSchema({ name, description, path, items = [] }: CollectionPageSchemaInput) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name,
+    description,
+    url: absoluteUrl(path),
+    inLanguage: 'ru-RU',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: SITE_NAME,
+      url: absoluteUrl('/')
+    },
+    mainEntity: items.length
+      ? {
+          '@type': 'ItemList',
+          numberOfItems: items.length,
+          itemListElement: items.map((item, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.name,
+            url: absoluteUrl(item.path),
+            description: item.description || undefined
+          }))
+        }
+      : undefined
+  };
+}
+
+export function buildBreadcrumbListSchema(items: ListSchemaItem[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.name,
+      item: absoluteUrl(item.path)
+    }))
+  };
+}
 
 export function buildArticleSchema(article: ArticleData) {
   return {
@@ -58,39 +138,9 @@ export function buildHowToSchema(article: ArticleData) {
 }
 
 export function buildBreadcrumbSchema(article: ArticleData) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Главная',
-        item: absoluteUrl('/')
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: article.category,
-        item: absoluteUrl(`/categories/${categorySlug(article.category)}/`)
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: article.title,
-        item: absoluteUrl(`/errors/${article.slug}/`)
-      }
-    ]
-  };
-}
-
-function categorySlug(category: string): string {
-  const known: Record<string, string> = {
-    Windows: 'windows',
-    Linux: 'linux',
-    Игры: 'games',
-    'Веб-разработка': 'web-development'
-  };
-
-  return known[category] || category.toLowerCase().replace(/[^a-z0-9а-яё]+/gi, '-').replace(/^-+|-+$/g, '');
+  return buildBreadcrumbListSchema([
+    { name: 'Главная', path: '/' },
+    { name: article.category, path: `/categories/${categoryToSlug(article.category)}/` },
+    { name: article.title, path: `/errors/${article.slug}/` }
+  ]);
 }

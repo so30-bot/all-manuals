@@ -8,10 +8,8 @@ tags:
   - multi-stage
   - диагностика
 description: >-
-  multi-stage Dockerfile застревает в цикле обновления: как проверить симптомы, найти вероятную
-  причину и исправить без лишних действий. Материал сфокусирован на Docker, контейнер, образ,
-  Compose, volume, сеть bridge, registry, healthcheck и логи контейнера, поэтому читатель видит
-  именно проверки по теме, а не общие советы.
+  multi-stage Dockerfile: застревает в цикле обновления: симптомы, причины и пошаговое исправление
+  без лишней воды. Проверки, безопасные действия и когда нужна поддержка.
 symptoms:
   - 'multi-stage Dockerfile: обновление скачивается повторно и не доходит до результата.'
   - Проблема повторяется после перезапуска или нового запуска рабочего цикла.
@@ -72,9 +70,9 @@ sources:
     url: 'https://kubernetes.io/docs/tasks/debug/debug-application/'
     accessedAt: '2026-06-11'
 dedupe:
-  titleHash: fcd3afebdb08031a
-  solutionHash: c6ec57b4c8977cfa
-  sourceHash: 37917f89274085f7
+  titleHash: h193e4dea624da05c
+  solutionHash: hc6ec57b4c8977cfa
+  sourceHash: h37917f89274085f7
 draft: false
 ---
 ## Суть проблемы

@@ -1,5 +1,5 @@
 export const SITE_NAME = 'All Manuals';
-export const DEFAULT_DESCRIPTION = 'Проверенные инструкции по исправлению компьютерных и программных ошибок без лишней воды.';
+export const DEFAULT_DESCRIPTION = 'Проверенные инструкции All Manuals по исправлению ошибок Windows, программ, техники, сети и баз данных: симптомы, причины и пошаговые решения без лишней воды.';
 
 export function getSiteUrl(): string {
   return import.meta.env.PUBLIC_SITE_URL || 'https://all-manuals.ru';
@@ -14,6 +14,27 @@ export function absoluteUrl(path = '/'): string {
   return `${site}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
+const TITLE_SUFFIX = ` | ${SITE_NAME}`;
+const MAX_TITLE_LENGTH = 75;
+
 export function getPageTitle(title?: string): string {
-  return title ? `${title} | ${SITE_NAME}` : `${SITE_NAME} - решения ошибок компьютеров и программ`;
+  if (!title) return `${SITE_NAME} - решения ошибок компьютеров и программ`;
+
+  const cleanTitle = title.replace(/\s+/g, ' ').trim();
+  const withSuffix = `${cleanTitle}${TITLE_SUFFIX}`;
+
+  if (withSuffix.length <= MAX_TITLE_LENGTH) return withSuffix;
+  if (cleanTitle.length <= MAX_TITLE_LENGTH) return cleanTitle;
+
+  return shortenTitle(cleanTitle, MAX_TITLE_LENGTH);
+}
+
+function shortenTitle(title: string, maxLength: number): string {
+  const shortened = title
+    .slice(0, maxLength - 1)
+    .replace(/\s+\S*$/, '')
+    .replace(/[\s:;,.!?-]+$/, '')
+    .trim();
+
+  return `${shortened || title.slice(0, maxLength - 1).trim()}…`;
 }

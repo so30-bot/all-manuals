@@ -8,8 +8,8 @@ tags:
   - Hyper-V
   - виртуализация
 description: >-
-  Как исправить ошибку VirtualBox VT-x is not available или AMD-V is disabled: BIOS, Hyper-V,
-  Windows Hypervisor Platform, WSL2, Device Guard и настройки VM.
+  VirtualBox VT-x/AMD-V недоступен: как включить... симптомы, причины и пошаговое исправление.
+  Безопасные проверки, действия и когда нужна поддержка.
 symptoms:
   - VirtualBox показывает VT-x is not available
   - Ошибка AMD-V is disabled in the BIOS
@@ -96,9 +96,9 @@ sources:
       https://support.microsoft.com/windows/enable-virtualization-on-windows-c5578302-6e43-4b4b-a449-8ced115f58e1
     accessedAt: '2026-06-04'
 dedupe:
-  titleHash: ea451a7886ac6216cbb46c087e6077a9d9afd4e0e7279627b7c289bae0861b07
-  solutionHash: 54495e1be28b19f4f70da3f4e583ad1ce73d0fce608b92f2c163b78f7284a516
-  sourceHash: b6fb6e542d889bcbc6623e1b4e39dd6a3b6be695e63fbba90f8bd9a6365cfc78
+  titleHash: he8a872fe1e1dc184
+  solutionHash: hf3ce42b04002f65b
+  sourceHash: he2f8296de515163d
 draft: false
 ---
 Ошибка `VT-x is not available` или `AMD-V is disabled` означает, что VirtualBox не получил доступ к аппаратной виртуализации процессора. Причина может быть простой: параметр отключен в BIOS. Но на Windows 10 и 11 чаще виноват Hyper-V или связанные компоненты, которые занимают гипервизор раньше VirtualBox.

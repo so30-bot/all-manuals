@@ -8,10 +8,8 @@ tags:
   - SSH
   - диагностика
 description: >-
-  SSH deploy застревает в цикле обновления: как проверить симптомы, найти вероятную причину и
-  исправить без лишних действий. Материал сфокусирован на CI/CD, Kubernetes, NGINX, systemd, деплой,
-  healthcheck, лог сервиса и rollback, поэтому читатель видит именно проверки по теме, а не общие
-  советы.
+  SSH deploy: застревает в цикле обновления: симптомы, причины и пошаговое исправление без лишней
+  воды. Проверки, безопасные действия и когда нужна поддержка.
 symptoms:
   - 'SSH deploy: обновление скачивается повторно и не доходит до результата.'
   - Проблема повторяется после перезапуска или нового запуска рабочего цикла.
@@ -73,9 +71,9 @@ sources:
     url: 'https://docs.nginx.com/nginx/admin-guide/'
     accessedAt: '2026-06-11'
 dedupe:
-  titleHash: bc6d4cc2cebc422f
-  solutionHash: 493e48689dae7e88
-  sourceHash: a8a96d1a22e0b4be
+  titleHash: h0464027c87edd716
+  solutionHash: h493e48689dae7e88
+  sourceHash: ha8a96d1a22e0b4be
 draft: false
 ---
 ## Суть проблемы

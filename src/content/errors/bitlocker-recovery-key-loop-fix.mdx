@@ -8,8 +8,8 @@ tags:
   - Recovery Key
   - шифрование
 description: >-
-  Почему BitLocker каждый запуск просит ключ восстановления и как исправить цикл recovery key после
-  обновления BIOS, TPM, Secure Boot, изменения загрузки или ремонта Windows.
+  BitLocker постоянно просит recovery key: причины и... симптомы, причины и пошаговое исправление.
+  Безопасные проверки, действия и когда нужна поддержка.
 symptoms:
   - Windows при каждой загрузке просит BitLocker recovery key
   - 'После ввода ключа система загружается, но запрос возвращается снова'
@@ -97,9 +97,9 @@ sources:
       https://support.microsoft.com/windows/find-your-bitlocker-recovery-key-6b71ad27-0b89-ea08-f143-056f5ab347d6
     accessedAt: '2026-06-04'
 dedupe:
-  titleHash: 13e159ba2892ac37243100f4e185dfc9650a8b9155156f4aaef1a4fe4247561c
-  solutionHash: cab73ef87ce0ee9214c1555e6dae299392a112a7475c530bad9e33e592e356dc
-  sourceHash: f4c7e773e990eae6e98498f12a5b67a8bf90d4b4881f073dbebe748dd20ad8a0
+  titleHash: hb04e521e9cf39466
+  solutionHash: h3d9ee5440a9608c0
+  sourceHash: hf7633dbf8f19bbc7
 draft: false
 ---
 BitLocker запрашивает recovery key, когда считает, что загрузочная среда изменилась и автоматическая разблокировка через TPM больше небезопасна. Это может быть нормальной реакцией после обновления BIOS, изменения Secure Boot, сброса TPM или подключения другого загрузочного устройства.

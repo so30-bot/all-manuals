@@ -6,6 +6,8 @@ import RecentUpdates from '@/components/RecentUpdates.astro';
 import SearchBox from '@/components/SearchBox.astro';
 import categories from '@/data/categories.json';
 import popularSlugs from '@/data/popular.json';
+import { buildCollectionPageSchema, buildOrganizationSchema, buildWebSiteSchema } from '@/utils/schema';
+import { DEFAULT_DESCRIPTION } from '@/utils/seo';
 
 const articles = (await getCollection('errors')).filter((article) => !article.data.draft);
 const popularSet = new Set(popularSlugs);
@@ -20,9 +22,24 @@ const popularArticles = articles
 const latestArticles = [...articles]
   .sort((a, b) => new Date(b.data.updatedAt).getTime() - new Date(a.data.updatedAt).getTime())
   .slice(0, 9);
+
+const homeJsonLd = [
+  buildWebSiteSchema(),
+  buildOrganizationSchema(),
+  buildCollectionPageSchema({
+    name: 'All Manuals',
+    description: DEFAULT_DESCRIPTION,
+    path: '/',
+    items: popularArticles.map((article) => ({
+      name: article.data.title,
+      path: `/errors/${article.id}/`,
+      description: article.data.description
+    }))
+  })
+];
 ---
 
-<BaseLayout>
+<BaseLayout description={DEFAULT_DESCRIPTION} jsonLd={homeJsonLd}>
   <section class="mx-auto max-w-6xl px-4 pb-12 pt-14 sm:px-6 sm:pt-20 lg:px-8">
     <div class="mx-auto max-w-4xl text-center">
       <p class="text-sm font-semibold uppercase tracking-[0.24em] text-sky-600 dark:text-sky-400">База решений ошибок</p>

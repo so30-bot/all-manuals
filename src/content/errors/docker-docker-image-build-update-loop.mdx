@@ -7,10 +7,8 @@ tags:
   - контейнеры
   - диагностика
 description: >-
-  Docker image build застревает в цикле обновления: как проверить симптомы, найти вероятную причину
-  и исправить без лишних действий. Материал сфокусирован на Docker, контейнер, образ, Compose,
-  volume, сеть bridge, registry, healthcheck и логи контейнера, поэтому читатель видит именно
-  проверки по теме, а не общие советы.
+  Docker image build: застревает в цикле обновления: симптомы, причины и пошаговое исправление без
+  лишней воды. Проверки, безопасные действия и когда нужна поддержка.
 symptoms:
   - 'Docker image build: обновление скачивается повторно и не доходит до результата.'
   - Проблема повторяется после перезапуска или нового запуска рабочего цикла.
@@ -71,9 +69,9 @@ sources:
     url: 'https://kubernetes.io/docs/tasks/debug/debug-application/'
     accessedAt: '2026-06-11'
 dedupe:
-  titleHash: 5fde75d35a16a96e
-  solutionHash: 65240c90f2e4ff10
-  sourceHash: 37917f89274085f7
+  titleHash: h663c5b7930131544
+  solutionHash: h65240c90f2e4ff10
+  sourceHash: h37917f89274085f7
 draft: false
 ---
 ## Суть проблемы

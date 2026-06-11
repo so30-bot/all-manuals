@@ -8,10 +8,8 @@ tags:
   - multi-stage
   - диагностика
 description: >-
-  multi-stage Dockerfile работает заметно медленнее обычного: как проверить симптомы, найти
-  вероятную причину и исправить без лишних действий. Материал сфокусирован на Docker, контейнер,
-  образ, Compose, volume, сеть bridge, registry, healthcheck и логи контейнера, поэтому читатель
-  видит именно проверки по теме, а не общие советы.
+  multi-stage Dockerfile: работает заметно медленнее... симптомы, причины и пошаговое исправление.
+  Безопасные проверки, действия и когда нужна поддержка.
 symptoms:
   - 'multi-stage Dockerfile: задержки появляются при открытии, сохранении или синхронизации.'
   - Проблема повторяется после перезапуска или нового запуска рабочего цикла.
@@ -72,9 +70,9 @@ sources:
     url: 'https://kubernetes.io/docs/tasks/debug/debug-application/'
     accessedAt: '2026-06-11'
 dedupe:
-  titleHash: 495b404f5f721674
-  solutionHash: 055e45be1f14b30c
-  sourceHash: 37917f89274085f7
+  titleHash: h533fd172c78d632e
+  solutionHash: h055e45be1f14b30c
+  sourceHash: h37917f89274085f7
 draft: false
 ---
 ## Суть проблемы

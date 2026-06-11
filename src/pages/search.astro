@@ -3,11 +3,30 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ErrorCard from '@/components/ErrorCard.astro';
 import SearchBox from '@/components/SearchBox.astro';
+import { buildBreadcrumbListSchema, buildCollectionPageSchema } from '@/utils/schema';
 
 const articles = (await getCollection('errors')).filter((article) => !article.data.draft);
+const pageTitle = 'Поиск решений';
+const pageDescription = 'Поиск All Manuals по кодам ошибок, симптомам, категориям и тегам: быстрый доступ к проверенным инструкциям и пошаговым решениям без лишней воды.';
+const jsonLd = [
+  buildCollectionPageSchema({
+    name: pageTitle,
+    description: pageDescription,
+    path: '/search/',
+    items: articles.slice(0, 50).map((article) => ({
+      name: article.data.title,
+      path: `/errors/${article.id}/`,
+      description: article.data.description
+    }))
+  }),
+  buildBreadcrumbListSchema([
+    { name: 'Главная', path: '/' },
+    { name: pageTitle, path: '/search/' }
+  ])
+];
 ---
 
-<BaseLayout title="Поиск решений" description="Поиск по кодам ошибок, симптомам, категориям и тегам." path="/search/">
+<BaseLayout title={pageTitle} description={pageDescription} path="/search/" jsonLd={jsonLd}>
   <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
     <div class="max-w-3xl">
       <h1 class="text-3xl font-bold tracking-tight text-slate-950 dark:text-white sm:text-5xl">Поиск решений</h1>

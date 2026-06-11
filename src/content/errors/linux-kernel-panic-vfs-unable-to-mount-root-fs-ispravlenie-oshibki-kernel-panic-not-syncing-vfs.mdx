@@ -12,9 +12,8 @@ tags:
   - GRUB
   - boot error
 description: >-
-  Инструкция по устранению критической ошибки ядра Ubuntu, которая возникает после обновления
-  системы и препятствует ее загрузке. Ошибка "Kernel Panic - not syncing: VFS: Unable to mount root
-  fs on unknown-block(0,0)" обыч
+  Исправление ошибки "Kernel Panic - not syncing:... симптомы, причины и пошаговое исправление.
+  Безопасные проверки, действия и когда нужна поддержка.
 symptoms:
   - >-
     Система Ubuntu не загружается после обновления. При загрузке появляется сообщение об ошибке:
@@ -103,9 +102,9 @@ sources:
     url: 'https://askubuntu.com/questions/1253247/how-to-fix-or-remove-a-broken-kernel-ubuntu-20-04'
     accessedAt: '2026-05-30'
 dedupe:
-  titleHash: 9c8b52fb47099708aa83c9df5ed9d23685a55f08d4c6cb205d290d76e78ec679
-  solutionHash: 1c293188266b34cc137587b6982cc79cfc6149bf4686ca7c7ba75430f16d752f
-  sourceHash: 90f6f723a62111c6f643a10b061ee7366d8af8f36ae5c27f23c7b91dbd5cc332
+  titleHash: h5d5b0d059485d425
+  solutionHash: h6ab3d1af6669a4ea
+  sourceHash: h32255c61808ada65
 draft: false
 ---
 Ошибка "Kernel Panic - not syncing: VFS: Unable to mount root fs on unknown-block(0,0)" является одной из самых неприятных проблем, с которыми можно столкнуться в Ubuntu. Чаще всего она возникает после обновления системы, когда новое ядро не может корректно смонтировать корневую файловую систему. Причина кроется в том, что для нового ядра не был создан или был создан некорректно файл начальной файловой системы RAM (initramfs), который необходим для загрузки операционной системы.

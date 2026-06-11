@@ -8,8 +8,8 @@ tags:
   - SFC
   - Windows Update
 description: >-
-  Как исправить ошибку DISM 0x800f081f Source files could not be found: проверка компонентов
-  Windows, локальный ISO, install.wim, SFC и восстановление обновлений.
+  DISM 0x800f081f: исходные файлы не найдены в Windows: симптомы, причины и пошаговое исправление
+  без лишней воды. Проверки, безопасные действия и когда нужна поддержка.
 symptoms:
   - DISM /RestoreHealth завершается ошибкой 0x800f081f
   - Появляется сообщение Source files could not be found
@@ -106,9 +106,9 @@ sources:
       https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/configure-a-windows-repair-source
     accessedAt: '2026-06-04'
 dedupe:
-  titleHash: 4a71ca880df5369fbd991e17ef231ccf39da4bc35d61ca1776379b1182f67b11
-  solutionHash: 5de7a96c9ec190ba339096b2d0a5bad694ef7c8de1d34334ad18c6c726393299
-  sourceHash: edf72435fe49b1e3fe248b93e16551625ab99546e52f89f61ef7e4ce37423236
+  titleHash: h80efb32b71543e62
+  solutionHash: ha16a813127bfb8e8
+  sourceHash: h83a276fc17249e6c
 draft: false
 ---
 Ошибка DISM 0x800f081f означает, что Windows знает, какие компоненты повреждены, но не может найти подходящие файлы для восстановления. В журнале это часто выглядит как `Source files could not be found`: DISM готов чинить компонентное хранилище, но источник восстановления не совпадает с установленной системой или недоступен.

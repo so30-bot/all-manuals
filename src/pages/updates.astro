@@ -2,18 +2,38 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import ErrorCard from '@/components/ErrorCard.astro';
+import { buildBreadcrumbListSchema, buildCollectionPageSchema } from '@/utils/schema';
 
 const articles = (await getCollection('errors'))
   .filter((article) => !article.data.draft)
   .sort((a, b) => new Date(b.data.updatedAt).getTime() - new Date(a.data.updatedAt).getTime());
 
 const latestArticles = articles.slice(0, 120);
+const pageTitle = 'Новые и обновленные инструкции';
+const pageDescription = 'Свежие и недавно обновленные инструкции All Manuals: новые страницы, исправленные решения, RSS-лента и быстрый обход поисковыми системами без лишней воды.';
+const jsonLd = [
+  buildCollectionPageSchema({
+    name: pageTitle,
+    description: pageDescription,
+    path: '/updates/',
+    items: latestArticles.slice(0, 50).map((article) => ({
+      name: article.data.title,
+      path: `/errors/${article.id}/`,
+      description: article.data.description
+    }))
+  }),
+  buildBreadcrumbListSchema([
+    { name: 'Главная', path: '/' },
+    { name: pageTitle, path: '/updates/' }
+  ])
+];
 ---
 
 <BaseLayout
-  title="Новые и обновленные инструкции"
-  description="Свежие и недавно обновленные инструкции All Manuals для быстрого обхода поисковыми системами."
+  title={pageTitle}
+  description={pageDescription}
   path="/updates/"
+  jsonLd={jsonLd}
 >
   <section class="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
     <div class="flex flex-wrap items-end justify-between gap-4">

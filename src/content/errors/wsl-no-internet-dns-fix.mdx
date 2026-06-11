@@ -8,8 +8,8 @@ tags:
   - Linux
   - Сеть
 description: >-
-  Подробное руководство по исправлению проблем WSL, когда Linux-дистрибутив не открывает сайты, apt
-  не обновляется, DNS не резолвит домены или сеть ломается после VPN.
+  WSL нет интернета или не работает DNS: как исправить: симптомы, причины и пошаговое исправление
+  без лишней воды. Проверки, безопасные действия и когда нужна поддержка.
 symptoms:
   - 'В WSL работает ping 8.8.8.8, но не открываются домены'
   - apt update возвращает Temporary failure resolving
@@ -103,9 +103,9 @@ sources:
     url: 'https://manpages.ubuntu.com/manpages/jammy/man5/resolv.conf.5.html'
     accessedAt: '2026-06-04'
 dedupe:
-  titleHash: aacdf761a710d2276ed242c8259c05458907118c538d500e499d18e752e69d98
-  solutionHash: c0c616aaa9c1d0d85b09bff2d08b5a1994ad10c7088065aa470ed46296a4d5fa
-  sourceHash: 6a11a346177c27f9f914cb4271305b6da7fa1d11425ba61f149de4d2315916fd
+  titleHash: h89eeac45f45d6ce7
+  solutionHash: h8ea2c09785c1622b
+  sourceHash: hd33a40e2544ae920
 draft: false
 ---
 В WSL проблемы с интернетом почти всегда делятся на две группы: не работает DNS или не работает сама маршрутизация. Если IP-адреса открываются, а домены нет, не нужно переустанавливать Ubuntu. Достаточно исправить `resolv.conf` или настройки DNS, которые WSL получает от Windows.
